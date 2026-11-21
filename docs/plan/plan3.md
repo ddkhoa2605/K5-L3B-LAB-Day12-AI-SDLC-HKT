@@ -1,7 +1,7 @@
 # PLAN 3 – Người 3 phụ trách `client/ui` (chỉ UI)
 
 > Đặt tại `docs/plan/plan3.md` (không đặt trong `docs/members/`).
-> **Nguồn yêu cầu:** đối chiếu PRD-0 (tab Phase 1 trên lab board, đọc ngày 21/11/2026) và `docs/plan/plan.md` (đã có trên `main` từ #8). Mục 1–7 là kế hoạch Phase 1 (Test Contract v1.0); Phase 2 thêm ở mục 8 (#13). Nếu lệch nhau thì ưu tiên lab board.
+> **Nguồn yêu cầu:** mục 1–7 theo PRD-0 (Phase 1, Test Contract v1.0) và `docs/plan/plan.md` (đã có trên `main` từ #8); **mục 8 theo TICKET-02 (Phase 2, v1.1)**. Cả hai đọc từ lab board ngày 21/11/2026. Phase 3–4 chưa phát hành. Nếu lệch nhau thì ưu tiên lab board.
 
 > **Tình trạng trên `main` (cập nhật 21/11/2026, sau review #10):**
 > - Đã merge #1–#6, #8 và #14. `chonoi.live` đã có `--mode day` (menu, pause, DayIntro/EveningIntro, Shop, Summary), kèm **ADR-0002** của Người 2. Việc UI của Người 3 giờ là **hoàn thiện và kiểm** giao diện đó, không dựng lại (chi tiết ở mục 8 và Phụ lục v1.1 của `ui-interface.md`).
@@ -118,3 +118,52 @@
 - Kịch bản đã kiểm tra; ảnh/video (`docs/proof/phase-n/...`):
 - Vấn đề còn tồn tại:
 - Nội dung đã ghi vào `docs/ai-usage-log.md`:
+
+## 8. Phase 2 — TICKET-02 "Một ngày ở chợ nổi" (Test Contract v1.1, hạn tag `phase-2` lúc 1:55)
+
+Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, HUD sáng/tối) và **AC-P2-07** (`--mode day`, Shop, nâng cấp, `--days`, pause) **cùng Người 4**. `chonoi/day.py` đã có trên `main` (#14, 26 test trong `tests/test_day.py`), nên AC-P2-07 giờ là **kiểm chứng**: Người 4 chạy `cmp` hai lần cùng seed, `--days 5`, ngất → quán kho rỗng với gather thật; Người 3 kiểm giao diện Shop và vòng ngày bằng mắt. Chi tiết trường và màn hình ở phụ lục v1.1 của `docs/contracts/ui-interface.md` (#12), trong đó mỗi mục có nhãn **[T]** (ticket yêu cầu) hoặc **[ĐX]** (đề xuất của Người 3).
+
+**Nguyên tắc:** làm hết [T] trước, cho đạt tag `phase-2`. [ĐX] và phần sáng tạo chỉ làm sau khi lõi đã đúng (TICKET-02 §3). Phạm vi lõi chỉ có Cá Sấu; Rắn Hổ Mây và các mục trong bảng Mở rộng không bắt buộc với nhóm 4 người.
+
+**Cập nhật:** #14 của Người 2 (`--mode day`, Shop, pause, ADR-0002, khung các màn hình) **đã merge vào `main`**. Phần còn lại của Người 3 là đưa giao diện `chonoi/web/index.html` trên `main` đạt [T] (đã review #14), qua một PR thường từ `main`.
+
+### 8.1 Việc theo thứ tự ưu tiên
+
+**Bắt buộc [T]: làm trước, chặn tag `phase-2`**
+1. **Chữ không chân ≥ 18 px ở 1280×720** trên mọi màn hình (`index.html` hiện dùng 10–16 px).
+   - **Kho khả dụng** ở HUD quán: `index.html` đang hiện `stock` (gồm phần khách đã giữ), phải là `stock − Σ reserved`.
+   - **Tiền ca** ở HUD quán: đang hiện tổng `money`, phải là `stats.day.earned` (hoặc `earned` − `earned` đầu pha).
+   - **Giỏ theo loại**: thêm số đếm và tên từng loại.
+2. **HUD sáng:** Máu (theo `hp_max`, 4–5 khi có Áo phao); oxy dưới 25% đổi màu / nhấp nháy; "Hết hơi!" khi oxy cạn; thời gian đổi màu khi ≤ 30 s; độ sâu; giỏ theo loại; **đã lấy / cần**; hồi bắt; gợi ý hái / cập bến khi đến gần; **"Thủy quái!" + viền tím khi có thủy quái gần** (`index.html` hiện chỉ hiện sau khi bị cắn).
+3. **HUD quán:** đồng hồ ca; tiền ca; uy tín; món và kiên nhẫn **tại từng bàn**, đổi màu khi < 25%; tiến độ bếp / trạng thái món chín; món đang cầm; kho khả dụng.
+4. **Các màn hình** (khung đã có ở #14, kiểm đủ nội dung): Menu chính (Chơi, Thoát) → DayIntro (Ngày, danh sách Má Tư đọc, tự chuyển sau 4 s hoặc khi nhấn phím) → EveningIntro (số lượng nhập kho, món nấu được) → DayResult (khách phục vụ / bỏ đi, tiền, boa, thay đổi uy tín) → Shop (Bình oxy, Áo phao; đóng sớm được, tự đóng khi hết giờ) → Summary sau Ngày 5 (tổng tiền, tổng điểm, uy tín, món bán chạy).
+5. **Pause:** Esc/P; menu làm mờ nền, có Tiếp tục và Về menu; dừng đồng hồ và mọi timer gameplay, kể cả trong Shop.
+6. **≥ 30 FPS trung bình ở 1280×720**, có số đo. Ảnh chụp và số đo lưu vào `docs/proof/phase-2/`.
+
+**Đề xuất [ĐX]: chỉ làm khi hết [T]**
+7. Thước độ sâu tô 3 vùng; phiếu order T1–T4 cố định trên màn hình; mũi tên chỉ quái ngoài khung nhìn; nhân vật nhấp nháy khi bất tử; phím 1/2/Enter trong Shop; bộ đếm FPS bật bằng phím.
+
+**Sáng tạo: sau cùng, không chặn tag, phải tắt ở headless**
+8. Nâng demo `client/demo/ui-3d-demo.html` lên v1.1: cá kèo, Cá Sấu Năm Chèo, ghe cây bẹo cho Shop, 4 bàn. Muốn đưa thành client thật thì cần **ADR-0003** (route tĩnh, vendor `three.module.min.js` kèm LICENSE thay cho CDN).
+
+### 8.2 Nhịp theo TICKET-02 §5
+| Phút | Việc của Người 3 |
+|---|---|
+| 0–5 | Chốt giao diện chuyển pha; chia việc AC-P2-07 với Người 4 |
+| 5–20 | Chữ ≥ 18 px; HUD sáng v1.1 [T] trên `main` |
+| 20 | Báo tiến độ UI ở standup (Người 2 điều phối); chơi thử HUD trên bản tích hợp |
+| 20–35 | HUD quán v1.1 [T]; kiểm nội dung Shop, Pause, DayResult, Summary |
+| 35–45 | Chơi thử trọn 1 Ngày và nhiều Ngày (kiểm cấp nâng cấp có hiệu lực từ Ngày sau); chụp 1280×720; đo FPS; cùng Người 4 điền `docs/verification/phase-2.md` |
+| 45–50 | Góp ý retro phần UI (Người 2 điều phối, AC-P2-10) |
+| 50–55 | Dự phòng; Người 2 gắn `phase-2` chậm nhất 1:55 |
+
+### 8.3 Tiêu chí nghiệm thu Phase 2 (phần Người 3)
+- [ ] Chơi trọn vòng ngày có menu, pause và HUD; DayIntro công bố đúng kế hoạch D1–D5.
+- [ ] HUD sáng/tối có đủ mọi thành phần **[T]** của ticket; chữ ≥ 18 px ở 1280×720 (có ảnh); ≥ 30 FPS (có số đo).
+- [ ] Shop mua đúng: trừ `money`, giữ `earned`; cấp hiển thị ngay, có hiệu lực từ Ngày kế; `buy_failed` khi không đủ tiền hoặc đã tối đa.
+- [ ] Thay đổi giao diện không đụng headless: Người 4 `cmp` output trước/sau.
+- [ ] Ghi phần AI đã dùng cho UI vào `docs/ai-usage-log.md`.
+
+### 8.4 Rủi ro
+- **Gather v1.1 chưa có** trên `main` (cá bơi/sinh, Cá Sấu `monsters[]`, nút N5/N6, của Người 1). Vòng ngày hiện chỉ kiểm được với gather v1.0 (#8). "Thủy quái!" và viền tím chưa kiểm bằng mắt được cho tới khi có `monsters[]`; ghi trung thực trong verification.
+- Sửa `chonoi/web/index.html` (file khung, đã có ADR-0002): báo Người 2 trước để không sửa cùng lúc.
