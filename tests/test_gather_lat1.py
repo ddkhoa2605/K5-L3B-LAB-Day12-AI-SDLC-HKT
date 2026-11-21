@@ -120,18 +120,24 @@ class Choke(unittest.TestCase):
 class Faint(unittest.TestCase):
     def test_faint_drops_hold_lifo_and_ends_with_empty_inventory(self):
         s = Session("gather", TUNING, {"player": {"pos": DEEP, "oxygen_ticks": 0, "hp": 1},
-                                        "hold": ["ca_loc", "bong_sung", "ca_linh"],
+                                        "hold": [{"id": "I1", "kind": "ca_loc", "fresh": 100},
+                                                 {"id": "I2", "kind": "bong_sung", "fresh": 100},
+                                                 {"id": "I3", "kind": "ca_linh", "fresh": 100}],
                                         "random_fish": False}, 1)
         evs = run(s, CHOKE)
         self.assertTrue(s.done)
         self.assertEqual(s.sim.reason, "fainted")
         self.assertEqual(names(evs)[-3:], ["choke", "faint", "gather_end"])
         faint = [e for e in evs if e["name"] == "faint"][0]["data"]
-        self.assertEqual(faint, {"cause": "choke", "lost": ["ca_linh", "bong_sung", "ca_loc"], "hp": 0})
+        # v1.2: `lost` là mảng cá thể theo LIFO (vào giỏ sau bỏ trước); 60 bước hao 120 đơn vị = 0.5 điểm
+        fresh = (24000 - CHOKE * 2) / 240
+        self.assertEqual(faint, {"cause": "choke", "hp": 0, "lost": [
+            {"id": "I3", "kind": "ca_linh", "fresh": fresh}, {"id": "I2", "kind": "bong_sung", "fresh": fresh},
+            {"id": "I1", "kind": "ca_loc", "fresh": fresh}]})
         end = evs[-1]["data"]
-        self.assertEqual(end, {"reason": "fainted", "inventory": {"items": {}}})
+        self.assertEqual(end, {"reason": "fainted", "inventory": {"items": []}})
         self.assertEqual(s.sim.hold, [])
-        self.assertEqual(s.sim.inventory_items(), {})
+        self.assertEqual(s.sim.inventory_items(), [])
 
     def test_three_chokes_needed_from_full_hp(self):
         s = sess(oxygen_ticks=0)

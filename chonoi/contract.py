@@ -4,12 +4,13 @@ import json
 import os
 
 from .errors import BadInput
+from .freshness import Rates
 
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "game.contract.json")
 
 
 # Mở rộng đã cài luật (TICKET-02 mục 3). Khai mã ở `extensions` tại gốc manifest khi bật.
-KNOWN_EXTENSIONS = {"burn"}
+KNOWN_EXTENSIONS = {"burn", "reservations"}
 
 
 def _num(v):
@@ -93,27 +94,58 @@ def _validate_gather(g):
         if not isinstance(n, dict) or not isinstance(n.get("id"), str) or n["id"] in seen:
             raise BadInput("tuning.gather.nodes: mỗi nút cần id duy nhất")
         seen.add(n["id"])
-        if n.get("kind") not in ("bong_dien_dien", "bong_sung"):
-            raise BadInput(f"tuning.gather.nodes.{n['id']}: kind phải là bong_dien_dien hoặc bong_sung")
+        if n.get("kind") not in ("bong_dien_dien", "bong_sung", "keo_neo"):
+            raise BadInput(f"tuning.gather.nodes.{n['id']}: kind phải là bong_dien_dien, bong_sung hoặc keo_neo")
         kinds.add(n["kind"])
         _pos_in(f"gather.nodes.{n['id']}.pos", n.get("pos"), b, ("x", "d"))
         if n["pos"][1] != 0:
             raise BadInput(f"tuning.gather.nodes.{n['id']}: nút hái nằm ở mặt nước (d = 0)")
-    if kinds != {"bong_dien_dien", "bong_sung"}:
+    if not {"bong_dien_dien", "bong_sung"} <= kinds:
         raise BadInput("tuning.gather.nodes phải có ít nhất một nút mỗi loại (bong_dien_dien, bong_sung)")
     fish = g.get("fish_initial")
-    if not isinstance(fish, list) or len(fish) != 6:
-        raise BadInput("tuning.gather.fish_initial phải là danh sách đúng 6 đàn")
-    seen = set()
-    for f in fish:
-        if not isinstance(f, dict) or not isinstance(f.get("id"), str) or f["id"] in seen:
-            raise BadInput("tuning.gather.fish_initial: mỗi đàn cần id duy nhất")
-        seen.add(f["id"])
-        if f.get("kind") not in fy:
-            raise BadInput(f"tuning.gather.fish_initial.{f['id']}: kind phải thuộc fish_yield")
-        _pos_in(f"gather.fish_initial.{f['id']}.pos", f.get("pos"), b, ("x", "d"))
-        if f["pos"][1] <= g["surface_depth"]:
-            raise BadInput(f"tuning.gather.fish_initial.{f['id']}: đàn cá phải ở dưới nước")
+    if isinstance(fish, int):
+        _int_between("gather.fish_initial", fish, 1, 30)
+    elif isinstance(fish, list):
+        if len(fish) < 1:
+            raise BadInput("tuning.gather.fish_initial phải là danh sách không rỗng")
+        seen = set()
+        for f in fish:
+            if not isinstance(f, dict) or not isinstance(f.get("id"), str) or f["id"] in seen:
+                raise BadInput("tuning.gather.fish_initial: mỗi đàn cần id duy nhất")
+            seen.add(f["id"])
+            if f.get("kind") not in fy:
+                raise BadInput(f"tuning.gather.fish_initial.{f['id']}: kind phải thuộc fish_yield")
+            _pos_in(f"gather.fish_initial.{f['id']}.pos", f.get("pos"), b, ("x", "d"))
+            if f["pos"][1] <= g["surface_depth"]:
+                raise BadInput(f"tuning.gather.fish_initial.{f['id']}: đàn cá phải ở dưới nước")
+    else:
+        raise BadInput("tuning.gather.fish_initial phải là số hoặc danh sách")
+
+
+def _validate_freshness(fr):
+    """Contract v1.2: khối tuning.freshness {initial, gather_decay_per_s, quan_decay_per_s, spoiled_below}."""
+    if not isinstance(fr, dict):
+        raise BadInput("thiếu khối tuning.freshness (contract v1.2)")
+    _between("freshness.initial", fr.get("initial"), 1, 100)
+    _between("freshness.gather_decay_per_s", fr.get("gather_decay_per_s"), 0, 100)
+    _between("freshness.quan_decay_per_s", fr.get("quan_decay_per_s"), 0, 100)
+    _between("freshness.spoiled_below", fr.get("spoiled_below"), 0, fr["initial"])
+    Rates(fr)  # hệ số phải quy ra số nguyên đơn vị/tick, nếu không -> BadInput
+
+
+def _validate_reservations(r, extensions):
+    """Mở rộng Khách đặt trước: khối `tuning.reservations` có <=> khai extensions `reservations`."""
+    if "reservations" not in extensions:
+        if r is not None:
+            raise BadInput("tuning.reservations chỉ hợp lệ khi extensions có \"reservations\"")
+        return
+    if not isinstance(r, dict):
+        raise BadInput("extensions có reservations thì cần khối tuning.reservations")
+    _int_between("reservations.count", r.get("count"), 1, 4)
+    _between("reservations.table_hold_s", r.get("table_hold_s"), 1, 600)
+    _between("reservations.price_multiplier", r.get("price_multiplier"), 1, 10)
+    if not (_num(r.get("failed_reputation_delta")) and r["failed_reputation_delta"] < 0):
+        raise BadInput("reservations.failed_reputation_delta phải là số âm")
 
 
 def validate_tuning(t, extensions=()):
@@ -148,6 +180,8 @@ def validate_tuning(t, extensions=()):
     elif "burn" in extensions:
         raise BadInput("extensions có burn thì quan.burn_s phải hữu hạn")
     # TODO(nhóm): bổ sung kiểm các khóa còn lại nếu muốn chặt hơn (bếp/bàn, uy tín, ...).
+    _validate_freshness(t.get("freshness"))
+    _validate_reservations(t.get("reservations"), extensions)
     for dish_id, d in menu.items():
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:

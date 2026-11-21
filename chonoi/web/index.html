@@ -428,6 +428,7 @@ function hudGatherExtra(w, h) {
     const have = countBy(items(snap.hold).filter((it) => !isSpoiled(it)));   // hàng ươn không nấu được nên không tính
     const parts = Object.keys(need).sort().map((k) => `${KIND_NAME[k] || k} ${Math.min(have[k] || 0, need[k])}/${need[k]}`);
     text("Đã lấy/cần: " + parts.join(" · "), 14, 84, { color: "#ffe9a8" });
+    if (snap.reservations && snap.reservations.length) text("Đặt trước: " + snap.reservations.map((r) => `${r.id} ${r.table_id} ${dn(r.dish_id)} lúc ${fmtTime(r.arrival_tick)}`).join(" · "), 14, 112, { color: "#0b3d6b" });
   }
   if (p.pos) text(`Sâu ${Math.max(0, p.pos[1]).toFixed(1)} m`, 14, 56, { color: "#cfe3ee" });
   const nodes = snap.nodes || [];

@@ -27,5 +27,5 @@
 
 ## Skills / hooks của nhóm
 - `pr-checklist` (`.agents/skills/pr-checklist/SKILL.md`, Người 2): dùng **trước khi mở PR** (tác giả) và **trước khi merge** (reviewer) để soát Closes #, phạm vi ≤ ~400 dòng, AC, hard-code/RNG/tất định, hợp đồng, test và nhận xét theo dòng.
-- `determinism-check` (Người 4): **chưa có** — sẽ thêm ở `.agents/skills/determinism-check/`; dùng để chạy headless hai lần cùng seed rồi `cmp` cho cả `gather` và `quan`.
+- `determinism-check` (`.agents/skills/determinism-check/SKILL.md`, Người 4): chạy headless hai lần cùng seed rồi so SHA256/`cmp` cho `gather` và `quan` (`python3 tools/check_determinism.py --mode gather|quan`); dùng sau mỗi PR merge vào `main` và trước mỗi tag.
 - Hợp đồng tích hợp của nhóm: `docs/contracts/contract.md` (khóa, đổi cần 2 approvals).
