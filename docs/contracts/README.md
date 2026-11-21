@@ -5,4 +5,6 @@
 2. **Giao diện giữa `sim/*` và `client/ui`** — trạng thái nào UI được đọc, lệnh nào UI gửi vào.
 3. **Danh sách sự kiện** — tên, `data`, ai phát, ai nghe (gather: `gather`, `node_regrown`, `hold_full`, `fish_caught`, `gather_end`...; quan: theo mục E của PRD-0).
 
+**Bản đã chốt của nhóm: [`contract.md`](contract.md)** (3 mục trên) + [`inventory.sample.json`](inventory.sample.json).
+
 Khi đổi hợp đồng sau này: báo cả nhóm và ghi lại lý do (ADR hoặc ghi chú, tùy chọn).

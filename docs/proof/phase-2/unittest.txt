@@ -1,0 +1,82 @@
+test_gather_hold_nhan_kind_moi (test_inventory_kinds.InventoryKinds.test_gather_hold_nhan_kind_moi) ... ok
+test_kind_la_van_bi_tu_choi (test_inventory_kinds.InventoryKinds.test_kind_la_van_bi_tu_choi) ... ok
+test_kind_moi_hop_le (test_inventory_kinds.InventoryKinds.test_kind_moi_hop_le) ... ok
+test_state_input_and_clean_stop (test_live.LiveServerTest.test_state_input_and_clean_stop) ... ok
+test_bad_frames_raise (test_python_starter_units.Units.test_bad_frames_raise) ... ok
+test_catch_is_a_v10_button_and_attack_is_not (test_python_starter_units.Units.test_catch_is_a_v10_button_and_attack_is_not) ... ok
+test_id_allocator_continues_after_max (test_python_starter_units.Units.test_id_allocator_continues_after_max) ... ok
+test_id_sorting (test_python_starter_units.Units.test_id_sorting) ... ok
+test_input_edges_and_inherit (test_python_starter_units.Units.test_input_edges_and_inherit) ... ok
+test_live_inputs_keep_fast_tap_edge (test_python_starter_units.Units.test_live_inputs_keep_fast_tap_edge) ... ok
+test_session_steps_gather_and_dock (test_python_starter_units.Units.test_session_steps_gather_and_dock) ... ok
+test_khach_dau_tien_dung_lich_va_giu_cho (test_quan.Arrival.test_khach_dau_tien_dung_lich_va_giu_cho) ... ok
+test_khong_con_ban_bo_luot (test_quan.Arrival.test_khong_con_ban_bo_luot) ... ok
+test_khong_du_nguyen_lieu_no_dish (test_quan.Arrival.test_khong_du_nguyen_lieu_no_dish) ... ok
+test_random_customers_false_tat_khach_tu_sinh (test_quan.Arrival.test_random_customers_false_tat_khach_tu_sinh) ... ok
+test_bep_nhan_don_cu_nhat_tieu_nguyen_lieu (test_quan.Cooking.test_bep_nhan_don_cu_nhat_tieu_nguyen_lieu) ... ok
+test_lay_mon_khi_tay_trong (test_quan.Cooking.test_lay_mon_khi_tay_trong) ... ok
+test_mon_chin_dung_tick (test_quan.Cooking.test_mon_chin_dung_tick) ... ok
+test_ready_ticks_chi_tang_tu_dau_buoc (test_quan.Cooking.test_ready_ticks_chi_tang_tu_dau_buoc) ... ok
+test_cung_seed_cung_byte (test_quan.Determinism.test_cung_seed_cung_byte) ... ok
+test_seed_khac_co_the_chon_mon_khac (test_quan.Determinism.test_seed_khac_co_the_chon_mon_khac) ... ok
+test_het_ca_don_ban_khong_tru_uy_tin (test_quan.Payment.test_het_ca_don_ban_khong_tru_uy_tin) ... ok
+test_het_ca_khach_dang_an_tra_ngay (test_quan.Payment.test_het_ca_khach_dang_an_tra_ngay) ... ok
+test_het_kien_nhan_roi_va_tru_uy_tin (test_quan.Payment.test_het_kien_nhan_roi_va_tru_uy_tin) ... ok
+test_khach_roi_bo_mon_dang_nau (test_quan.Payment.test_khach_roi_bo_mon_dang_nau) ... ok
+test_tra_tien_boa_va_uy_tin (test_quan.Payment.test_tra_tien_boa_va_uy_tin) ... ok
+test_kho_inventory_thieu_cho_giu_exit_2 (test_quan.ScenarioContradictions.test_kho_inventory_thieu_cho_giu_exit_2) ... ok
+test_mau_thuan_exit_2 (test_quan.ScenarioContradictions.test_mau_thuan_exit_2) ... ok
+test_boa_khi_con_du_kien_nhan (test_quan.Serving.test_boa_khi_con_du_kien_nhan) ... ok
+test_hai_khach_cung_ban_exit_2 (test_quan.Serving.test_hai_khach_cung_ban_exit_2) ... ok
+test_khong_boa_khi_kien_nhan_thap (test_quan.Serving.test_khong_boa_khi_kien_nhan_thap) ... ok
+test_phuc_vu_dung_tick_kien_nhan_ve_0_van_hop_le (test_quan.Serving.test_phuc_vu_dung_tick_kien_nhan_ve_0_van_hop_le) ... ok
+test_contract_v11_bep_ban_mon (test_quan_p2.Data.test_contract_v11_bep_ban_mon) ... ok
+test_day_plan_ingredients_tu_choi_mon_la (test_quan_p2.Data.test_day_plan_ingredients_tu_choi_mon_la) ... ok
+test_day_plan_khop_bang_ticket (test_quan_p2.Data.test_day_plan_khop_bang_ticket) ... ok
+test_allowed_dishes_loc_khach_theo_ke_hoach (test_quan_p2.DayHooks.test_allowed_dishes_loc_khach_theo_ke_hoach) ... ok
+test_ke_hoach_co_mon_la_la_mau_thuan (test_quan_p2.DayHooks.test_ke_hoach_co_mon_la_la_mau_thuan) ... ok
+test_khach_fixture_ngoai_ke_hoach_la_mau_thuan (test_quan_p2.DayHooks.test_khach_fixture_ngoai_ke_hoach_la_mau_thuan) ... ok
+test_mon_trong_ke_hoach_thieu_nguyen_lieu_thi_no_dish (test_quan_p2.DayHooks.test_mon_trong_ke_hoach_thieu_nguyen_lieu_thi_no_dish) ... ok
+test_thu_tien_cong_don_vao_so_du_xuyen_ngay (test_quan_p2.DayHooks.test_thu_tien_cong_don_vao_so_du_xuyen_ngay) ... ok
+test_tien_earned_uy_tin_giu_qua_ngay (test_quan_p2.DayHooks.test_tien_earned_uy_tin_giu_qua_ngay) ... ok
+test_bep_dang_nau_thi_interact_lai_bo_luot (test_quan_p2.Kitchen.test_bep_dang_nau_thi_interact_lai_bo_luot) ... ok
+test_hoa_khoang_cach_chon_bep_id_nho_va_don_cu_nhat (test_quan_p2.Kitchen.test_hoa_khoang_cach_chon_bep_id_nho_va_don_cu_nhat)
+\u0110\u1ee9ng cách B1 và B2 \u0111úng 1.5 m: hòa kho\u1ea3ng cách \u2192 B1; b\u1ebfp nh\u1eadn \u0111\u01a1n reserved c\u0169 nh\u1ea5t. ... ok
+test_lau_mam_items_theo_kind (test_quan_p2.Kitchen.test_lau_mam_items_theo_kind) ... ok
+test_ca_day_du_p1_van_dung_voi_so_chuan_v11 (test_quan_p2.Regression.test_ca_day_du_p1_van_dung_voi_so_chuan_v11)
+M\u1ed9t khách nh\u01b0 Phase 1 v\u1eabn cho ti\u1ec1n món + boa = 72 và uy tín +0.2 (\u0111i\u1ec3m 372). ... ok
+test_lich_khach_120_cong_900k_vao_ghe_nho_nhat (test_quan_p2.Schedule.test_lich_khach_120_cong_900k_vao_ghe_nho_nhat) ... ok
+test_snapshot_tick0_co_2_bep_4_ban (test_quan_p2.Schedule.test_snapshot_tick0_co_2_bep_4_ban) ... ok
+test_con_01_ticks_zero_and_end_line (test_smoke_p1.Contract.test_con_01_ticks_zero_and_end_line) ... ok
+test_con_02_deterministic_bytes (test_smoke_p1.Contract.test_con_02_deterministic_bytes) ... ok
+test_con_03_bad_input_exit_2 (test_smoke_p1.Contract.test_con_03_bad_input_exit_2) ... ok
+test_con_03_old_and_future_modes_rejected (test_smoke_p1.Contract.test_con_03_old_and_future_modes_rejected) ... ok
+test_gather_snapshot_has_gather_fields (test_smoke_p1.Contract.test_gather_snapshot_has_gather_fields) ... ok
+test_scenario_out_of_domain_exit_2 (test_smoke_p1.Contract.test_scenario_out_of_domain_exit_2) ... ok
+test_inv_01_gather_writes_inventory_quan_reads_it (test_smoke_p1.Integration.test_inv_01_gather_writes_inventory_quan_reads_it)
+Ví d\u1ee5 smoke test trong PRD-0 m\u1ee5c G: c\u1eadp b\u1ebfn \u1edf tick 0, quán \u0111\u1ecdc kho \u0111úng n\u1ed9i dung. ... ok
+test_inv_01_not_written_when_tick_limit_first (test_smoke_p1.Integration.test_inv_01_not_written_when_tick_limit_first) ... ok
+test_inv_bad_schema_exit_2 (test_smoke_p1.Integration.test_inv_bad_schema_exit_2) ... ok
+test_inventory_and_scenario_stock_conflict (test_smoke_p1.Integration.test_inventory_and_scenario_stock_conflict) ... ok
+test_inventory_flags_mode_mismatch_exit_2 (test_smoke_p1.Integration.test_inventory_flags_mode_mismatch_exit_2) ... ok
+test_move_01_swim_speed_after_ramp (test_smoke_p1.Movement.test_move_01_swim_speed_after_ramp)
+B\u1ecf 6 tick t\u0103ng t\u1ed1c r\u1ed3i \u0111o 60 tick: quãng \u2248 swim_speed × 1 s (±0.1). Ngang, xu\u1ed1ng, chéo (không nhanh h\u01a1n). ... ok
+test_move_02_heading_positive_is_down (test_smoke_p1.Movement.test_move_02_heading_positive_is_down) ... ok
+test_move_03_edge_clamp (test_smoke_p1.Movement.test_move_03_edge_clamp)
+Ch\u1eb7n t\u1eebng mép c\u1ee7a vùng n\u01b0\u1edbc, k\u1ec3 c\u1ea3 d không âm (không bay lên kh\u1ecfi m\u1eb7t n\u01b0\u1edbc) và \u0111áy d = 30. ... ok
+test_move_mep_vel_ve_0 (test_smoke_p1.Movement.test_move_mep_vel_ve_0) ... ok
+test_move_ramp_doi_huong_trong_tran (test_smoke_p1.Movement.test_move_ramp_doi_huong_trong_tran)
+\u0110\u1ea3o t\u1eeb +speed sang -speed: v\u1eadn t\u1ed1c ch\u1ea1m m\u1ee5c tiêu sau t\u1ed1i \u0111a ramp_max_ticks tick k\u1ec3 t\u1eeb lúc \u0111\u1ed5i input. ... ok
+test_time_ends_gather_and_keeps_hold (test_smoke_p1.Movement.test_time_ends_gather_and_keeps_hold) ... ok
+test_khoi_sai_mode_exit_2 (test_smoke_p1.ScenarioModes.test_khoi_sai_mode_exit_2) ... ok
+test_quan_fixture_khong_hop_le_exit_2 (test_smoke_p1.ScenarioModes.test_quan_fixture_khong_hop_le_exit_2) ... ok
+test_quan_player_vel_hop_le (test_smoke_p1.ScenarioModes.test_quan_player_vel_hop_le) ... ok
+test_good (test_team_check.TeamCheck.test_good) ... ok
+test_template_is_rejected (test_team_check.TeamCheck.test_template_is_rejected) ... ok
+test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
+test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
+
+----------------------------------------------------------------------
+Ran 71 tests in 13.491s
+
+OK

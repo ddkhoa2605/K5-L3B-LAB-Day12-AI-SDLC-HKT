@@ -1,0 +1,17 @@
+exit=0
+exit=0
+CMP_OK
+1314
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"day_start","data":{}}
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"day_plan","data":{"dishes":{"ca_loc_nuong_trui":3,"goi_bong_sung":3},"ingredients":{"bong_sung":6,"ca_loc":3}}}
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"phase_start","data":{}}
+{"type":"event","tick":1,"phase":"gather","day":1,"name":"gather_end","data":{"reason":"docked","inventory":{"items":{"bong_sung":2,"ca_loc":1}}}}
+{"type":"event","tick":1,"phase":"quan","day":1,"name":"phase_start","data":{}}
+{"type":"event","tick":10801,"phase":"quan","day":1,"name":"quan_end","data":{"reason":"time","money":300,"earned":300,"shift_earned":0,"reputation":3.0}}
+{"type":"event","tick":10801,"phase":"shop","day":1,"name":"phase_start","data":{}}
+{"type":"event","tick":10804,"phase":"shop","day":1,"name":"bought","data":{"upgrade":"oxygen","level":1,"price":200,"money":100}}
+{"type":"event","tick":10804,"phase":"shop","day":1,"name":"shop_end","data":{"reason":"done"}}
+{"type":"event","tick":10804,"phase":"gather","day":2,"name":"day_start","data":{}}
+{"type":"event","tick":10804,"phase":"gather","day":2,"name":"day_plan","data":{"dishes":{"ca_loc_nuong_trui":2,"lau_ca_linh_dien_dien":2},"ingredients":{"bong_dien_dien"
+{"type":"event","tick":10804,"phase":"gather","day":2,"name":"phase_start","data":{}}
+{"type":"end","ticks":13000,"sim_tick":13000,"mode":"day","state":"playing","reason":"tick_limit","money":100,"earned":300,"reputation":3.0,"score":600,"days_completed":1}
