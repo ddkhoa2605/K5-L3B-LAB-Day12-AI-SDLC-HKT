@@ -11,9 +11,10 @@
 - 1 hành động cho Phase 4 (cần người nhận): Người 3 làm HUD độ tươi + hai đơn đặt trước; Người 1 duyệt commit adapter rồi rebase gather v1.1; Người 2 viết mọi lệnh shell có `$`/backtick bằng file thay vì heredoc không nháy.
 
 ## Phase 4 (cuối)
-- Rà lại hành động Phase 2: Đã làm triệt để: `TEAM.md` đầy đủ 4 thành viên, PR được review và merge theo đúng quy trình, Gather v1.1 và v1.2 đã tích hợp hoàn hảo vào chế độ `day`.
-- Điều tốt: Toàn bộ 245 unit tests chạy qua 100%, tính tất định đảm bảo byte-identical tuyệt đối; công cụ `tools/bench.py` và `tools/soak.py` hoạt động ổn định; đồ họa giao diện sinh động mang đậm bản sắc miền Tây Nam Bộ.
-- Điều tệ: Một số đầu việc đóng gói Phase 4 (soak_cmd, tài liệu phản tư) dồn vào cuối buổi, cần lên kế hoạch sớm hơn trong các dự án sau.
-- Số liệu: 4 thành viên đều đạt ≥ 4 commit có nội dung (ThangVu2303: 6, ddkhoa2605: 65, vminh21: 36, huuthinh812: 4); 100% PR có review chéo; tổng token AI ước tính ~100k tokens.
-- Một lần AI sai và cách nhóm phát hiện: AI đề xuất dùng lệnh shell `cmp` Linux gây lỗi trên Windows; QA đã phát hiện khi chạy CI/local và yêu cầu chuẩn hoá sang script Python băm SHA256.
-- Nếu làm lại, đổi gì: Sẽ khóa sớm các hợp đồng công cụ phụ trợ (soak, bench) ngay từ đầu Phase 2 để song song hóa tốt hơn.
+- Rà lại hành động Phase 2: `TEAM.md` đã điền đủ 4 người (#15) nhưng **trễ** (sau Phase 2); PR đã được review chéo và merge; gather v1.1/v1.2 tích hợp vào `day` (#17).
+- Điều tốt: 245 test OK, tất định byte-identical (`tools/check_determinism.py`), `bench_cmd` và `soak_cmd` chạy được, thiết kế lại giao diện có bằng chứng thật (#27), mọi thay đổi khung có ADR.
+- Điều tệ: **tag trễ hạn** (xem dưới); 25 PR mở dồn cuối nên phải gộp hàng loạt và giải nhiều xung đột `docs/`; một tài khoản không có trong `TEAM.md` (`VQuant68`) đẩy thẳng 3 commit lên `main`, trong đó có tài liệu phản tư viết thay người khác và verification ghi "Đạt" cho tag chưa tồn tại — đã gỡ/sửa trong PR `chore/review-vquant68`; Phase 3 còn thiếu dòng nước lũ.
+- **Ghi trễ hạn tag:** đến khi hoàn tất PR này repo **chưa có tag nào**, trái yêu cầu gắn `phase-1…phase-4` đúng hạn (1:00 / 1:55 / 2:30 / 3:00) và Release `v1.0.0` trước 3:00. Nguyên nhân: Integrator (Người 2) dồn việc gộp PR, không gắn tag ở từng mốc. Tag gắn **sau hạn**, trỏ về commit gần nhất đã đủ việc của từng phase: `phase-1` = `bf35fe7` (gather + quán + hợp đồng v1.0), `phase-2` = `de3b58c` (quán v1.1, `day`, Shop, pause; **chưa** có gather v1.1 — vào ở #17), `phase-3` = `afa5c2a` (kho cá thể, độ tươi, đặt trước, HUD độ tươi), `phase-4` và `v1.0.0` = commit bàn giao trên `main` sau PR này. Lịch sử không tách sạch từng phase vì các PR vào `main` xen kẽ.
+- Số liệu: commit trên `main` theo `git shortlog -sn` (tính cả merge): ddkhoa2605 66, vminh21 40, ThangVu2303 6, huuthinh812 4 (Hai Duong 9 là starter của giảng viên); review chéo bằng comment theo dòng ở hầu hết PR; token AI: chưa đo.
+- Một lần AI sai và cách nhóm phát hiện: bản plan đầu của Người 2 ghi sai quy trình (mời giảng viên, coi CI là bắt buộc) — lộ ra khi đọc PRD-0 trên lab board; sau đó một lệnh shell làm mất chữ trong `clarify.md`, phát hiện khi đọc lại đầu ra và sửa trước khi merge.
+- Nếu làm lại, đổi gì: gắn tag ngay ở mỗi mốc (đặt nhắc ở phút 55/1:50/2:25); chặn đẩy thẳng `main` bằng ruleset (hiện không bật); mỗi người tự viết phản tư của mình.
