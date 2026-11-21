@@ -153,13 +153,13 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 
 **Nguyên tắc:** làm hết [T] trước, cho đạt tag `phase-2`. [ĐX] và phần sáng tạo chỉ làm sau khi lõi đã đúng (TICKET-02 §3). Phạm vi lõi chỉ có Cá Sấu; Rắn Hổ Mây và các mục trong bảng Mở rộng không bắt buộc với nhóm 4 người.
 
-**Cập nhật:** Người 2 đã làm `--mode day`, Shop, pause, ADR-0002 và khung các màn hình ở #14. Phần còn lại của Người 3 là đưa giao diện ở #14 đạt [T] (đã review #14).
+**Cập nhật:** #14 của Người 2 (`--mode day`, Shop, pause, ADR-0002, khung các màn hình) **đã merge vào `main`**. Phần còn lại của Người 3 là đưa giao diện `chonoi/web/index.html` trên `main` đạt [T] (đã review #14), qua một PR thường từ `main`.
 
 ### 8.1 Việc theo thứ tự ưu tiên
 
 **Bắt buộc [T]: làm trước, chặn tag `phase-2`**
-1. **Chữ không chân ≥ 18 px ở 1280×720** trên mọi màn hình (#14 đang dùng 10–16 px).
-2. **HUD sáng:** Máu (theo `hp_max`, 4–5 khi có Áo phao); oxy dưới 25% đổi màu / nhấp nháy; "Hết hơi!" khi oxy cạn; thời gian đổi màu khi ≤ 30 s; độ sâu; giỏ theo loại; **đã lấy / cần**; hồi bắt; gợi ý hái / cập bến khi đến gần; **"Thủy quái!" + viền tím khi có thủy quái gần** (#14 đang hiện sau khi bị cắn).
+1. **Chữ không chân ≥ 18 px ở 1280×720** trên mọi màn hình (`index.html` hiện dùng 10–16 px).
+2. **HUD sáng:** Máu (theo `hp_max`, 4–5 khi có Áo phao); oxy dưới 25% đổi màu / nhấp nháy; "Hết hơi!" khi oxy cạn; thời gian đổi màu khi ≤ 30 s; độ sâu; giỏ theo loại; **đã lấy / cần**; hồi bắt; gợi ý hái / cập bến khi đến gần; **"Thủy quái!" + viền tím khi có thủy quái gần** (`index.html` hiện chỉ hiện sau khi bị cắn).
 3. **HUD quán:** đồng hồ ca; tiền ca; uy tín; món và kiên nhẫn **tại từng bàn**, đổi màu khi < 25%; tiến độ bếp / trạng thái món chín; món đang cầm; kho khả dụng.
 4. **Các màn hình** (khung đã có ở #14, kiểm đủ nội dung): Menu chính (Chơi, Thoát) → DayIntro (Ngày, danh sách Má Tư đọc, tự chuyển sau 4 s hoặc khi nhấn phím) → EveningIntro (số lượng nhập kho, món nấu được) → DayResult (khách phục vụ / bỏ đi, tiền, boa, thay đổi uy tín) → Shop (Bình oxy, Áo phao; đóng sớm được, tự đóng khi hết giờ) → Summary sau Ngày 5 (tổng tiền, tổng điểm, uy tín, món bán chạy).
 5. **Pause:** Esc/P; menu làm mờ nền, có Tiếp tục và Về menu; dừng đồng hồ và mọi timer gameplay, kể cả trong Shop.
@@ -175,7 +175,7 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 | Phút | Việc của Người 3 |
 |---|---|
 | 0–5 | Chốt giao diện chuyển pha; chia việc AC-P2-07 với Người 4 |
-| 5–20 | Chữ ≥ 18 px; HUD sáng v1.1 [T] trên nền #14 |
+| 5–20 | Chữ ≥ 18 px; HUD sáng v1.1 [T] trên `main` |
 | 20 | Smoke tích hợp `gather --inventory-out → quan --inventory` cùng nhóm; standup 2–3 phút (vai Scrum) |
 | 20–35 | HUD quán v1.1 [T]; kiểm nội dung Shop, Pause, DayResult, Summary |
 | 35–45 | Chơi thử trọn 1 Ngày và nhiều Ngày (kiểm cấp nâng cấp có hiệu lực từ Ngày sau); chụp 1280×720; đo FPS; cùng Người 4 điền `docs/verification/phase-2.md` |
@@ -191,5 +191,5 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 
 ### 8.4 Rủi ro
 - AC-P2-07 phụ thuộc gather v1.1 của Người 1 (cá bơi, Cá Sấu) và quán v1.1 của Người 2 (#5). Trong lúc chờ, dùng fixture và sim giả để làm UI.
-- Giao diện nằm ở `chonoi/web/index.html` của #14: phải báo Người 2 trước khi sửa để không sửa cùng lúc.
+- Sửa `chonoi/web/index.html` (file khung, đã có ADR-0002): báo Người 2 trước để không sửa cùng lúc.
 - Gather v1.1 (Cá Sấu) chưa có thì "Thủy quái!" chưa kiểm được bằng mắt; ghi trung thực trong verification.
