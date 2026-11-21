@@ -15,7 +15,7 @@ Số chuẩn v1.1; vòng ngày `gather → quan → Shop` trong `--mode day` (D1
 | AC-P2-05 | Gather: số chuẩn, kèo/N5-N6, cá bơi + sinh | 1 | AC-P2-04 |
 | AC-P2-06 | Cá Sấu, Máu, ngất, `monster_hit` | 1 | AC-P2-05 |
 | AC-P2-07 | `--mode day`: vòng ngày, `day_plan`, Shop, nâng cấp, `--days`, pause | 4 (headless `day`) + 3 (UI, Shop); khung đã dựng ở PR #14 (Người 2, ADR-0002) | AC-P2-03/05 |
-| AC-P2-08 | Menu, pause, HUD sáng/tối theo ticket | 3 (đã nhận); bản nháp giao diện ở PR #14 | AC-P2-07 |
+| AC-P2-08 | Menu, pause, HUD sáng/tối theo ticket | 3 (đã nhận); khung giao diện ở PR #14 | AC-P2-07 |
 | AC-P2-09 | Smoke tích hợp gather → quan (phút 20), `day --days 1`, nhiều Ngày, regression P1; `verification/phase-2.md` | 4 | tất cả |
 | AC-P2-10 | Tag `phase-2` ≤ 1:55; retro | 2 | AC-P2-09 |
 

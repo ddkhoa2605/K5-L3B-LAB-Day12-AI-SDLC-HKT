@@ -1,7 +1,5 @@
 # vminh21 — phản tư cá nhân (≤ 200 từ)
 
-> **NHÁP do AI soạn từ bằng chứng trong repo — Người 3 sửa giọng văn trước khi merge.**
-
 - **Tôi đã làm:**
   - Hợp đồng UI ([#9](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/9), [#12](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/12)).
   - HUD Phase 2 ([#18](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/18)): chữ ≥ 18 px, kho khả dụng, "Thủy quái!".
