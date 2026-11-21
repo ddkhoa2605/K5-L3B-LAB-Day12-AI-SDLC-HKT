@@ -151,10 +151,10 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 |---|---|
 | 0–5 | Chốt giao diện chuyển pha; chia việc AC-P2-07 với Người 4 |
 | 5–20 | Chữ ≥ 18 px; HUD sáng v1.1 [T] trên `main` |
-| 20 | Smoke tích hợp `gather --inventory-out → quan --inventory` cùng nhóm; standup 2–3 phút (vai Scrum) |
+| 20 | Báo tiến độ UI ở standup (Người 2 điều phối); chơi thử HUD trên bản tích hợp |
 | 20–35 | HUD quán v1.1 [T]; kiểm nội dung Shop, Pause, DayResult, Summary |
 | 35–45 | Chơi thử trọn 1 Ngày và nhiều Ngày (kiểm cấp nâng cấp có hiệu lực từ Ngày sau); chụp 1280×720; đo FPS; cùng Người 4 điền `docs/verification/phase-2.md` |
-| 45–50 | Điều phối retro nhanh: một điều tốt, một điều vướng, một hành động có người nhận → `docs/retro.md` |
+| 45–50 | Góp ý retro phần UI (Người 2 điều phối, AC-P2-10) |
 | 50–55 | Dự phòng; Người 2 gắn `phase-2` chậm nhất 1:55 |
 
 ### 8.3 Tiêu chí nghiệm thu Phase 2 (phần Người 3)
@@ -162,7 +162,7 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 - [ ] HUD sáng/tối có đủ mọi thành phần **[T]** của ticket; chữ ≥ 18 px ở 1280×720 (có ảnh); ≥ 30 FPS (có số đo).
 - [ ] Shop mua đúng: trừ `money`, giữ `earned`; cấp hiển thị ngay, có hiệu lực từ Ngày kế; `buy_failed` khi không đủ tiền hoặc đã tối đa.
 - [ ] Thay đổi giao diện không đụng headless: Người 4 `cmp` output trước/sau.
-- [ ] `AGENTS.md`, `docs/standup.md`, `docs/retro.md`, `docs/ai-usage-log.md` cập nhật cho Phase 2.
+- [ ] Ghi phần AI đã dùng cho UI vào `docs/ai-usage-log.md`.
 
 ### 8.4 Rủi ro
 - **Gather v1.1 chưa có** trên `main` (cá bơi/sinh, Cá Sấu `monsters[]`, nút N5/N6, của Người 1). Vòng ngày hiện chỉ kiểm được với gather v1.0 (#8). "Thủy quái!" và viền tím chưa kiểm bằng mắt được cho tới khi có `monsters[]`; ghi trung thực trong verification.
