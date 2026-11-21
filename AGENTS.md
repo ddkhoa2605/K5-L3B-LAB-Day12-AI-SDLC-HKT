@@ -26,4 +26,6 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
-- (Ghi tên và khi nào dùng; tối thiểu 2 skill/hook/command nhóm tự viết, đặt ở `.agents/skills/` hoặc tương đương.)
+- `pr-checklist` (`.agents/skills/pr-checklist/SKILL.md`, Người 2): dùng **trước khi mở PR** (tác giả) và **trước khi merge** (reviewer) để soát Closes #, phạm vi ≤ ~400 dòng, AC, hard-code/RNG/tất định, hợp đồng, test và nhận xét theo dòng.
+- `determinism-check` (Người 4): **chưa có** — sẽ thêm ở `.agents/skills/determinism-check/`; dùng để chạy headless hai lần cùng seed rồi `cmp` cho cả `gather` và `quan`.
+- Hợp đồng tích hợp của nhóm: `docs/contracts/contract.md` (khóa, đổi cần 2 approvals).
