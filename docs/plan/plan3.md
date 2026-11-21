@@ -1,7 +1,7 @@
 # PLAN 3 – Người 3 phụ trách `client/ui` (Scrum/Release, trưởng nhóm)
 
 > Đặt tại `docs/plan/plan3.md` (không đặt trong `docs/members/`).
-> **Nguồn yêu cầu:** mục 1–7 theo PRD-0 (Phase 1, Test Contract v1.0) và `docs/plan/plan.md` (đã có trên `main` từ #8); **mục 8 theo TICKET-02 (Phase 2, v1.1)**. Cả hai đọc từ lab board ngày 21/11/2026. Phase 3–4 chưa phát hành. Nếu lệch nhau thì ưu tiên lab board.
+> **Nguồn yêu cầu:** mục 1–7 theo PRD-0 (Phase 1, Test Contract v1.0) và `docs/plan/plan.md` (đã có trên `main` từ #8); **mục 8 theo TICKET-02 (Phase 2, v1.1)**; **mục 9 theo TICKET-03 (Phase 3, v1.2)**. Đọc từ lab board ngày 21/11/2026. Phase 4 chưa phát hành. Nếu lệch nhau thì ưu tiên lab board.
 
 > **Tình trạng trên `main` (cập nhật 21/11/2026, sau review #10):**
 > - Đã merge #1–#6, #8 và #14. `chonoi.live` đã có `--mode day` (menu, pause, DayIntro/EveningIntro, Shop, Summary), kèm **ADR-0002** của Người 2. Việc UI của Người 3 giờ là **hoàn thiện và kiểm** giao diện đó, không dựng lại (chi tiết ở mục 8 và Phụ lục v1.1 của `ui-interface.md`).
@@ -201,3 +201,47 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 ### 8.4 Rủi ro
 - **Gather v1.1 chưa có** trên `main` (cá bơi/sinh, Cá Sấu `monsters[]`, nút N5/N6, của Người 1). Vòng ngày hiện chỉ kiểm được với gather v1.0 (#8). "Thủy quái!" và viền tím chưa kiểm bằng mắt được cho tới khi có `monsters[]`; ghi trung thực trong verification.
 - Sửa `chonoi/web/index.html` (file khung, đã có ADR-0002): báo Người 2 trước để không sửa cùng lúc.
+
+## 9. Phase 3 — TICKET-03 "Mùa Nước Nổi" (Test Contract v1.2, 35 phút, hạn tag `phase-3` lúc 2:30)
+
+Nhãn như mục 8: **[T]** = ticket yêu cầu, **[ĐX]** = đề xuất. Lõi là **độ tươi + kho cá thể**; Dòng nước lũ và Khách đặt trước là Mở rộng, nhóm 4 người **không bắt buộc**.
+
+### 9.1 Thay đổi ảnh hưởng UI [T]
+| Trường | v1.1 (hiện tại) | v1.2 |
+|---|---|---|
+| `hold` (gather) | mảng chuỗi kind | mảng cá thể `{id, kind, fresh}`, thứ tự vào giỏ |
+| `stock` (quán, Shop) | map kind → số | mảng cá thể `{id, kind, fresh}` |
+| `customers[].reserved` | map kind → số | mảng **id** cá thể |
+| `cook_started.data.items` | mảng kind | mảng cá thể, sắp theo kind rồi id |
+| `lost` (`faint`, `monster_hit`) | mảng kind | mảng cá thể theo thứ tự bỏ LIFO |
+| Event mới | | `spoiled {item_id, kind, location: hold/stock}` |
+| `base_price` | giá niêm yết | `floor(giá × trung bình fresh / 100)`, chốt lúc bắt đầu nấu |
+
+Hệ quả: `chonoi/web/index.html` đọc `hold[i]` như chuỗi và `stock` như map, nên **sẽ hỏng khi bật v1.2**. Kho khả dụng đổi cách tính: các cá thể trong `stock` **không ươn** và **không có id trong bất kỳ `reserved`**.
+
+### 9.2 Việc của Người 3
+**Bắt buộc [T]**
+1. **Adapter đọc kho trong UI:** một hàm chuẩn hóa `hold`/`stock`/`reserved` đọc được cả v1.1 lẫn v1.2 (ticket cho phép hỗ trợ hai phiên bản trong lúc chuyển), để HUD không vỡ trước khi sim bật v1.2.
+2. **HUD độ tươi:** giỏ và kho quán cho thấy độ tươi (thanh hoặc số) và **hàng ươn** (`fresh < 30` theo `freshness.spoiled_below`, nhãn "ươn" và màu xám). Event `spoiled` → thông báo ngắn.
+3. **Giá theo tươi:** HUD bếp/món hiển thị `base_price` đã chốt, không tính lại.
+4. Test UI chạy được với snapshot v1.2 (fixture ngưỡng trong ticket: `I1` ca_linh `fresh: 30` ươn ở tick 1).
+
+**Scrum/Release [T] (theo lịch TICKET-03 §3)**
+| Phút | Việc |
+|---|---|
+| 0–7 | Điều phối **bảng phân tích tác động** (module, file, test, người nhận) và quyết định đổi schema + thứ tự tích hợp, ghi vào `docs/clarify.md` hoặc ADR. Đề xuất thứ tự: (1) schema/adapter `chonoi/inventory.py` + test migration (file khung, **ADR-0003**); (2) Lặn, Quán, HUD song song; (3) bật v1.2 khi cả hai đầu sẵn sàng |
+| 7–25 | Làm adapter UI + HUD độ tươi. Phút 20: smoke bàn giao kho (`gather --inventory-out` → `quan --inventory --ticks 0`, so id/kind/fresh) + standup |
+| 25–32 | Bật v1.2 trên bản tích hợp, smoke hai tiến trình và `day`, regression P1–P2. Chốt **`CHANGELOG.md`** (breaking change: schema kho cá thể, cách cập nhật fixture), `docs/verification/phase-3.md` (AC-P3-xx → bằng chứng → kết quả), `docs/proof/phase-3/`. Retro nhanh: điều rút ra từ lần đổi kho → `docs/retro.md` |
+| 32–35 | Dự phòng; Người 2 gắn `phase-3` chậm nhất 2:30 |
+
+**Đề xuất [ĐX]**: biểu tượng lá héo cho hàng ươn; sắp giỏ theo độ tươi khi hiển thị (chỉ hiển thị, không đổi thứ tự `hold`).
+
+### 9.3 Tiêu chí nghiệm thu (phần Người 3)
+- [ ] HUD cho thấy độ tươi hoặc hàng ươn ở giỏ và kho quán, đọc được ở 1280×720 (chữ ≥ 18 px).
+- [ ] UI không lỗi với snapshot v1.2; kho khả dụng tính theo id.
+- [ ] Bảng tác động + thứ tự tích hợp đã ghi trong repo; `CHANGELOG.md` có breaking change.
+- [ ] `docs/verification/phase-3.md` và bằng chứng khớp commit gắn tag.
+
+### 9.4 Rủi ro
+- Đổi schema kho chạm `chonoi/inventory.py`, `scenario.py`, `gather.py`, `quan.py`, `day.py` cùng lúc: dễ xung đột. Chốt thứ tự merge ở phút 0–7.
+- Việc Phase 2 của UI (chữ ≥ 18 px, kho khả dụng, tiền ca, giỏ theo loại) chưa xong thì làm trước, vì HUD độ tươi xây trên đó.
