@@ -1,7 +1,13 @@
 # PLAN 3 – Người 3 phụ trách `client/ui` (Scrum/Release, trưởng nhóm)
 
 > Đặt tại `docs/plan/plan3.md` (không đặt trong `docs/members/`).
-> **Nguồn yêu cầu:** mục 1–7 theo PRD-0 (Phase 1, Test Contract v1.0); **mục 8 theo TICKET-02 (Phase 2, v1.1)**. Cả hai đọc từ lab board ngày 21/11/2026. Phase 3–4 chưa phát hành. Nếu lệch nhau thì ưu tiên lab board.
+> **Nguồn yêu cầu:** mục 1–7 theo PRD-0 (Phase 1, Test Contract v1.0) và `docs/plan/plan.md` (đã có trên `main` từ #8); **mục 8 theo TICKET-02 (Phase 2, v1.1)**. Cả hai đọc từ lab board ngày 21/11/2026. Phase 3–4 chưa phát hành. Nếu lệch nhau thì ưu tiên lab board.
+
+> **Tình trạng trên `main` (cập nhật 21/11/2026, sau review #10):**
+> - Đã merge #1–#6, #8 và #14. `chonoi.live` đã có `--mode day` (menu, pause, DayIntro/EveningIntro, Shop, Summary), kèm **ADR-0002** của Người 2. Việc UI của Người 3 giờ là **hoàn thiện và kiểm** giao diện đó, không dựng lại (chi tiết ở mục 8 và Phụ lục v1.1 của `ui-interface.md`).
+> - ADR kế tiếp cho client 3D / route tĩnh là **ADR-0003**.
+> - **Việc chặn lớn nhất:** `TEAM.md` trên `main` **vẫn trống**. README: commit của người không có trong `TEAM.md` không được tính. **Người 3 làm PR `TEAM.md` ngay** (4 người, handle thật, `team`/`team_size` trong `game.contract.json`); cần mỗi thành viên xác nhận họ tên.
+> - AC phần UI Phase 1 nối vào **AC-P1-10** trong `docs/plan/phase-1.md` (snapshot HUD tối thiểu).
 
 ## 1. Vai trò
 
@@ -13,7 +19,7 @@
 
 ## 2. Phạm vi
 
-- `chonoi.live` hiện chỉ là cửa sổ thử bằng hình khối. Nó chạy cùng lớp sim với headless ở 60 tick/s và **chỉ đọc snapshot**. Thanh oxy, Máu, giỏ, cá, nút hái chỉ hiện khi luật tương ứng đã được viết, nên UI **phụ thuộc** Người 1/2.
+- `chonoi.live` (bản v1.0 lúc lập plan) là cửa sổ thử bằng hình khối; từ #14 có thêm `--mode day`. Nó chạy cùng lớp sim với headless ở 60 tick/s và **chỉ đọc snapshot**. Thanh oxy, Máu, giỏ, cá, nút hái chỉ hiện khi luật tương ứng đã được viết, nên UI **phụ thuộc** Người 1/2.
 - Điều khiển (PRD-0 §2): WASD/mũi tên để bơi/đi, E (`interact`: cập bến, hái, nấu, bưng, phục vụ), Space (`catch`: bắt cá khi lặn), R chơi lại (của cửa sổ thử).
 - Góc nhìn: buổi sáng (gather) là **mặt cắt nhìn ngang** `[x,d]` (d tăng xuống dưới); buổi tối (quán) **nhìn từ trên xuống** `[x,z]`.
 - `chonoi/live.py` và `chonoi/web/index.html` thuộc khung giảng viên: hạn chế sửa; **sửa thì PR riêng + ADR**. Starter chỉ dùng thư viện chuẩn Python. Đổi engine/ngôn ngữ là quyết định của nhóm: làm trong một PR, Integrator duyệt, sửa `build_cmd`/`run_cmd`/`headless_cmd` và `ci.yml`, giữ job `ci / test`.
@@ -54,7 +60,7 @@
 | Khách rời | `customer_left` (`patience`/`closing`, `reputation`) |
 | Hết ca | `quan_end` |
 
-- [ ] Wireframe/UI flow cho Gather và Quán; AC UI ghi vào `docs/plan/phase-1.md` cùng PO.
+- [ ] Wireframe/UI flow cho Gather và Quán; AC UI nối tiếp **AC-P1-10** (HUD tối thiểu) trong `docs/plan/phase-1.md`, cùng PO.
 
 ### C. Interface (Phase 1 kickoff, chốt trước phút 15)
 - [ ] Cùng Người 1/2 chốt trong `docs/contracts/` giao diện `sim/*` ↔ `client/ui`:
@@ -69,7 +75,7 @@
 - [ ] Branch `feature/ui-<task>`; PR ≤ ~400 dòng.
 - [ ] Layout và HUD theo 3.B; hiển thị state thật; xử lý kết thúc phiên, restart, lỗi đầu vào.
 - [ ] Không nhúng số liệu gameplay (lấy từ `game.contract.json`/snapshot); không sửa logic sim trong PR UI.
-- [ ] Sửa `live.py`/`web/index.html` chỉ khi cần, bằng PR riêng + ADR (`docs/adr/`, mẫu `0000-template.md`).
+- [ ] Sửa `live.py`/`web/index.html` chỉ khi cần, bằng PR riêng + ADR (`docs/adr/`, mẫu `0000-template.md`). Đã có ADR-0001 (kind kho) và ADR-0002 (mode day/pause); ADR mới là 0003.
 - [ ] Đọc diff mọi code AI sinh trước khi mở PR.
 
 ### E. Phong cách (PRD-0 §3)
