@@ -89,3 +89,47 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 - Khách chưa nấu có `base_price = 0`, `tip = 0`; giá chốt khi `cook_started`.
 - Khách fixture bắt buộc có `dish_id` hợp lệ (thiếu → mã 2).
 - `carry_limit` hiện chỉ hỗ trợ giá trị 1.
+
+---
+
+# Phụ lục v1.1 (Phase 2, TICKET-02)
+
+> Nguồn: TICKET-02 (lab board). Mục này **bổ sung** cho v1.0 ở trên; chỗ nào không nhắc thì v1.0 vẫn đúng. Người giữ: Người 2. Đổi cần 2 approvals.
+
+## A. Dữ liệu chuẩn (`game.contract.json`, `contract_version: "1.1"`)
+| Phạm vi | Nội dung | Ai làm | Trạng thái |
+|---|---|---|---|
+| `quan`, `menu` | bếp B1 [2,8], B2 [5,8]; bàn T1 [9,2], T2 [13,2], T3 [9,6], T4 [13,6]; 6 món (thêm `canh_chua_ca_loc`, `ca_keo_nuong`, `lau_mam`) | Người 2 | PR #5 |
+| nguyên liệu | thêm `ca_keo`, `keo_neo` (kho/`hold`/`stock` nhận 6 kind) | Người 2 | PR #4 + ADR-0001 |
+| `day_plan` | mảng 5 phần tử `{day, dishes, ingredients}`; `ingredients` = Σ công thức × suất (hàm `scenario.day_plan_ingredients`) | Người 2 | PR #5 |
+| `gather` | `fish_initial` 8 đàn, cá kèo, N5/N6, bơi/sinh cá (`fish_speed, fish_turn_ticks, fish_max, fish_spawn_ticks, fish_spawn_clearance, fish_x, fish_depths, fish_spawn_x, fish_spawn_depths, fish_weights`) | Người 1 | chưa |
+| `gather.monsters` | `species.ca_sau`, `spawns[]`, `invuln_ticks: 90`, `loss_ratio: 0.5` | Người 1 | chưa |
+| `shop` | `{max_ticks, upgrades: {oxygen[], hp[]}}` (oxygen 200→45 s, 400→60 s; hp 250→4, 500→5) | Người 3/4 (day) | chưa |
+| mở rộng | khai mã ở `extensions` tại gốc manifest nếu làm | — | không bắt buộc |
+
+## B. CLI, input, pause
+- `--mode gather|quan|day`, thêm `--days <N>` (1–5, mặc định 1, chỉ với `day`). `day` bàn giao kho trong bộ nhớ theo schema mục 1.
+- Nút boolean mới: `pause` (cả ba mode), `shop_done` (Shop); `attack`, `photo` chỉ khi bật mở rộng. Chỉ cạnh lên; giữ nút qua đổi pha không tạo cạnh.
+- `buy`: chuỗi khác rỗng, chạy chỉ ở frame khai báo; nhận `oxygen`, `hp` (+ `weapon`, `net`, `buy:<kind>`/`sell:<kind>` nếu bật). Lệnh không hỗ trợ trong Shop → `buy_failed`.
+- Xét cạnh `pause` trước mọi thứ khác. Đang pause: chỉ tăng `tick` ngoài, bỏ qua cạnh hành động và `buy`; `sim_tick`, `phase_tick`, lịch, timer đứng yên. Cạnh lên tiếp theo phát `resumed` và chạy gameplay ngay bước đó.
+
+## C. Scenario `day`
+`{"day":{"money","earned","reputation","upgrades","day_plan"}, "gather":{...}, "quan":{...}}` — `gather`/`quan` là mẫu khởi tạo **mỗi Ngày**. Mặc định money/earned 0, uy tín theo tuning, `upgrades` `{}`, kế hoạch theo preset. Cần `0 ≤ money ≤ earned` (khai cả hai khi có tiền). `day.day_plan` ghi đè theo số Ngày, `ingredients` tính lại và so với giá trị khai. **Cấm** `quan.stock` và `quan.reputation` khi chạy `day`.
+
+## D. Output thêm
+- Snapshot: `state:"paused"`; trong `day`, mọi snapshot có `day, day_plan, upgrades, active_upgrades`; `phase` ∈ `gather|quan|shop`; Shop có `stock` dư và `time_left_ticks`; snapshot đổi pha ghi pha mới với `phase_tick:0`. Event mang pha cũ; vỏ event trong `day` thêm `day`.
+- Event mới: `monster_hit`, `fish_spawned`, `faint` (thêm `cause:"monster"`), `day_start`, `phase_start`, `day_plan {dishes, ingredients}`, `paused`, `resumed`, `bought {upgrade, level, price, money}`, `buy_failed {action, reason: funds|max_level|out_of_stock|unknown}`, `shop_end {reason: done|time}`. Mở rộng: `attack`, `monster_stunned`, `photo`, `released`, `dish_burnt`, `vendor_trade`.
+- Dòng `end` của `day` thêm `days_completed`; đủ số Ngày → `reason:"days_complete"`.
+
+## E. Chuyển pha và thứ tự
+`day_start → day_plan → phase_start(gather)`; sau `gather_end` dựng quán và phát `phase_start(quan)` cùng tick (kể cả khi ngất); sau `quan_end` dựng Shop và phát `phase_start(shop)` cùng tick; pha mới chỉ chạy gameplay từ bước sau. Shop xử lý **một** `buy` trước cạnh `shop_done` (kể cả bước cuối); đóng Shop tăng `days_completed`, kết thúc hoặc dựng Ngày kế ngay tick đó; cấp đã mua chỉ sao sang `active_upgrades` khi dựng Ngày mới.
+
+## F. Giao diện Quán trong `day` (Người 2 → người làm `day`)
+`QuanSim(tuning, scenario, streams, ids, inventory=None, allowed_dishes=None, money=0, earned=0, reputation=None)`:
+- `allowed_dishes`: tập id món của `day_plan[Ngày]`; khách chỉ chọn trong tập này, **sau đó** mới lọc theo nguyên liệu khả dụng. `None` = cả 6 món (quán chạy riêng).
+- `money`, `earned`, `reputation`: trạng thái giữ qua Ngày; `shift_earned` luôn bắt đầu 0 mỗi ca.
+- Khách fixture có món ngoài kế hoạch → `BadInput` (mã 2).
+- Kho thực lúc mở quán = `hold` của `gather_end` (hoặc kho bàn giao rỗng khi ngất); truyền vào `inventory=`.
+
+## G. Chưa chốt (hỏi PO, xem `docs/clarify.md`)
+Ai làm vòng `--mode day` / Shop / pause / menu / HUD (lát 4); vị trí khóa `day_plan`, `shop` trong manifest (đang đặt dưới `tuning`).
