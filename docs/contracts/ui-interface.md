@@ -218,7 +218,7 @@ Cột "Trên `main`" ghi tình trạng `chonoi/web/index.html` (đọc code ngà
 | "Hết hơi!" | Khi oxy cạn | `oxygen_ticks = 0` dưới nước | Có | |
 | Thời gian | Đổi màu khi còn ≤ 30 s | `time_left_ticks` ≤ 1.800 | Có | |
 | Độ sâu | Có | `player.pos[1]` | Có, chữ 14 px | Thước tô 3 vùng nông/giữa/sâu |
-| Giỏ theo loại | Có | `hold`, `hold_count` / `hold_capacity` | **Một phần**: ô màu theo loại, chưa có số đếm hay tên loại | |
+| Giỏ theo loại | Có | `hold`, `hold_count` / `hold_capacity` | Có (ô màu + dòng đếm theo loại), chữ 12 px | |
 | Đã lấy / cần | Có | `day_plan.ingredients`, đếm `hold` | Có, chữ 14 px | ✓ khi đủ |
 | Hồi bắt | Có | `player.catch_cd_ticks` | Có, chữ 12 px | |
 | Gợi ý hái / cập bến | Khi đến gần | Bán kính trong `meta`, nút `ready` | Có | |
