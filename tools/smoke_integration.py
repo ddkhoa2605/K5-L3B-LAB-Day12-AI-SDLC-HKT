@@ -25,9 +25,12 @@ def main():
         q_out = os.path.join(tmpdir, "quan.jsonl")
 
         # 1. Tạo scenario có sẵn đồ trong giỏ và input bấm interact tại dock (tick 0)
-        sample_items = {"bong_sung": 2, "ca_loc": 1}
+        # v1.2: kho cá thể. Cập bến ở bước đầu: hàng có sẵn hao 2 đơn vị/tick -> 23998/240 điểm
+        sample_hold = [{"id": "I1", "kind": "bong_sung", "fresh": 100}, {"id": "I2", "kind": "bong_sung", "fresh": 100},
+                       {"id": "I3", "kind": "ca_loc", "fresh": 100}]
+        sample_items = [{"id": i["id"], "kind": i["kind"], "fresh": 23998 / 240} for i in sample_hold]
         with open(sc_path, "w", encoding="utf-8") as f:
-            json.dump({"gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"]}}, f)
+            json.dump({"gather": {"hold": sample_hold}}, f)
 
         with open(in_path, "w", encoding="utf-8") as f:
             json.dump({"frames": [{"tick": 0, "interact": True}]}, f)
@@ -89,6 +92,14 @@ def main():
             print(f"[FAIL] Tiến trình Quán thất bại (mã {res_q.returncode}):\n{res_q.stderr}", file=sys.stderr)
             return res_q.returncode
 
+        # PRD-0 mục G / TICKET-03: snapshot quán tick 0 phải có đúng id, kind và độ tươi của file kho (±0.01)
+        with open(q_out, "r", encoding="utf-8") as f:
+            stock = json.loads(f.readline()).get("stock")
+        ok = (isinstance(stock, list) and [(i["id"], i["kind"]) for i in stock] == [(i["id"], i["kind"]) for i in sample_items]
+              and all(abs(a["fresh"] - b["fresh"]) <= 0.01 for a, b in zip(stock, sample_items)))
+        if not ok:
+            print(f"[FAIL] stock tick 0 của quán lệch file kho: {stock} != {sample_items}", file=sys.stderr)
+            return 1
         print("[PASS] Smoke test 2 tiến trình thành công (DoD PRD-0):")
         print(f"       1. Gather cập bến xuất file kho: {sample_items}")
         print("       2. Quán đọc thành công kho và khởi tạo phiên chơi tick 0 hợp lệ.")
