@@ -19,3 +19,9 @@
 | 15 | 2026-11-21 | Cấp nâng cấp khai ở `day.upgrades` có hiệu lực từ Ngày 1 không? | Giả định: có (`active_upgrades` = `upgrades` lúc khởi tạo). | Người 2 |
 | 16 | 2026-11-21 | Bật `burn` thế nào, và mặc định? | Giả định: tắt mặc định (`burn_s: null`, không khai `extensions`) để giữ số lõi; bật bằng `extensions:["burn"]` + `quan.burn_s: 20`. Nhóm 4 người không bắt buộc. | Người 2 |
 | 17 | 2026-11-21 | DayIntro/EveningIntro có tạm dừng đồng hồ không? | Giả định: không (chỉ lớp phủ, tự tắt sau 4 s hoặc khi bấm phím); pause thật dùng Esc/P. | Người 2 → Người 3 |
+| 18 | 21/11/2026 08:15 | `invuln_ticks` trong khung có tác dụng gì ở Phase 1? | PRD-0 không có luật sát thương/bất tử ở Phase 1. Giữ 0, giảm dần nếu fixture nạp vào, không dùng. | PO |
+| 19 | 21/11/2026 08:20 | Bấm `interact` đúng mép bán kính bến và cùng vị trí có nút hái thì thế nào? | Cập bến xét trước hái. Khoảng cách Euclid tính cả đúng mép (`<= dock_radius`). Trong bến thì kết thúc `docked` ngay. | PO / PRD-0 |
+| 20 | 21/11/2026 08:25 | Dưới nước bấm `interact` ngoài bến có tác dụng gì không? | Không. Dưới nước thì `interact` ngoài bến bị bỏ qua, không event, không hái. | PO / PRD-0 |
+| 21 | 21/11/2026 08:30 | Bắt cá ở mặt nước hoặc bấm `catch` khi đang cooldown? | Bỏ qua hoàn toàn, không phát sinh event và không đặt lại cooldown. | PO / PRD-0 |
+| 22 | 21/11/2026 08:35 | Bắt cá khi giỏ còn chỗ trống nhưng nhỏ hơn yield của đàn? | Phát `hold_full` (`action: "catch"`), không nhận một phần, giữ nguyên đàn cá, không đặt cooldown. | PO / PRD-0 |
+| 23 | 21/11/2026 08:40 | Đàn cá có bơi hoặc sinh thêm ở Phase 1 không? | Phase 1 đàn cá đứng yên, vị trí giữ nguyên. Bơi và sinh thêm thuộc Phase sau. | PO / Khung |
