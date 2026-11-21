@@ -21,7 +21,7 @@ DISH = "ca_loc_nuong_trui"
 
 
 def sim(tuning=BURN, ready_ticks=0, stock=None, extra_customers=()):
-    sc = {"random_customers": False, "stock": make_items(stock or {}),
+    sc = {"random_customers": False, "random_reservations": False, "stock": make_items(stock or {}),
           "customers": [{"id": "C1", "table_id": "T1", "dish_id": DISH, "order_status": "assigned"}, *extra_customers],
           "stoves": [{"id": "B1", "state": "ready", "ready_ticks": ready_ticks,
                       "dish": {"order_id": "C1", "dish_id": DISH}}]}
@@ -86,16 +86,16 @@ class ContractExtensions(unittest.TestCase):
         return write_json(w.path("c.json"), c)
 
     def test_burn_chi_hop_le_khi_khai_extension(self):
-        self.assertEqual(KNOWN_EXTENSIONS, {"burn"})
+        self.assertEqual(KNOWN_EXTENSIONS, {"burn", "reservations"})
         with Workdir() as w:
             load_contract(self.write(w, lambda c: None))
-            ok = self.write(w, lambda c: (c.update(extensions=["burn"]), c["tuning"]["quan"].update(burn_s=20)))
+            ok = self.write(w, lambda c: (c.update(extensions=["burn", "reservations"]), c["tuning"]["quan"].update(burn_s=20)))
             load_contract(ok)
             for name, mut in {
                 "burn_s mà không khai": lambda c: c["tuning"]["quan"].update(burn_s=20),
-                "khai mà burn_s null": lambda c: c.update(extensions=["burn"]),
+                "khai mà burn_s null": lambda c: c.update(extensions=["burn", "reservations"]),
                 "extension lạ": lambda c: c.update(extensions=["weapon"]),
-                "burn_s ngoài dải": lambda c: (c.update(extensions=["burn"]), c["tuning"]["quan"].update(burn_s=0)),
+                "burn_s ngoài dải": lambda c: (c.update(extensions=["burn", "reservations"]), c["tuning"]["quan"].update(burn_s=0)),
             }.items():
                 with self.assertRaises(BadInput, msg=name):
                     load_contract(self.write(w, mut))

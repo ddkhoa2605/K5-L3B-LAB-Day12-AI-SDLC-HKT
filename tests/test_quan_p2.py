@@ -31,7 +31,7 @@ RICH = make_items({"ca_loc": 9, "ca_linh": 9, "ca_keo": 9, "bong_dien_dien": 9, 
 
 
 def sim(scenario=None, seed=1, **kw):
-    return QuanSim(TUNING, scenario or {}, Streams(seed), IdAllocator(), **kw)
+    return QuanSim(TUNING, dict({"random_reservations": False}, **(scenario or {})), Streams(seed), IdAllocator(), **kw)
 
 
 def idle(sim_):
@@ -71,7 +71,7 @@ class Data(unittest.TestCase):
 class Schedule(unittest.TestCase):
     def test_lich_khach_120_cong_900k_vao_ghe_nho_nhat(self):
         with Workdir() as w:
-            sc = write_json(w.path("sc.json"), {"quan": {"stock": RICH}})
+            sc = write_json(w.path("sc.json"), {"quan": {"stock": RICH, "random_reservations": False}})
             code, err = run_headless("--mode", "quan", "--seed", "3", "--ticks", "2000", "--scenario", sc,
                                      "--out", w.path("o.jsonl"))
             self.assertEqual(code, 0, err)

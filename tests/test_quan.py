@@ -23,7 +23,7 @@ B1, T1 = Q["stoves"][0]["pos"], Q["tables"][0]["pos"]
 
 def quan(w, block, inputs=None, ticks=10, seed=1, every=1, inventory=None):
     """Chạy quan với fixture; trả (mã thoát, rows)."""
-    sc = write_json(w.path("sc.json"), {"quan": block})
+    sc = write_json(w.path("sc.json"), {"quan": dict({"random_reservations": False}, **block)})
     args = ["--mode", "quan", "--seed", str(seed), "--ticks", str(ticks), "--scenario", sc,
             "--snapshot-every", str(every), "--out", w.path("o.jsonl")]
     if inputs is not None:

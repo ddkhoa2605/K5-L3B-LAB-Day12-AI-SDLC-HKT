@@ -23,7 +23,7 @@ from .pause import PauseGate
 from .rng import Streams
 from .scenario import GATHER_KEYS, QUAN_KEYS, _validate_gather, _validate_quan, day_plan_ingredients
 from .sim.gather import GatherSim
-from .sim.quan import QuanSim
+from .sim.quan import QuanSim, announce_events, plan_reservations
 
 DAY_KEYS = {"money", "earned", "reputation", "upgrades", "day_plan"}
 MAX_DAYS = 5
@@ -181,6 +181,7 @@ class DaySession:
         self.shop_left = 0
         self.shop_stock = []
         self.sim_view = _SimView(self)
+        self.res_day = []  # Khách đặt trước của Ngày hiện tại, công bố ở buổi sáng
         # một allocator cá thể `I` dùng chung xuyên pha và Ngày (không tái dùng id đã cấp)
         self.item_ids = IdAllocator()
         self.stats = {"day": self._new_day_stats(), "sold": {}, "served": 0, "left": 0, "tips": 0}
@@ -242,13 +243,17 @@ class DaySession:
                 d["id"] = self.item_ids.new("I")
         self.sim = GatherSim(self._gather_tuning(), scn, self.rng, IdAllocator(), item_ids=self.item_ids)
         rows.append(self._row(tick, "phase_start", {}))
+        # mở rộng `reservations`: công bố 2 đơn R1, R2 SAU phase_start(gather), theo id
+        self.res_day = plan_reservations(self.tuning, self.scn["quan"], self.rng, set(plan["dishes"]))
+        for name, data in announce_events(self.res_day):
+            rows.append(self._row(tick, name, data))
 
     def _to_quan(self, tick, rows):
         inv = self.sim.inventory_items()  # ngất -> kho rỗng
         self.phase, self.phase_tick = "quan", 0
         self.sim = QuanSim(self.tuning, copy.deepcopy(self.scn["quan"]), self.rng, IdAllocator(), inventory=inv,
                            allowed_dishes=set(self._plan()["dishes"]), money=self.money, earned=self.earned,
-                           reputation=self.reputation)
+                           reputation=self.reputation, reservations=self.res_day)
         rows.append(self._row(tick, "phase_start", {}))
 
     def _to_shop(self, tick, rows):
@@ -330,6 +335,9 @@ class DaySession:
                                            "ingredients": self._plan()["ingredients"]},
              "upgrades": dict(self.upgrades), "active_upgrades": dict(self.active)}
         s.update({"stock": self.shop_stock} if self.phase == "shop" else self.sim.snapshot())
+        if self.phase == "gather" and self.tuning.get("reservations"):
+            s["reservations"] = [{k: r[k] for k in ("id", "table_id", "dish_id", "arrival_tick", "state")}
+                                for r in self.res_day]
         return s
 
     def end_row(self) -> dict:
