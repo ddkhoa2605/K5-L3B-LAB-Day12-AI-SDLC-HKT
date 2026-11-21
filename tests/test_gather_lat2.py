@@ -9,6 +9,7 @@ import unittest
 from chonoi.contract import load_contract
 from chonoi.inputs import InputState
 from chonoi.runner import Session
+from helpers import make_items
 
 TUNING = load_contract()["tuning"]
 G = TUNING["gather"]
@@ -54,7 +55,7 @@ class GatherInteract(unittest.TestCase):
         gathers = [e for e in evs if e["name"] == "gather"]
         self.assertEqual(len(gathers), 1)
         self.assertEqual(gathers[0]["data"], {"node_id": "N1", "kind": "bong_dien_dien", "amount": 1})
-        self.assertEqual(s.sim.hold, ["bong_dien_dien"])
+        self.assertEqual([i["kind"] for i in s.sim.hold], ["bong_dien_dien"])
         self.assertEqual(s.sim.nodes[0]["regrow_ticks"], REGROW_TICKS)
 
     def test_gather_tie_break_by_id(self):
@@ -128,7 +129,7 @@ class GatherInteract(unittest.TestCase):
     def test_hold_full_on_gather_keeps_node(self):
         scenario = {
             "player": {"pos": [12.0, 0.0]},
-            "hold": ["ca_loc"] * CAPACITY,
+            "hold": make_items({"ca_loc": CAPACITY}),
             "nodes": [{"id": "N1", "kind": "bong_dien_dien", "pos": [12.0, 0.0]}],
             "random_fish": False,
         }
@@ -154,7 +155,9 @@ class CatchFish(unittest.TestCase):
         catches = [e for e in evs if e["name"] == "fish_caught"]
         self.assertEqual(len(catches), 1)
         self.assertEqual(catches[0]["data"], {"fish_id": "F1", "kind": "ca_linh", "yield": 3})
-        self.assertEqual(s.sim.hold, ["ca_linh", "ca_linh", "ca_linh"])
+        self.assertEqual([i["kind"] for i in s.sim.hold], ["ca_linh"] * 3)
+        self.assertEqual([i["id"] for i in s.sim.hold], ["I1", "I2", "I3"], "cá thể mới được cấp id theo thứ tự vào giỏ")
+        self.assertEqual({i["u"] for i in s.sim.hold}, {24000}, "hàng mới fresh = 100, hao từ bước sau")
         self.assertEqual(s.sim.fish, [])
         self.assertEqual(s.sim.catch_cd_ticks, CATCH_CD_TICKS)
 
@@ -218,7 +221,7 @@ class CatchFish(unittest.TestCase):
         # hold 10 món, trống 2; ca_linh yield 3 -> thiếu chỗ
         scenario = {
             "player": {"pos": [15.0, 5.0]},
-            "hold": ["ca_loc"] * 10,
+            "hold": make_items({"ca_loc": 10}),
             "fish": [{"id": "F1", "kind": "ca_linh", "pos": [15.0, 5.0], "heading_deg": 0}],
             "random_fish": False,
         }
@@ -284,7 +287,7 @@ class DockAndTimeout(unittest.TestCase):
         scenario = {
             "player": {"pos": [2.0, 0.0]},
             "nodes": [{"id": "N1", "kind": "bong_dien_dien", "pos": [2.0, 0.0]}],
-            "hold": ["ca_loc"],
+            "hold": make_items({"ca_loc": 1}),
             "random_fish": False,
         }
         s = Session("gather", TUNING, scenario, 1)
@@ -293,13 +296,14 @@ class DockAndTimeout(unittest.TestCase):
         ends = [e for e in evs if e["name"] == "gather_end"]
         self.assertEqual(len(ends), 1)
         self.assertEqual(ends[0]["data"]["reason"], "docked")
-        self.assertEqual(ends[0]["data"]["inventory"], {"items": {"ca_loc": 1}})
+        # hàng có sẵn hao 2 đơn vị ở đầu bước rồi mới cập bến
+        self.assertEqual(ends[0]["data"]["inventory"], {"items": [{"id": "I1", "kind": "ca_loc", "fresh": 23998 / 240}]})
 
     def test_interact_at_last_step_docked_wins_over_time(self):
         scenario = {
             "player": {"pos": [2.0, 0.0]},
             "time_left_ticks": 1,
-            "hold": ["bong_sung"],
+            "hold": make_items({"bong_sung": 1}),
             "random_fish": False,
         }
         s = Session("gather", TUNING, scenario, 1)
@@ -319,7 +323,7 @@ class DockAndTimeout(unittest.TestCase):
         self.assertTrue(s.done)
         self.assertEqual(s.sim.reason, "time")
         self.assertEqual(names(evs), ["gather", "gather_end"])
-        self.assertEqual(evs[1]["data"]["inventory"], {"items": {"bong_dien_dien": 1}})
+        self.assertEqual(evs[1]["data"]["inventory"], {"items": [{"id": "I1", "kind": "bong_dien_dien", "fresh": 100.0}]})
 
 
 if __name__ == "__main__":
