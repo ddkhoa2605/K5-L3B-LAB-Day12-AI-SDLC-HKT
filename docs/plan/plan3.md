@@ -149,36 +149,47 @@
 
 ## 8. Phase 2 — TICKET-02 "Một ngày ở chợ nổi" (Test Contract v1.1, hạn tag `phase-2` lúc 1:55)
 
-Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, HUD sáng/tối) và **AC-P2-07** (`--mode day`, Shop, nâng cấp, `--days`, pause) **làm cùng Người 4**: Người 4 làm vòng `day` headless, Người 3 làm UI và Shop. Chi tiết trường và màn hình ở phụ lục v1.1 của `docs/contracts/ui-interface.md`.
+Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, HUD sáng/tối) và **AC-P2-07** (`--mode day`, Shop, nâng cấp, `--days`, pause) **làm cùng Người 4**: Người 4 làm vòng `day` headless, Người 3 làm UI và Shop. Chi tiết trường và màn hình ở phụ lục v1.1 của `docs/contracts/ui-interface.md` (#12), trong đó mỗi mục có nhãn **[T]** (ticket yêu cầu) hoặc **[ĐX]** (đề xuất của Người 3).
+
+**Nguyên tắc:** làm hết [T] trước, cho đạt tag `phase-2`. [ĐX] và phần sáng tạo chỉ làm sau khi lõi đã đúng (TICKET-02 §3). Phạm vi lõi chỉ có Cá Sấu; Rắn Hổ Mây và các mục trong bảng Mở rộng không bắt buộc với nhóm 4 người.
+
+**Cập nhật:** Người 2 đã làm `--mode day`, Shop, pause, ADR-0002 và khung các màn hình ở #14. Phần còn lại của Người 3 là đưa giao diện ở #14 đạt [T] (đã review #14).
 
 ### 8.1 Việc theo thứ tự ưu tiên
-1. **Chốt giao diện chuyển pha (phút 0–5)** cùng Người 2 và Người 4: thứ tự event `day_start → day_plan → phase_start(...)`; snapshot `day`, `day_plan`, `upgrades`, `active_upgrades`; input `pause`, `shop_done`, `buy`.
-2. **ADR-0002 + PR sửa `chonoi.live`** (cùng Integrator): thêm `--mode day [--days N]`; `/input` nhận `pause`, `shop_done`, `buy` (áp `buy` đúng một lần); `meta` = toàn bộ tuning; giữ đủ event của pha. Có test trong `tests/test_live.py`.
-3. **HUD sáng v1.1:** Máu theo `hp_max` (cấp Áo phao); oxy < 25% nhấp nháy; "Hết hơi!"; thời gian ≤ 30 s đổi màu; **thước độ sâu 3 vùng**; giỏ theo loại; **cần lấy / đã lấy**; hồi bắt; gợi ý hái / cập bến; **"Thủy quái!" + viền tím**.
-4. **HUD quán v1.1:** phiếu order T1–T4 (món + kiên nhẫn, < 25% đổi màu); tiến độ B1, B2, trạng thái món chín; món đang cầm; kho khả dụng 6 loại; tiền ca; uy tín.
-5. **Các màn hình:** Menu chính (Chơi/Thoát) → DayIntro (danh sách Má Tư, tự đóng sau 4 s hoặc khi nhấn phím) → EveningIntro (nhập kho, món nấu được) → DayResult (khách phục vụ/bỏ đi, tiền, boa, uy tín thay đổi) → **Shop** (Bình oxy, Áo phao; Xong / tự đóng sau 600 tick; `buy_failed` báo lý do) → Summary sau Ngày 5.
-6. **Pause:** Esc/P; menu làm mờ nền, có Tiếp tục / Về menu; dừng đồng hồ và animation gameplay, kể cả trong Shop.
-7. **Kỹ thuật:** chữ không chân **≥ 18 px ở 1280×720**; trung bình **≥ 30 FPS** ở 1280×720. Ảnh chụp và số đo lưu vào `docs/proof/phase-2/`.
-8. *(Chỉ khi lõi xong)* Nâng demo `client/demo/ui-3d-demo.html` lên v1.1: cá kèo, Cá Sấu Năm Chèo, ghe cây bẹo cho Shop, phiếu order 4 bàn. Đây là phần sáng tạo, **không chặn tag**.
+
+**Bắt buộc [T]: làm trước, chặn tag `phase-2`**
+1. **Chữ không chân ≥ 18 px ở 1280×720** trên mọi màn hình (#14 đang dùng 10–16 px).
+2. **HUD sáng:** Máu (theo `hp_max`, 4–5 khi có Áo phao); oxy dưới 25% đổi màu / nhấp nháy; "Hết hơi!" khi oxy cạn; thời gian đổi màu khi ≤ 30 s; độ sâu; giỏ theo loại; **đã lấy / cần**; hồi bắt; gợi ý hái / cập bến khi đến gần; **"Thủy quái!" + viền tím khi có thủy quái gần** (#14 đang hiện sau khi bị cắn).
+3. **HUD quán:** đồng hồ ca; tiền ca; uy tín; món và kiên nhẫn **tại từng bàn**, đổi màu khi < 25%; tiến độ bếp / trạng thái món chín; món đang cầm; kho khả dụng.
+4. **Các màn hình** (khung đã có ở #14, kiểm đủ nội dung): Menu chính (Chơi, Thoát) → DayIntro (Ngày, danh sách Má Tư đọc, tự chuyển sau 4 s hoặc khi nhấn phím) → EveningIntro (số lượng nhập kho, món nấu được) → DayResult (khách phục vụ / bỏ đi, tiền, boa, thay đổi uy tín) → Shop (Bình oxy, Áo phao; đóng sớm được, tự đóng khi hết giờ) → Summary sau Ngày 5 (tổng tiền, tổng điểm, uy tín, món bán chạy).
+5. **Pause:** Esc/P; menu làm mờ nền, có Tiếp tục và Về menu; dừng đồng hồ và mọi timer gameplay, kể cả trong Shop.
+6. **≥ 30 FPS trung bình ở 1280×720**, có số đo. Ảnh chụp và số đo lưu vào `docs/proof/phase-2/`.
+
+**Đề xuất [ĐX]: chỉ làm khi hết [T]**
+7. Thước độ sâu tô 3 vùng; phiếu order T1–T4 cố định trên màn hình; mũi tên chỉ quái ngoài khung nhìn; nhân vật nhấp nháy khi bất tử; phím 1/2/Enter trong Shop; bộ đếm FPS bật bằng phím.
+
+**Sáng tạo: sau cùng, không chặn tag, phải tắt ở headless**
+8. Nâng demo `client/demo/ui-3d-demo.html` lên v1.1: cá kèo, Cá Sấu Năm Chèo, ghe cây bẹo cho Shop, 4 bàn.
 
 ### 8.2 Nhịp theo TICKET-02 §5
 | Phút | Việc của Người 3 |
 |---|---|
 | 0–5 | Chốt giao diện chuyển pha; chia việc AC-P2-07 với Người 4 |
-| 5–20 | ADR-0002 + `live.py` mode `day`; khung các màn hình; HUD sáng v1.1 |
+| 5–20 | Chữ ≥ 18 px; HUD sáng v1.1 [T] trên nền #14 |
 | 20 | Smoke tích hợp `gather --inventory-out → quan --inventory` cùng nhóm; standup 2–3 phút (vai Scrum) |
-| 20–35 | HUD quán v1.1, Shop, Pause, DayResult/Summary; chốt luồng `day` |
+| 20–35 | HUD quán v1.1 [T]; kiểm nội dung Shop, Pause, DayResult, Summary |
 | 35–45 | Chơi thử trọn 1 Ngày và nhiều Ngày (kiểm cấp nâng cấp có hiệu lực từ Ngày sau); chụp 1280×720; đo FPS; cùng Người 4 điền `docs/verification/phase-2.md` |
 | 45–50 | Điều phối retro nhanh: một điều tốt, một điều vướng, một hành động có người nhận → `docs/retro.md` |
 | 50–55 | Dự phòng; Người 2 gắn `phase-2` chậm nhất 1:55 |
 
 ### 8.3 Tiêu chí nghiệm thu Phase 2 (phần Người 3)
 - [ ] Chơi trọn vòng ngày có menu, pause và HUD; DayIntro công bố đúng kế hoạch D1–D5.
-- [ ] HUD sáng/tối có đủ mọi thành phần bắt buộc của ticket; chữ ≥ 18 px ở 1280×720 (có ảnh); ≥ 30 FPS (có số đo).
+- [ ] HUD sáng/tối có đủ mọi thành phần **[T]** của ticket; chữ ≥ 18 px ở 1280×720 (có ảnh); ≥ 30 FPS (có số đo).
 - [ ] Shop mua đúng: trừ `money`, giữ `earned`; cấp hiển thị ngay, có hiệu lực từ Ngày kế; `buy_failed` khi không đủ tiền hoặc đã tối đa.
-- [ ] Sửa `chonoi.live` có ADR-0002 và test; headless không đổi output (Người 4 `cmp` trước/sau).
+- [ ] Thay đổi giao diện không đụng headless: Người 4 `cmp` output trước/sau.
 - [ ] `AGENTS.md`, `docs/standup.md`, `docs/retro.md`, `docs/ai-usage-log.md` cập nhật cho Phase 2.
 
 ### 8.4 Rủi ro
 - AC-P2-07 phụ thuộc gather v1.1 của Người 1 (cá bơi, Cá Sấu) và quán v1.1 của Người 2 (#5). Trong lúc chờ, dùng fixture và sim giả để làm UI.
-- Nếu ADR-0002 không kịp thì Phase 2 chơi thử bằng hai mode riêng, và **ghi trung thực** trong verification là vòng ngày chưa chơi được trên trình duyệt.
+- Giao diện nằm ở `chonoi/web/index.html` của #14: phải báo Người 2 trước khi sửa để không sửa cùng lúc.
+- Gather v1.1 (Cá Sấu) chưa có thì "Thủy quái!" chưa kiểm được bằng mắt; ghi trung thực trong verification.
