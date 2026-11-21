@@ -101,11 +101,13 @@ class GatherSim:
     mode = "gather"
     phase = "gather"
 
-    def __init__(self, tuning, scenario, streams, ids):
+    def __init__(self, tuning, scenario, streams, ids, item_ids=None):
+        """`item_ids`: IdAllocator tiền tố `I` dùng chung xuyên pha và Ngày (chế độ day); None = dùng `ids`."""
         t = tuning["gather"]
         self.t = t
         self.rng = streams
         self.ids = ids
+        self.item_ids = item_ids if item_ids is not None else ids
         p = scenario.get("player", {})
         self.pos = [float(c) for c in p.get("pos", t["start_pos"])]
         self.vel = [float(c) for c in p.get("vel", [0.0, 0.0])]
@@ -180,13 +182,15 @@ class GatherSim:
                 "heading_deg": float(m.get("heading_deg", 0.0))
             })
 
-        for coll in (self.nodes, self.fish, self.monsters, self._hold):
+        for coll in (self.nodes, self.fish, self.monsters):
             for e in coll:
-                if e["id"] is not None:
-                    ids.reserve(e["id"])
-        for it in self._hold:  # hàng dựng từ scenario kiểu cũ (mảng kind) nhận id mới theo thứ tự mảng
+                ids.reserve(e["id"])
+        for it in self._hold:  # id cá thể: allocator `I` dùng chung; hàng kiểu cũ (không id) nhận id mới theo thứ tự mảng
+            if it["id"] is not None:
+                self.item_ids.reserve(it["id"])
+        for it in self._hold:
             if it["id"] is None:
-                it["id"] = ids.new("I")
+                it["id"] = self.item_ids.new("I")
 
         self.money = 0
         self.earned = 0
@@ -213,7 +217,7 @@ class GatherSim:
 
     def _add_items(self, kind, n):
         for _ in range(n):
-            self._hold.append({"id": self.ids.new("I"), "kind": kind, "u": self._init_u})
+            self._hold.append({"id": self.item_ids.new("I"), "kind": kind, "u": self._init_u})
 
     def _decay_hold(self, events):
         """Hao tươi hàng có sẵn ở đầu bước; kẹp đáy 0; phát spoiled (theo id) khi từ >= ngưỡng xuống < ngưỡng."""

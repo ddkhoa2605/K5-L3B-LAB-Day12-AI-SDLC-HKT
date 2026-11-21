@@ -174,7 +174,8 @@ class CaSauNamCheo(unittest.TestCase):
                 "target_idx": 1, "state": "patrol"
             }
             # Player mang 3 món: ca_linh, ca_loc, ca_keo. Đứng cách 1.0 m (<= 1.5 m)
-            hold = ["ca_linh", "ca_loc", "ca_keo"]
+            hold = [{"id": "I1", "kind": "ca_linh", "fresh": 100}, {"id": "I2", "kind": "ca_loc", "fresh": 100},
+                    {"id": "I3", "kind": "ca_keo", "fresh": 100}]
             code, rows = gather(w, {"player": {"pos": [60.0, 19.0], "hp": 3, "invuln_ticks": 0},
                                     "hold": hold, "monsters": [m1], "fish": []}, ticks=1)
             self.assertEqual(code, 0, rows)
@@ -183,11 +184,11 @@ class CaSauNamCheo(unittest.TestCase):
             self.assertEqual(ev[0]["data"]["monster_id"], "M1")
             self.assertEqual(ev[0]["data"]["hp"], 2)
             # floor(3 / 2) = 1 món bị mất theo LIFO: ca_keo
-            self.assertEqual(ev[0]["data"]["lost"], ["ca_keo"])
+            self.assertEqual([i["kind"] for i in ev[0]["data"]["lost"]], ["ca_keo"])
             s = snapshots(rows)[-1]
             self.assertEqual(s["player"]["hp"], 2)
             self.assertEqual(s["player"]["invuln_ticks"], 90)
-            self.assertEqual(s["hold"], ["ca_linh", "ca_loc"])
+            self.assertEqual([i["kind"] for i in s["hold"]], ["ca_linh", "ca_loc"])
             # Con gây hit chuyển sang recoil
             self.assertEqual(s["monsters"][0]["state"], "recoil")
 
@@ -218,7 +219,8 @@ class CaSauNamCheo(unittest.TestCase):
                 "waypoints": [[60.0, 20.0], [64.0, 20.0]],
                 "target_idx": 1, "state": "patrol"
             }
-            hold = ["ca_linh", "ca_loc", "ca_keo"]
+            hold = [{"id": "I1", "kind": "ca_linh", "fresh": 100}, {"id": "I2", "kind": "ca_loc", "fresh": 100},
+                    {"id": "I3", "kind": "ca_keo", "fresh": 100}]
             code, rows = gather(w, {"player": {"pos": [60.0, 19.0], "hp": 1, "invuln_ticks": 0},
                                     "hold": hold, "monsters": [m1], "fish": []}, ticks=5)
             self.assertEqual(code, 0, rows)
@@ -229,7 +231,7 @@ class CaSauNamCheo(unittest.TestCase):
             end_ev = events(rows, "gather_end")
             self.assertEqual(len(end_ev), 1)
             self.assertEqual(end_ev[0]["data"]["reason"], "fainted")
-            self.assertEqual(end_ev[0]["data"]["inventory"]["items"], {})
+            self.assertEqual(end_ev[0]["data"]["inventory"]["items"], [])
 
 
 class NewKindsAndYields(unittest.TestCase):
@@ -245,7 +247,7 @@ class NewKindsAndYields(unittest.TestCase):
             self.assertEqual(len(ev), 1)
             self.assertEqual(ev[0]["data"]["kind"], "ca_keo")
             self.assertEqual(ev[0]["data"]["yield"], 2)
-            self.assertEqual(snapshots(rows)[-1]["hold"], ["ca_keo", "ca_keo"])
+            self.assertEqual([i["kind"] for i in snapshots(rows)[-1]["hold"]], ["ca_keo", "ca_keo"])
 
     def test_hai_nut_keo_neo_N5(self):
         """Nút N5 hái được keo_neo."""
@@ -258,7 +260,7 @@ class NewKindsAndYields(unittest.TestCase):
             ev = events(rows, "gather")
             self.assertEqual(len(ev), 1)
             self.assertEqual(ev[0]["data"]["kind"], "keo_neo")
-            self.assertEqual(snapshots(rows)[-1]["hold"], ["keo_neo"])
+            self.assertEqual([i["kind"] for i in snapshots(rows)[-1]["hold"]], ["keo_neo"])
 
 
 if __name__ == "__main__":

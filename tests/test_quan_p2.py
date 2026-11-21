@@ -12,7 +12,7 @@ from chonoi.inputs import InputState
 from chonoi.rng import Streams
 from chonoi.scenario import day_plan_ingredients
 from chonoi.sim.quan import QuanSim
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, events, frames, make_items, read_jsonl, run_headless, snapshots, write_json
 
 with open("game.contract.json", encoding="utf-8") as _f:
     CONTRACT = json.load(_f)
@@ -27,11 +27,11 @@ TICKET_PLAN = {
     4: {"ca_linh": 2, "ca_keo": 1, "keo_neo": 1, "bong_dien_dien": 1, "ca_loc": 2, "bong_sung": 2},
     5: {"ca_linh": 5, "ca_keo": 1, "keo_neo": 1, "bong_dien_dien": 2, "ca_loc": 1},
 }
-RICH = {"ca_loc": 9, "ca_linh": 9, "ca_keo": 9, "bong_dien_dien": 9, "bong_sung": 9, "keo_neo": 9}
+RICH = make_items({"ca_loc": 9, "ca_linh": 9, "ca_keo": 9, "bong_dien_dien": 9, "bong_sung": 9, "keo_neo": 9})
 
 
 def sim(scenario=None, seed=1, **kw):
-    return QuanSim(TUNING, scenario or {}, Streams(seed), IdAllocator(), **kw)
+    return QuanSim(TUNING, dict({"random_reservations": False}, **(scenario or {})), Streams(seed), IdAllocator(), **kw)
 
 
 def idle(sim_):
@@ -46,7 +46,7 @@ def press(sim_):
 
 class Data(unittest.TestCase):
     def test_contract_v11_bep_ban_mon(self):
-        self.assertEqual(CONTRACT["contract_version"], "1.1")
+        self.assertEqual(CONTRACT["contract_version"], "1.2")
         self.assertEqual([s["id"] for s in Q["stoves"]], ["B1", "B2"])
         self.assertEqual({t["id"]: t["pos"] for t in Q["tables"]},
                          {"T1": [9, 2], "T2": [13, 2], "T3": [9, 6], "T4": [13, 6]})
@@ -71,7 +71,7 @@ class Data(unittest.TestCase):
 class Schedule(unittest.TestCase):
     def test_lich_khach_120_cong_900k_vao_ghe_nho_nhat(self):
         with Workdir() as w:
-            sc = write_json(w.path("sc.json"), {"quan": {"stock": RICH}})
+            sc = write_json(w.path("sc.json"), {"quan": {"stock": RICH, "random_reservations": False}})
             code, err = run_headless("--mode", "quan", "--seed", "3", "--ticks", "2000", "--scenario", sc,
                                      "--out", w.path("o.jsonl"))
             self.assertEqual(code, 0, err)
@@ -103,9 +103,12 @@ class Kitchen(unittest.TestCase):
                  "customers": [{"id": "C1", "table_id": "T1", "dish_id": "lau_mam"}]})
         name, d = press(s)[0]
         self.assertEqual(name, "cook_started")
-        self.assertEqual(d["items"], ["bong_dien_dien", "ca_keo", "ca_linh", "ca_linh", "keo_neo"])
-        self.assertEqual(d["base_price"], 200)
-        self.assertEqual((s.stock["ca_linh"], s.stock["ca_keo"], s.stock["keo_neo"]), (7, 8, 8))
+        self.assertEqual([i["kind"] for i in d["items"]], ["bong_dien_dien", "ca_keo", "ca_linh", "ca_linh", "keo_neo"])
+        for i in d["items"]:  # hao 1 đơn vị (1/240 điểm) ở bước đầu
+            self.assertAlmostEqual(i["fresh"], 100 - 1 / 240, places=6)
+        self.assertEqual(d["base_price"], 200 * 23999 // 24000)  # v1.2: giá theo độ tươi
+        kinds = [i["kind"] for i in s.stock]
+        self.assertEqual((kinds.count("ca_linh"), kinds.count("ca_keo"), kinds.count("keo_neo")), (7, 8, 8))
 
     def test_bep_dang_nau_thi_interact_lai_bo_luot(self):
         s = sim({"player": {"pos": [2, 8]}, "stock": RICH, "random_customers": False,
@@ -127,7 +130,7 @@ class DayHooks(unittest.TestCase):
             self.assertEqual(dishes, {"goi_bong_sung"}, seed)
 
     def test_mon_trong_ke_hoach_thieu_nguyen_lieu_thi_no_dish(self):
-        s = sim({"stock": {"ca_loc": 5}}, allowed_dishes={"goi_bong_sung"})
+        s = sim({"stock": make_items({"ca_loc": 5})}, allowed_dishes={"goi_bong_sung"})
         names = [n for _ in range(121) for n, _ in idle(s)]
         self.assertEqual(names, ["no_dish"])
 

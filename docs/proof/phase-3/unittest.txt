@@ -1,3 +1,71 @@
+test_chay_du_nguyen_lieu_thi_giu_lai_cho_don (test_burn.Burn.test_chay_du_nguyen_lieu_thi_giu_lai_cho_don) ... ok
+test_chay_thieu_nguyen_lieu_thi_unfulfillable_va_khach_van_cho (test_burn.Burn.test_chay_thieu_nguyen_lieu_thi_unfulfillable_va_khach_van_cho) ... ok
+test_dung_1200_tick_van_buong_duoc_qua_1200_thi_chay (test_burn.Burn.test_dung_1200_tick_van_buong_duoc_qua_1200_thi_chay) ... ok
+test_dung_1200_van_lay_duoc_trong_buoc_do (test_burn.Burn.test_dung_1200_van_lay_duoc_trong_buoc_do) ... ok
+test_mac_dinh_khong_chay (test_burn.Burn.test_mac_dinh_khong_chay) ... ok
+test_ton_kho_bi_khach_khac_giu_thi_unfulfillable (test_burn.Burn.test_ton_kho_bi_khach_khac_giu_thi_unfulfillable) ... ok
+test_burn_chi_hop_le_khi_khai_extension (test_burn.ContractExtensions.test_burn_chi_hop_le_khi_khai_extension) ... ok
+test_co_file_kho_hoac_days_sai_mode (test_day.Errors.test_co_file_kho_hoac_days_sai_mode) ... ok
+test_day_ticks_0_va_mac_dinh_1_ngay (test_day.Errors.test_day_ticks_0_va_mac_dinh_1_ngay) ... ok
+test_gather_hold_ngoai_kho_quan_khong_du_cho_giu_la_mau_thuan (test_day.Errors.test_gather_hold_ngoai_kho_quan_khong_du_cho_giu_la_mau_thuan) ... ok
+test_khach_fixture_ngoai_ke_hoach_la_mau_thuan_luc_mo_quan_khong_de_file_do (test_day.Errors.test_khach_fixture_ngoai_ke_hoach_la_mau_thuan_luc_mo_quan_khong_de_file_do) ... ok
+test_tham_so_sai_exit_2_khong_ghi_file (test_day.Errors.test_tham_so_sai_exit_2_khong_ghi_file) ... ok
+test_ke_hoach_ghi_de_theo_ngay_tinh_lai_nguyen_lieu (test_day.Flow.test_ke_hoach_ghi_de_theo_ngay_tinh_lai_nguyen_lieu) ... ok
+test_kho_ban_giao_vao_quan_va_khach_chi_chon_mon_trong_ke_hoach (test_day.Flow.test_kho_ban_giao_vao_quan_va_khach_chi_chon_mon_trong_ke_hoach)
+Kho có \u0111\u1ee7 nguyên li\u1ec7u cho c\u1ea3 6 món, nh\u01b0ng Ngày 1 ch\u1ec9 có 2 món: khách không \u0111\u01b0\u1ee3c ch\u1ecdn món ngoài k\u1ebf ho\u1ea1ch. ... ok
+test_mot_ngay_thu_tu_pha_va_tick (test_day.Flow.test_mot_ngay_thu_tu_pha_va_tick) ... ok
+test_ngay_chi_hoan_tat_khi_shop_dong_va_tick_limit (test_day.Flow.test_ngay_chi_hoan_tat_khi_shop_dong_va_tick_limit) ... ok
+test_snapshot_moi_pha_co_truong_ngay (test_day.Flow.test_snapshot_moi_pha_co_truong_ngay) ... ok
+test_tat_dinh_cmp_hai_ngay (test_day.Flow.test_tat_dinh_cmp_hai_ngay) ... ok
+test_pause_bo_qua_canh_hanh_dong (test_day.Pause.test_pause_bo_qua_canh_hanh_dong)
+C\u1eadp b\u1ebfn b\u1ecb b\u1ecf qua khi \u0111ang pause; sau khi resume, c\u1ea1nh lên k\u1ebf ti\u1ebfp m\u1edbi có tác d\u1ee5ng. ... ok
+test_pause_o_gather_va_quan_doc_lap (test_day.Pause.test_pause_o_gather_va_quan_doc_lap) ... ok
+test_pause_trong_day_dung_dong_ho_gameplay (test_day.Pause.test_pause_trong_day_dung_dong_ho_gameplay) ... ok
+test_pause_trong_shop_dung_dem_gio_shop (test_day.Pause.test_pause_trong_shop_dung_dem_gio_shop) ... ok
+test_mot_ngay_khong_pause_chay_duoi_20_giay (test_day.Performance.test_mot_ngay_khong_pause_chay_duoi_20_giay) ... ok
+test_buy_chi_chay_dung_frame_khai_bao (test_day.ShopTests.test_buy_chi_chay_dung_frame_khai_bao) ... ok
+test_buy_failed_funds_max_level_unknown (test_day.ShopTests.test_buy_failed_funds_max_level_unknown) ... ok
+test_cap_vua_mua_hien_ngay_nhung_chua_hieu_luc_trong_shop (test_day.ShopTests.test_cap_vua_mua_hien_ngay_nhung_chua_hieu_luc_trong_shop) ... ok
+test_du_dung_gia_van_mua_duoc (test_day.ShopTests.test_du_dung_gia_van_mua_duoc) ... ok
+test_hp_cap_ke_tiep_ap_dung_ngay_sau (test_day.ShopTests.test_hp_cap_ke_tiep_ap_dung_ngay_sau) ... ok
+test_khong_du_tien_giu_nguyen_tien_va_cap (test_day.ShopTests.test_khong_du_tien_giu_nguyen_tien_va_cap) ... ok
+test_mua_oxy_tru_money_giu_earned_hieu_luc_tu_ngay_ke (test_day.ShopTests.test_mua_oxy_tru_money_giu_earned_hieu_luc_tu_ngay_ke) ... ok
+test_nhieu_ngay_tien_uy_tin_xuyen_ngay_va_kho_du_bi_bo (test_day.ShopTests.test_nhieu_ngay_tien_uy_tin_xuyen_ngay_va_kho_du_bi_bo) ... ok
+test_shop_done_va_buy_ngay_buoc_cuoi_van_mua_truoc (test_day.ShopTests.test_shop_done_va_buy_ngay_buoc_cuoi_van_mua_truoc) ... ok
+test_shop_tu_dong_dong_sau_600_tick_hoat_dong (test_day.ShopTests.test_shop_tu_dong_dong_sau_600_tick_hoat_dong) ... ok
+test_boa_tinh_tren_gia_da_chot (test_freshness.CookPrice.test_boa_tinh_tren_gia_da_chot) ... ok
+test_gia_lau_mam_theo_trung_binh_nhieu_ca_the (test_freshness.CookPrice.test_gia_lau_mam_theo_trung_binh_nhieu_ca_the) ... ok
+test_mon_chin_khong_hao (test_freshness.CookPrice.test_mon_chin_khong_hao) ... ok
+test_nau_tieu_dung_id_da_giu_va_chot_gia_theo_tuoi (test_freshness.CookPrice.test_nau_tieu_dung_id_da_giu_va_chot_gia_theo_tuoi) ... ok
+test_ban_giao_khong_hao_them_o_tick_chuyen_pha (test_freshness.DayHandover.test_ban_giao_khong_hao_them_o_tick_chuyen_pha) ... ok
+test_shop_khong_hao_va_id_tang_xuyen_ngay (test_freshness.DayHandover.test_shop_khong_hao_va_id_tang_xuyen_ngay) ... ok
+test_da_uon_tu_dau_thi_khong_phat_lai (test_freshness.GatherDecay.test_da_uon_tu_dau_thi_khong_phat_lai) ... ok
+test_gio_chiem_o_ke_ca_hang_uon (test_freshness.GatherDecay.test_gio_chiem_o_ke_ca_hang_uon) ... ok
+test_hang_moi_100_va_hao_tu_buoc_sau (test_freshness.GatherDecay.test_hang_moi_100_va_hao_tu_buoc_sau) ... ok
+test_hao_0_5_moi_giay_va_ep_day_0 (test_freshness.GatherDecay.test_hao_0_5_moi_giay_va_ep_day_0) ... ok
+test_monsters_khac_rong_chua_ho_tro (test_freshness.GatherDecay.test_monsters_khac_rong_chua_ho_tro) ... ok
+test_nhanh_o_nguong_30_dung_mot_don_vi (test_freshness.GatherDecay.test_nhanh_o_nguong_30_dung_mot_don_vi) ... ok
+test_nhieu_ca_the_cung_vuot_nguong_phat_theo_id (test_freshness.GatherDecay.test_nhieu_ca_the_cung_vuot_nguong_phat_theo_id) ... ok
+test_pause_dung_hao_tuoi (test_freshness.GatherDecay.test_pause_dung_hao_tuoi) ... ok
+test_vi_du_ticket_spoiled_o_buoc_dau_qua_cli (test_freshness.GatherDecay.test_vi_du_ticket_spoiled_o_buoc_dau_qua_cli) ... ok
+test_ngat_ghi_kho_rong (test_freshness.Persistence.test_ngat_ghi_kho_rong) ... ok
+test_xuat_kho_theo_id_dung_chinh_xac (test_freshness.Persistence.test_xuat_kho_theo_id_dung_chinh_xac) ... ok
+test_gioi_thieu_giu_cho_tu_dong_theo_order_tick_roi_id_ban (test_freshness.QuanDecayAndReserve.test_gioi_thieu_giu_cho_tu_dong_theo_order_tick_roi_id_ban) ... ok
+test_giu_phan_vua_uon_nha_het_va_giu_lai_mot_lan (test_freshness.QuanDecayAndReserve.test_giu_phan_vua_uon_nha_het_va_giu_lai_mot_lan) ... ok
+test_giu_theo_id_tuoi_nhat_hoa_id_nho (test_freshness.QuanDecayAndReserve.test_giu_theo_id_tuoi_nhat_hoa_id_nho) ... ok
+test_hao_0_25_moi_giay_ke_ca_hang_dang_giu (test_freshness.QuanDecayAndReserve.test_hao_0_25_moi_giay_ke_ca_hang_dang_giu) ... ok
+test_khach_moi_khong_dung_hang_uon_no_dish (test_freshness.QuanDecayAndReserve.test_khach_moi_khong_dung_hang_uon_no_dish) ... ok
+test_kho_quan_nhan_ca_hang_uon (test_freshness.QuanDecayAndReserve.test_kho_quan_nhan_ca_hang_uon) ... ok
+test_khong_du_thi_unfulfillable_khach_van_cho (test_freshness.QuanDecayAndReserve.test_khong_du_thi_unfulfillable_khach_van_cho) ... ok
+test_nguong_30_doc_lai_tu_file_giu_dung_nhanh (test_freshness.QuanDecayAndReserve.test_nguong_30_doc_lai_tu_file_giu_dung_nhanh) ... ok
+test_spoiled_stock_mot_lan_theo_id (test_freshness.QuanDecayAndReserve.test_spoiled_stock_mot_lan_theo_id) ... ok
+test_xu_ly_don_bi_anh_huong_theo_order_tick_roi_id_ban (test_freshness.QuanDecayAndReserve.test_xu_ly_don_bi_anh_huong_theo_order_tick_roi_id_ban) ... ok
+test_gather_hold_kho_dem_hoac_sai_exit_2 (test_freshness.ScenarioContradictions.test_gather_hold_kho_dem_hoac_sai_exit_2) ... ok
+test_mau_thuan_exit_2 (test_freshness.ScenarioContradictions.test_mau_thuan_exit_2) ... ok
+test_gia_theo_trung_binh_tuoi_floor_nguyen (test_freshness.Units.test_gia_theo_trung_binh_tuoi_floor_nguyen) ... ok
+test_he_so_khong_nguyen_bi_tu_choi (test_freshness.Units.test_he_so_khong_nguyen_bi_tu_choi) ... ok
+test_he_so_quy_ra_so_nguyen (test_freshness.Units.test_he_so_quy_ra_so_nguyen) ... ok
+test_pick_tuoi_nhat_hoa_id_nho_bo_qua_uon (test_freshness.Units.test_pick_tuoi_nhat_hoa_id_nho_bo_qua_uon) ... ok
 test_choke_every_interval_when_already_zero (test_gather_lat1.Choke.test_choke_every_interval_when_already_zero) ... ok
 test_first_choke_at_t_plus_59_when_touching_zero (test_gather_lat1.Choke.test_first_choke_at_t_plus_59_when_touching_zero) ... ok
 test_surface_resets_choke_counter (test_gather_lat1.Choke.test_surface_resets_choke_counter) ... ok
@@ -28,60 +96,6 @@ test_gather_tie_break_by_id (test_gather_lat2.GatherInteract.test_gather_tie_bre
 test_hold_full_on_gather_keeps_node (test_gather_lat2.GatherInteract.test_hold_full_on_gather_keeps_node) ... ok
 test_no_gather_when_underwater (test_gather_lat2.GatherInteract.test_no_gather_when_underwater) ... ok
 test_node_regrown_after_1200_steps (test_gather_lat2.GatherInteract.test_node_regrown_after_1200_steps) ... ok
-test_ca_sau_chase_khi_player_d_ge_10_va_dist_le_10 (test_gather_p2.CaSauNamCheo.test_ca_sau_chase_khi_player_d_ge_10_va_dist_le_10)
-Chuy\u1ec3n sang chase và b\u01a1i 3.0 m/s v\u1ec1 phía player. ... ok
-test_ca_sau_hit_mat_1_mau_va_roi_nua_gio_lifo (test_gather_p2.CaSauNamCheo.test_ca_sau_hit_mat_1_mau_va_roi_nua_gio_lifo)
-Ch\u1ea1m Cá S\u1ea5u (<= 1.5m, d >= 10, h\u1ebft b\u1ea5t t\u1eed): m\u1ea5t 1 Máu, b\u1ecf floor(n/2) LIFO, b\u1ea5t t\u1eed 90 tick. ... ok
-test_ca_sau_patrol_1mps_toi_waypoint (test_gather_p2.CaSauNamCheo.test_ca_sau_patrol_1mps_toi_waypoint)
-Patrol 1.0 m/s t\u1edbi waypoint: 60 tick \u0111i \u0111úng 1 m. ... ok
-test_ca_sau_tro_ve_patrol_khi_player_len_mat_nuoc (test_gather_p2.CaSauNamCheo.test_ca_sau_tro_ve_patrol_khi_player_len_mat_nuoc)
-Tr\u1edf v\u1ec1 patrol khi player lên d < 10. ... ok
-test_ngat_do_ca_sau_khi_het_mau_va_mat_sach_gio (test_gather_p2.CaSauNamCheo.test_ngat_do_ca_sau_khi_het_mau_va_mat_sach_gio)
-Máu ch\u1ea1m 0 do Cá S\u1ea5u: ng\u1ea5t ngay (cause: monster), m\u1ea5t toàn b\u1ed9 gi\u1ecf LIFO, k\u1ebft thúc fainted. ... ok
-test_recoil_60_buoc_lui_xa_player (test_gather_p2.CaSauNamCheo.test_recoil_60_buoc_lui_xa_player)
-Con gây hit vào recoil 60 b\u01b0\u1edbc, lùi 2/60 m/b\u01b0\u1edbc xa player. ... ok
-test_sinh_ca_khong_vuot_tran_12 (test_gather_p2.FishSpawning.test_sinh_ca_khong_vuot_tran_12)
-\u0110ã \u0111\u1ea1t tr\u1ea7n 12 \u0111àn thì b\u1ecf l\u01b0\u1ee3t sinh t\u1ea1i tick 360. ... ok
-test_sinh_ca_tai_tick_360 (test_gather_p2.FishSpawning.test_sinh_ca_tai_tick_360)
-T\u1ea1i phase_tick = 360, sinh 1 \u0111àn cá m\u1edbi th\u1ecfa mãn cách \u0111àn s\u1ed1ng > 1 m. ... ok
-test_ca_boi_toc_do_1_5_m_s (test_gather_p2.FishSwimming.test_ca_boi_toc_do_1_5_m_s)
-Cá b\u01a1i v\u1edbi v\u1eadn t\u1ed1c 1.5 m/s: 60 tick \u0111i \u0111úng 1.5 m. ... ok
-test_ca_doi_huong_theo_seed_tai_tick_120 (test_gather_p2.FishSwimming.test_ca_doi_huong_theo_seed_tai_tick_120)
-\u0110\u1ed5i h\u01b0\u1edbng theo seed \u1edf b\u01b0\u1edbc b\u01a1i th\u1ee9 120. ... ok
-test_ca_phan_xa_goc_dao_ca_hai (test_gather_p2.FishSwimming.test_ca_phan_xa_goc_dao_ca_hai)
-Ch\u1ea1m góc \u0111\u1ea3o c\u1ea3 hai thành ph\u1ea7n h\u01b0\u1edbng. ... ok
-test_ca_phan_xa_mep_d_theo_loai (test_gather_p2.FishSwimming.test_ca_phan_xa_mep_d_theo_loai)
-Ph\u1ea3n x\u1ea1 theo d\u1ea3i \u0111\u1ed9 sâu riêng c\u1ee7a t\u1eebng loài (ví d\u1ee5 ca_keo \u1edf d \u2208 [22, 28]). ... ok
-test_ca_phan_xa_mep_x (test_gather_p2.FishSwimming.test_ca_phan_xa_mep_x)
-T\u1edbi mép x=96 ph\u1ea3n x\u1ea1 ph\u1ea7n quãng \u0111\u01b0\u1eddng còn l\u1ea1i và \u0111\u1ea3o h\u01b0\u1edbng vx. ... ok
-test_bat_ca_keo_yield_2 (test_gather_p2.NewKindsAndYields.test_bat_ca_keo_yield_2)
-B\u1eaft cá kèo \u0111\u01b0\u1ee3c yield = 2 ca_keo. ... ok
-test_hai_nut_keo_neo_N5 (test_gather_p2.NewKindsAndYields.test_hai_nut_keo_neo_N5)
-Nút N5 hái \u0111\u01b0\u1ee3c keo_neo. ... ok
-test_da_uon_san_khong_phat_lai (test_gather_p3.Freshness.test_da_uon_san_khong_phat_lai) ... ok
-test_ep_day_0_va_hang_uon_van_chiem_o (test_gather_p3.Freshness.test_ep_day_0_va_hang_uon_van_chiem_o) ... ok
-test_hang_moi_hao_tu_buoc_sau (test_gather_p3.Freshness.test_hang_moi_hao_tu_buoc_sau)
-Hái lúc \u1edf m\u1eb7t n\u01b0\u1edbc: fresh = 100 ngay b\u01b0\u1edbc hái, b\u01b0\u1edbc k\u1ebf m\u1edbi hao 1 \u0111\u01a1n v\u1ecb tick. ... ok
-test_hao_0_5_moi_giay (test_gather_p3.Freshness.test_hao_0_5_moi_giay) ... ok
-test_nhanh_o_nguong_30_chinh_xac (test_gather_p3.Freshness.test_nhanh_o_nguong_30_chinh_xac)
-30 + 2/240 \u0111i\u1ec3m: b\u01b0\u1edbc 1 còn \u0111úng 30 (ch\u01b0a \u01b0\u01a1n, so tr\u01b0\u1edbc làm tròn); b\u01b0\u1edbc 2 m\u1edbi < 30. ... ok
-test_nhieu_ca_the_cung_vuot_theo_id (test_gather_p3.Freshness.test_nhieu_ca_the_cung_vuot_theo_id) ... ok
-test_pause_la_khong_buoc_sim (test_gather_p3.Freshness.test_pause_la_khong_buoc_sim)
-Pause do l\u1edbp day/runner gi\u1eef (không g\u1ecdi step) nên sim không hao; \u1edf \u0111ây ki\u1ec3m sim không t\u1ef1 hao khi không b\u01b0\u1edbc. ... ok
-test_vi_du_ticket_fresh_30_uon_o_buoc_dau (test_gather_p3.Freshness.test_vi_du_ticket_fresh_30_uon_o_buoc_dau) ... ok
-test_contract_freshness_sai_bi_tu_choi (test_gather_p3.IdsAndSchema.test_contract_freshness_sai_bi_tu_choi) ... ok
-test_id_noi_tiep_theo_thu_tu_vao_gio (test_gather_p3.IdsAndSchema.test_id_noi_tiep_theo_thu_tu_vao_gio) ... ok
-test_scenario_v11_van_nhan_mang_kind (test_gather_p3.IdsAndSchema.test_scenario_v11_van_nhan_mang_kind) ... ok
-test_scenario_v12_ma_2_khi_sai (test_gather_p3.IdsAndSchema.test_scenario_v12_ma_2_khi_sai) ... ok
-test_snapshot_hold_theo_schema_ca_the (test_gather_p3.IdsAndSchema.test_snapshot_hold_theo_schema_ca_the) ... ok
-test_chua_gather_end_giu_nguyen_file_dich (test_gather_p3.InventoryFile.test_chua_gather_end_giu_nguyen_file_dich) ... ok
-test_dinh_dang_100_va_97_5 (test_gather_p3.InventoryFile.test_dinh_dang_100_va_97_5) ... ok
-test_doc_kho_v12_tu_choi_kho_dem_va_sai_schema (test_gather_p3.InventoryFile.test_doc_kho_v12_tu_choi_kho_dem_va_sai_schema) ... ok
-test_ghi_dung_mot_lan_doc_lai_giu_nhanh_nguong (test_gather_p3.InventoryFile.test_ghi_dung_mot_lan_doc_lai_giu_nhanh_nguong) ... ok
-test_gather_end_inventory_theo_id_va_giu_hang_uon (test_gather_p3.LossAndEnd.test_gather_end_inventory_theo_id_va_giu_hang_uon) ... ok
-test_lost_la_mang_ca_the_lifo_khi_bi_can (test_gather_p3.LossAndEnd.test_lost_la_mang_ca_the_lifo_khi_bi_can) ... ok
-test_ngat_choke_ghi_kho_rong_va_lost_la_ca_the (test_gather_p3.LossAndEnd.test_ngat_choke_ghi_kho_rong_va_lost_la_ca_the) ... ok
-test_khong_co_freshness_thi_khong_hao_va_kho_dem (test_gather_p3.V11Unchanged.test_khong_co_freshness_thi_khong_hao_va_kho_dem) ... ok
 test_gather_hold_nhan_kind_moi (test_inventory_kinds.InventoryKinds.test_gather_hold_nhan_kind_moi) ... ok
 test_kind_la_van_bi_tu_choi (test_inventory_kinds.InventoryKinds.test_kind_la_van_bi_tu_choi) ... ok
 test_kind_moi_hop_le (test_inventory_kinds.InventoryKinds.test_kind_moi_hop_le) ... ok
@@ -108,6 +122,7 @@ test_het_ca_khach_dang_an_tra_ngay (test_quan.Payment.test_het_ca_khach_dang_an_
 test_het_kien_nhan_roi_va_tru_uy_tin (test_quan.Payment.test_het_kien_nhan_roi_va_tru_uy_tin) ... ok
 test_khach_roi_bo_mon_dang_nau (test_quan.Payment.test_khach_roi_bo_mon_dang_nau) ... ok
 test_tra_tien_boa_va_uy_tin (test_quan.Payment.test_tra_tien_boa_va_uy_tin) ... ok
+test_khach_eating_khai_du_base_price_va_tip_hop_le (test_quan.ScenarioContradictions.test_khach_eating_khai_du_base_price_va_tip_hop_le) ... ok
 test_kho_inventory_thieu_cho_giu_exit_2 (test_quan.ScenarioContradictions.test_kho_inventory_thieu_cho_giu_exit_2) ... ok
 test_mau_thuan_exit_2 (test_quan.ScenarioContradictions.test_mau_thuan_exit_2) ... ok
 test_boa_khi_con_du_kien_nhan (test_quan.Serving.test_boa_khi_con_du_kien_nhan) ... ok
@@ -134,7 +149,7 @@ test_snapshot_tick0_co_2_bep_4_ban (test_quan_p2.Schedule.test_snapshot_tick0_co
 test_con_01_ticks_zero_and_end_line (test_smoke_p1.Contract.test_con_01_ticks_zero_and_end_line) ... ok
 test_con_02_deterministic_bytes (test_smoke_p1.Contract.test_con_02_deterministic_bytes) ... ok
 test_con_03_bad_input_exit_2 (test_smoke_p1.Contract.test_con_03_bad_input_exit_2) ... ok
-test_con_03_old_and_future_modes_rejected (test_smoke_p1.Contract.test_con_03_old_and_future_modes_rejected) ... ok
+test_con_03_old_and_unknown_modes_rejected (test_smoke_p1.Contract.test_con_03_old_and_unknown_modes_rejected) ... ok
 test_gather_snapshot_has_gather_fields (test_smoke_p1.Contract.test_gather_snapshot_has_gather_fields) ... ok
 test_scenario_out_of_domain_exit_2 (test_smoke_p1.Contract.test_scenario_out_of_domain_exit_2) ... ok
 test_inv_01_gather_writes_inventory_quan_reads_it (test_smoke_p1.Integration.test_inv_01_gather_writes_inventory_quan_reads_it)
@@ -161,6 +176,6 @@ test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
 test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
 
 ----------------------------------------------------------------------
-Ran 137 tests in 9.630s
+Ran 168 tests in 25.060s
 
 OK

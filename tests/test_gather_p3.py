@@ -1,7 +1,7 @@
 """Phase 3 (TICKET-03, Test Contract v1.2) — phần Gather của Người 1: AC-P3-01 (kho cá thể, độ tươi, ươn).
 
-Chạy thẳng lớp sim (Session) với tuning có khối `freshness`, vì manifest chỉ bật v1.2 khi quán/day
-(Người 2) sẵn sàng. Không có `freshness` thì Gather giữ nguyên hành vi v1.1 (test ở test_gather_lat*/p2).
+Chạy thẳng lớp sim (Session). Manifest đã là v1.2 (khối `freshness`) sau khi gộp với lõi của Người 2: schema kho
+cá thể là duy nhất, hành vi gather kiểu v1.1 (kho đếm, không hao) đã bị bỏ theo ADR-0003 (cắt thẳng).
 """
 
 import copy
@@ -11,7 +11,7 @@ import unittest
 
 from chonoi.errors import BadInput
 from chonoi.inputs import InputState
-from chonoi.inventory import read_inventory_v12, write_inventory
+from chonoi.inventory import read_inventory, write_inventory
 from chonoi.runner import Session, run
 from chonoi.scenario import load_scenario
 
@@ -127,10 +127,11 @@ class IdsAndSchema(unittest.TestCase):
                 with self.assertRaises(BadInput):
                     load_scenario(path, "gather", T12)
 
-    def test_scenario_v11_van_nhan_mang_kind(self):
+    def test_scenario_kieu_cu_mang_kind_bi_tu_choi(self):
         with Workdir() as w:
             path = write_json(w.path("sc.json"), {"gather": {"hold": ["ca_linh"]}})
-            self.assertEqual(load_scenario(path, "gather", BASE)["hold"], ["ca_linh"])
+            with self.assertRaises(BadInput):
+                load_scenario(path, "gather", BASE)
 
     def test_contract_freshness_sai_bi_tu_choi(self):
         from chonoi.contract import validate_tuning
@@ -138,7 +139,7 @@ class IdsAndSchema(unittest.TestCase):
         t["freshness"] = {"initial": 100}
         with self.assertRaises(BadInput):
             validate_tuning(t)
-        validate_tuning(T12)
+        validate_tuning(T12, ("reservations",))  # manifest hợp nhất có khối reservations (mở rộng đặt trước)
 
 
 class LossAndEnd(unittest.TestCase):
@@ -184,10 +185,10 @@ class InventoryFile(unittest.TestCase):
             from chonoi.inputs import load_frames
             run("gather", T12, sc, 1, load_frames(inp), 5, w.path("o.jsonl"), 1, inventory_out=out)
             self.assertFalse([f for f in os.listdir(os.path.dirname(out)) if f.endswith(".tmp")])
-            back = read_inventory_v12(out)
+            back = read_inventory(out)  # cá thể nội bộ {id,kind,u}; 240 đơn vị = 1 điểm
             self.assertEqual([x["id"] for x in back], ["I1", "I2"])
-            self.assertLess(back[0]["fresh"], 30)  # 30 + 1/240 - 2/240: vẫn < 30 sau khi đọc lại
-            self.assertAlmostEqual(back[1]["fresh"], 97.5 - 0.5 / 60, delta=0.01)
+            self.assertLess(back[0]["u"] / 240, 30)  # 30 + 1/240 - 2/240: vẫn < 30 sau khi đọc lại
+            self.assertAlmostEqual(back[1]["u"] / 240, 97.5 - 0.5 / 60, delta=0.01)
 
     def test_chua_gather_end_giu_nguyen_file_dich(self):
         with Workdir() as w:
@@ -207,7 +208,7 @@ class InventoryFile(unittest.TestCase):
                     {"items": [{"id": "I1", "kind": "ca_loc", "fresh": 1}, {"id": "I1", "kind": "ca_loc", "fresh": 2}]})
             for bad in bads:
                 with self.subTest(bad=bad), self.assertRaises(BadInput):
-                    read_inventory_v12(write_json(w.path("k.json"), bad))
+                    read_inventory(write_json(w.path("k.json"), bad))
 
     def test_dinh_dang_100_va_97_5(self):
         with Workdir() as w:
@@ -218,15 +219,6 @@ class InventoryFile(unittest.TestCase):
                 self.assertEqual(f.read().strip(),
                                  '{"items":[{"id":"I1","kind":"ca_linh","fresh":100},'
                                  '{"id":"I2","kind":"ca_loc","fresh":97.5}]}')
-
-
-class V11Unchanged(unittest.TestCase):
-    def test_khong_co_freshness_thi_khong_hao_va_kho_dem(self):
-        s = Session("gather", BASE, {"hold": ["ca_linh", "ca_loc"], **NOFISH}, 1)
-        ev = step(s, 200)
-        self.assertEqual(s.sim.hold, ["ca_linh", "ca_loc"])
-        self.assertEqual(spoiled(ev), [])
-        self.assertEqual(s.sim.inventory_items(), {"ca_linh": 1, "ca_loc": 1})
 
 
 if __name__ == "__main__":

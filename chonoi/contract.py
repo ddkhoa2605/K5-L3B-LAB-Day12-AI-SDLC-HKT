@@ -4,8 +4,13 @@ import json
 import os
 
 from .errors import BadInput
+from .freshness import Rates
 
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "game.contract.json")
+
+
+# Mở rộng đã cài luật (TICKET-02 mục 3). Khai mã ở `extensions` tại gốc manifest khi bật.
+KNOWN_EXTENSIONS = {"burn", "reservations"}
 
 
 def _num(v):
@@ -23,7 +28,10 @@ def load_contract(path=DEFAULT_PATH) -> dict:
             c = json.load(f)
     except (OSError, ValueError) as e:
         raise BadInput(f"không đọc được {path}: {e}")
-    validate_tuning(c.get("tuning"))
+    ext = c.get("extensions", [])
+    if not isinstance(ext, list) or not set(ext) <= KNOWN_EXTENSIONS:
+        raise BadInput(f"extensions chỉ nhận {sorted(KNOWN_EXTENSIONS)}, đang là {ext!r}")
+    validate_tuning(c.get("tuning"), ext)
     return c
 
 
@@ -114,21 +122,35 @@ def _validate_gather(g):
         raise BadInput("tuning.gather.fish_initial phải là số hoặc danh sách")
 
 
-def _validate_freshness(f):
-    """v1.2: tuning.freshness {initial, gather_decay_per_s, quan_decay_per_s, spoiled_below}."""
-    if not isinstance(f, dict) or set(f) != {"initial", "gather_decay_per_s", "quan_decay_per_s", "spoiled_below"}:
-        raise BadInput("tuning.freshness phải có đúng initial, gather_decay_per_s, quan_decay_per_s, spoiled_below")
-    _between("freshness.initial", f["initial"], 1, 100)
-    _between("freshness.gather_decay_per_s", f["gather_decay_per_s"], 0, 100)
-    _between("freshness.quan_decay_per_s", f["quan_decay_per_s"], 0, 100)
-    _between("freshness.spoiled_below", f["spoiled_below"], 0, 100)
+def _validate_freshness(fr):
+    """Contract v1.2: khối tuning.freshness {initial, gather_decay_per_s, quan_decay_per_s, spoiled_below}."""
+    if not isinstance(fr, dict):
+        raise BadInput("thiếu khối tuning.freshness (contract v1.2)")
+    _between("freshness.initial", fr.get("initial"), 1, 100)
+    _between("freshness.gather_decay_per_s", fr.get("gather_decay_per_s"), 0, 100)
+    _between("freshness.quan_decay_per_s", fr.get("quan_decay_per_s"), 0, 100)
+    _between("freshness.spoiled_below", fr.get("spoiled_below"), 0, fr["initial"])
+    Rates(fr)  # hệ số phải quy ra số nguyên đơn vị/tick, nếu không -> BadInput
 
 
-def validate_tuning(t):
+def _validate_reservations(r, extensions):
+    """Mở rộng Khách đặt trước: khối `tuning.reservations` có <=> khai extensions `reservations`."""
+    if "reservations" not in extensions:
+        if r is not None:
+            raise BadInput("tuning.reservations chỉ hợp lệ khi extensions có \"reservations\"")
+        return
+    if not isinstance(r, dict):
+        raise BadInput("extensions có reservations thì cần khối tuning.reservations")
+    _int_between("reservations.count", r.get("count"), 1, 4)
+    _between("reservations.table_hold_s", r.get("table_hold_s"), 1, 600)
+    _between("reservations.price_multiplier", r.get("price_multiplier"), 1, 10)
+    if not (_num(r.get("failed_reputation_delta")) and r["failed_reputation_delta"] < 0):
+        raise BadInput("reservations.failed_reputation_delta phải là số âm")
+
+
+def validate_tuning(t, extensions=()):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
-    if "freshness" in t:
-        _validate_freshness(t["freshness"])
     g, q, menu = t.get("gather"), t.get("quan"), t.get("menu")
     if not isinstance(g, dict) or not isinstance(q, dict) or not isinstance(menu, dict):
         raise BadInput("tuning phải có gather, quan, menu")
@@ -152,8 +174,14 @@ def validate_tuning(t):
     if not (_num(q.get("tip_reputation")) and q["tip_reputation"] > 0):
         raise BadInput("quan.tip_reputation phải > 0")
     if q.get("burn_s") is not None:
-        raise BadInput("burn_s phải là null ở Phase 1")
+        if "burn" not in extensions:
+            raise BadInput("burn_s phải là null (chưa khai extensions: [burn])")
+        _between("quan.burn_s", q["burn_s"], 1, 600)
+    elif "burn" in extensions:
+        raise BadInput("extensions có burn thì quan.burn_s phải hữu hạn")
     # TODO(nhóm): bổ sung kiểm các khóa còn lại nếu muốn chặt hơn (bếp/bàn, uy tín, ...).
+    _validate_freshness(t.get("freshness"))
+    _validate_reservations(t.get("reservations"), extensions)
     for dish_id, d in menu.items():
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
