@@ -645,10 +645,10 @@ function makeQuanView() {
         g.badge.position.set(tpos[0] + 1.25, 2.55, -tpos[1]); g.badge.quaternion.copy(camera.quaternion); g.badge.visible = c.state === "waiting";
         v3.set(tpos[0] + 1.25, 2.95, -tpos[1]).project(camera);
         g.el.style.left = ((v3.x + 1) / 2 * innerWidth) + "px"; g.el.style.top = ((1 - v3.y) / 2 * innerHeight) + "px";
-        const label = c.state === "eating" ? "Đang ăn ngon lành" : (DISH_NAME[c.dish_id] || c.dish_id);
+        const label = c.state === "eating" ? "Đang ăn ngon lành" : dn(c.dish_id);
         const sub = c.state === "eating" ? `<span class="muted">trả tiền sau ${Math.ceil(c.eat_ticks_left / 60)}s</span>` :
           `<div class="bar" style="--c:${col}"><i style="width:${(frac * 100).toFixed(1)}%"></i></div>`;
-        const html = `<b>${c.id} · ${label}</b>${sub}`; if (g.el._h !== html) { g.el.innerHTML = html; g.el._h = html; }
+        const html = `<b>${esc(c.id)} · ${label}</b>${sub}`; if (g.el._h !== html) { g.el.innerHTML = html; g.el._h = html; }
       }
       if (eating !== tableId) tableId = swap(tableDish, eating); tableDish.position.set(tb.pos[0], 0.95, -tb.pos[1]);
       smoke.update(dt, t); coins.update(dt, t, 4);
@@ -662,14 +662,17 @@ function makeQuanView() {
 // 3. HUD (HTML) — chỉ đọc snapshot
 // =====================================================================================
 const $ = (id) => document.getElementById(id);
+// Chuỗi lấy từ snapshot (id, kind, dish_id) có thể đến từ scenario: luôn escape trước khi ghép vào HTML.
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+const kn = (k) => esc(KIND_NAME[k] || k), dn = (d) => esc(DISH_NAME[d] || d);
 const setHTML = (el, h) => { if (el._h !== h) { el.innerHTML = h; el._h = h; } };
 const fmt = (ticks) => { const s = Math.ceil(Math.max(0, ticks) / 60); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
-const chip = (k, n, extra = "") => `<span class="chip"><span class="dot" style="background:${KIND_COLOR[k] || "#bbb"}"></span>${KIND_NAME[k] || k} ×${n}${extra}</span>`;
+const chip = (k, n, extra = "") => `<span class="chip"><span class="dot" style="background:${KIND_COLOR[k] || "#bbb"}"></span>${kn(k)} ×${n}${extra}</span>`;
 
 function hud(snap) {
   if (snap.mode === "gather") {
     const p = snap.player; const ox = p.oxygen_ticks / p.oxygen_max_ticks;
-    const slots = Array.from({ length: snap.hold_capacity }, (_, i) => `<div class="slot" style="${snap.hold[i] ? `background:${KIND_COLOR[snap.hold[i]]}` : ""}" title="${KIND_NAME[snap.hold[i]] || ""}"></div>`).join("");
+    const slots = Array.from({ length: snap.hold_capacity }, (_, i) => `<div class="slot" style="${snap.hold[i] ? `background:${KIND_COLOR[snap.hold[i]]}` : ""}" title="${snap.hold[i] ? kn(snap.hold[i]) : ""}"></div>`).join("");
     const counts = {}; snap.hold.forEach((k) => counts[k] = (counts[k] || 0) + 1);
     const choke = p.oxygen_ticks === 0 && !p.at_surface ? `<div class="row warn">Ngạt! Mất 1 Máu sau ${((60 - p.zero_oxy_ticks) / 60).toFixed(1)}s, nổi lên ngay</div>` : "";
     setHTML($("panel"), `<h2>Buổi sáng · Lặn & Hái</h2><div class="sub">Sông Chín Khúc, chợ nổi Rạch Sen</div>
@@ -688,16 +691,16 @@ function hud(snap) {
     const kinds = Object.keys(KIND_NAME).filter((k) => snap.stock[k]);
     const stockHtml = kinds.length ? kinds.map((k) => chip(k, avail[k], reservedTotal[k] ? ` <span class="muted">(giữ ${reservedTotal[k]})</span>` : "")).join("") : `<span class="muted">Kho trống</span>`;
     const s = snap.stoves[0];
-    const stoveTxt = s.state === "idle" ? "Rảnh" : s.state === "cooking" ? `Đang nấu ${DISH_NAME[s.dish.dish_id]} · ${(s.cook_ticks_left / 60).toFixed(1)}s` : `<b style="color:var(--gold)">Đã chín:</b> ${DISH_NAME[s.dish.dish_id]}`;
+    const stoveTxt = s.state === "idle" ? "Rảnh" : s.state === "cooking" ? `Đang nấu ${dn(s.dish.dish_id)} · ${(s.cook_ticks_left / 60).toFixed(1)}s` : `<b style="color:var(--gold)">Đã chín:</b> ${dn(s.dish.dish_id)}`;
     const stars = "★".repeat(Math.floor(snap.reputation)) + "☆".repeat(5 - Math.floor(snap.reputation));
-    const orders = snap.customers.map((c) => `<div class="row"><span>${c.id} · ${DISH_NAME[c.dish_id]}</span><span class="muted">${c.state === "waiting" ? Math.ceil(c.patience_ticks_left / 60) + "s" : "đang ăn"}</span></div>`).join("") || `<div class="muted">Chưa có khách</div>`;
+    const orders = snap.customers.map((c) => `<div class="row"><span>${esc(c.id)} · ${dn(c.dish_id)}</span><span class="muted">${c.state === "waiting" ? Math.ceil(c.patience_ticks_left / 60) + "s" : "đang ăn"}</span></div>`).join("") || `<div class="muted">Chưa có khách</div>`;
     setHTML($("panel"), `<h2>Buổi tối · Quán nhà bè Má Tư</h2><div class="sub">Đèn dây vàng, khói bếp</div>
       <div class="row"><span>Thời gian ca</span><span class="big">${fmt(snap.time_left_ticks)}</span></div>
       <div class="row"><span>Tiền</span><span class="big" style="color:var(--gold)">${snap.money}k</span></div>
       <div class="row"><span>Uy tín</span><span style="color:var(--gold)">${stars} <span class="muted">${snap.reputation.toFixed(1)}</span></span></div>
       <div class="row"><span>Kho khả dụng</span></div><div class="chips">${stockHtml}</div>
       <div class="row"><span>Bếp B1</span><span>${stoveTxt}</span></div>
-      <div class="row"><span>Trên tay</span><span>${snap.hand ? DISH_NAME[snap.hand.dish_id] : '<span class="muted">trống</span>'}</span></div>
+      <div class="row"><span>Trên tay</span><span>${snap.hand ? dn(snap.hand.dish_id) : '<span class="muted">trống</span>'}</span></div>
       <div class="row" style="margin-top:10px"><b>Món khách gọi</b></div>${orders}`);
     setHTML($("hint"), `<kbd>WASD</kbd> đi · <kbd>E</kbd> ở bếp: nấu / bưng · <kbd>E</kbd> ở bàn: phục vụ · <kbd>R</kbd> chơi lại`);
   }
@@ -705,7 +708,7 @@ function hud(snap) {
   if (snap.finished) {
     ov.hidden = false;
     if (snap.mode === "gather") {
-      const why = { docked: "Cập bến an toàn", time: "Hết giờ buổi sáng", fainted: "Út Sen ngất, giỏ rơi hết" }[snap.reason] || snap.reason;
+      const why = { docked: "Cập bến an toàn", time: "Hết giờ buổi sáng", fainted: "Út Sen ngất, giỏ rơi hết" }[snap.reason] || esc(snap.reason);
       const inv = state.inventory || {}; const list = Object.entries(inv).map(([k, n]) => chip(k, n)).join("") || '<span class="muted">giỏ trống</span>';
       setHTML(ov, `<div class="card"><h1>${why}</h1><div class="muted">File kho mang về quán:</div><div class="chips" style="justify-content:center;margin-top:8px">${list}</div>
         <button id="toQuan">Mở quán buổi tối (2)</button></div>`);
