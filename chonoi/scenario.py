@@ -228,6 +228,12 @@ def check_quan_state(sim, tuning):
     """
     menu = tuning["menu"]
     validate_items(sim.stock)
+    allowed = getattr(sim, "allowed", None)
+    if allowed is not None and not allowed <= set(menu):
+        raise BadInput("kế hoạch Ngày có món không thuộc menu")
+    for c in sim.customers:
+        if allowed is not None and c["dish_id"] not in allowed:
+            raise BadInput(f"customers.{c['id']}: món {c['dish_id']} không thuộc kế hoạch Ngày")
     if sim.time_left_ticks < 1:
         raise BadInput("time_left_ticks phải >= 1")
     by_id = {c["id"]: c for c in sim.customers}
@@ -288,3 +294,14 @@ def check_quan_state(sim, tuning):
     for c in sim.customers:
         if c["order_status"] == "assigned" and c["id"] not in seen:
             raise BadInput(f"customers.{c['id']}: đơn assigned phải có đúng một món ở bếp hoặc tay")
+
+
+def day_plan_ingredients(dishes, menu):
+    """Tổng nguyên liệu của kế hoạch Ngày = tổng công thức × số suất (TICKET-02 mục 2/4.1)."""
+    need = {}
+    for dish, n in dishes.items():
+        if dish not in menu or isinstance(n, bool) or not isinstance(n, int) or n <= 0:
+            raise BadInput(f"day_plan: món/số suất không hợp lệ: {dish!r}: {n!r}")
+        for kind, q in menu[dish]["recipe"].items():
+            need[kind] = need.get(kind, 0) + q * n
+    return {k: need[k] for k in sorted(need)}

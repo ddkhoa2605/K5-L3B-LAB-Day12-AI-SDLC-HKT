@@ -72,7 +72,9 @@ class Arrival(unittest.TestCase):
 
     def test_khong_con_ban_bo_luot(self):
         with Workdir() as w:
-            code, rows = quan(w, {"stock": {"ca_loc": 2}, "customers": [waiting("C1", reserved={"ca_loc": 1})]},
+            # v1.1 có 4 bàn: ngồi kín cả 4 thì khách mới bỏ lượt
+            full = [waiting(f"C{i + 1}", table_id=tb["id"]) for i, tb in enumerate(Q["tables"])]
+            code, rows = quan(w, {"stock": {"ca_loc": len(full) + 1}, "customers": full},
                               ticks=Q["first_customer_tick"] + 5)
             self.assertEqual(code, 0, rows)
             self.assertEqual(events(rows, "customer_arrived") + events(rows, "no_dish"), [])

@@ -1,0 +1,5 @@
+gather exit=0
+quan exit=0
+{"items":{"bong_sung":2,"ca_keo":1,"ca_loc":1,"keo_neo":1}}
+{"type":"snapshot","tick":0,"sim_tick":0,"mode":"quan","phase":"quan","phase_tick":0,"state":"playing","time_left_ticks":10800,"money":0,"earned":0,"reputation":3.0,"score":300,"player":{"pos":[8.0,5.0],"vel":[0.0,0.0]},"stock":{"bong_sung":2,"ca_keo":1,"ca_lo
+CMP_OK
