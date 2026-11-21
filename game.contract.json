@@ -84,6 +84,19 @@
       {"day": 4, "dishes": {"lau_mam": 1, "ca_loc_nuong_trui": 2, "goi_bong_sung": 1}, "ingredients": {"bong_dien_dien": 1, "bong_sung": 2, "ca_keo": 1, "ca_linh": 2, "ca_loc": 2, "keo_neo": 1}},
       {"day": 5, "dishes": {"lau_mam": 1, "lau_ca_linh_dien_dien": 1, "ca_loc_nuong_trui": 1}, "ingredients": {"bong_dien_dien": 2, "ca_keo": 1, "ca_linh": 5, "ca_loc": 1, "keo_neo": 1}}
     ],
+    "shop": {
+      "max_ticks": 600,
+      "upgrades": {
+        "oxygen": [
+          {"level": 1, "price": 200, "oxygen_max_s": 45},
+          {"level": 2, "price": 400, "oxygen_max_s": 60}
+        ],
+        "hp": [
+          {"level": 1, "price": 250, "hp_max": 4},
+          {"level": 2, "price": 500, "hp_max": 5}
+        ]
+      }
+    },
     "score": {"reputation_multiplier": 100}
   }
 }

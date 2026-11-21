@@ -10,3 +10,12 @@
 | 7 | 2026-11-21 | Hết ca mà khách waiting đúng lúc kiên nhẫn = 0: `patience` hay `closing`? | Giả định: `closing` (PRD: hết kiên nhẫn chỉ xét "nếu ca còn giờ"), không trừ uy tín. | Người 2 → PO |
 | 8 | 2026-11-21 | Boa: `floor(món × tip_rate)` dùng float; có cần epsilon? Uy tín cộng/trừ dễ trôi số thực. | Giả định: không epsilon cho boa; uy tín làm tròn 6 chữ số sau mỗi lần đổi để `floor(reputation)` không lệch. | Người 2 |
 | 4 | 2026-11-21 | Phase 1 có phải làm "Mở rộng" không? | PRD-0: nhóm 4 người không bắt buộc. Giả định: không làm trong Phase 1. | PO |
+| 9 | 2026-11-21 | Ai làm lát `--mode day` / Shop / pause / menu / HUD (TICKET-02, lát 4)? | Chưa có người nhận. Giả định tạm: Người 2 dựng khung (`chonoi/day.py`, `pause.py`, ADR-0002) trong PR riêng; Người 3 hoàn thiện giao diện, Người 4 kiểm. Cần PO xác nhận. | PO |
+| 10 | 2026-11-21 | Khóa `day_plan` và `shop` nằm ở đâu trong `game.contract.json`? Ticket chỉ nói "khóa thêm". | Giả định: dưới `tuning`, cùng cấp `quan`, `menu`. | PO |
+| 11 | 2026-11-21 | Khi cạnh `pause` kết thúc pause, các cạnh hành động cùng frame có chạy không? | Giả định: có, gameplay chạy ngay trong bước đó với đủ cạnh của frame (ticket: "chạy gameplay ngay trong bước đó"). Khi đang pause và vào pause thì bỏ qua mọi cạnh hành động và `buy`. | Người 2 |
+| 12 | 2026-11-21 | Event ở tick 0 (`day_start`, `day_plan`, `phase_start`) nằm trước hay sau snapshot tick 0? | Giả định: sau snapshot tick 0 (snapshot "sau khi dựng fixture, trước mọi input"). Không thêm snapshot riêng khi đổi pha. | Người 2 |
+| 13 | 2026-11-21 | Trường `mode` trong snapshot/`end` của `day` là gì? | Giả định: `"day"`; `phase` là `gather/quan/shop`. | Người 2 |
+| 14 | 2026-11-21 | Lệnh `buy` mở rộng (`weapon`, `net`, `buy:<kind>`) khi chưa bật mở rộng? | Giả định: `buy_failed` với `reason:"unknown"` (ticket: lệnh không hỗ trợ). `out_of_stock` chỉ khi có Chợ Chú Sáu. | Người 2 |
+| 15 | 2026-11-21 | Cấp nâng cấp khai ở `day.upgrades` có hiệu lực từ Ngày 1 không? | Giả định: có (`active_upgrades` = `upgrades` lúc khởi tạo). | Người 2 |
+| 16 | 2026-11-21 | Bật `burn` thế nào, và mặc định? | Giả định: tắt mặc định (`burn_s: null`, không khai `extensions`) để giữ số lõi; bật bằng `extensions:["burn"]` + `quan.burn_s: 20`. Nhóm 4 người không bắt buộc. | Người 2 |
+| 17 | 2026-11-21 | DayIntro/EveningIntro có tạm dừng đồng hồ không? | Giả định: không (chỉ lớp phủ, tự tắt sau 4 s hoặc khi bấm phím); pause thật dùng Esc/P. | Người 2 → Người 3 |

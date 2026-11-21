@@ -8,6 +8,10 @@ from .errors import BadInput
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "game.contract.json")
 
 
+# Mở rộng đã cài luật (TICKET-02 mục 3). Khai mã ở `extensions` tại gốc manifest khi bật.
+KNOWN_EXTENSIONS = {"burn"}
+
+
 def _num(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool)
 
@@ -23,7 +27,10 @@ def load_contract(path=DEFAULT_PATH) -> dict:
             c = json.load(f)
     except (OSError, ValueError) as e:
         raise BadInput(f"không đọc được {path}: {e}")
-    validate_tuning(c.get("tuning"))
+    ext = c.get("extensions", [])
+    if not isinstance(ext, list) or not set(ext) <= KNOWN_EXTENSIONS:
+        raise BadInput(f"extensions chỉ nhận {sorted(KNOWN_EXTENSIONS)}, đang là {ext!r}")
+    validate_tuning(c.get("tuning"), ext)
     return c
 
 
@@ -109,7 +116,7 @@ def _validate_gather(g):
             raise BadInput(f"tuning.gather.fish_initial.{f['id']}: đàn cá phải ở dưới nước")
 
 
-def validate_tuning(t):
+def validate_tuning(t, extensions=()):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
     g, q, menu = t.get("gather"), t.get("quan"), t.get("menu")
@@ -135,7 +142,11 @@ def validate_tuning(t):
     if not (_num(q.get("tip_reputation")) and q["tip_reputation"] > 0):
         raise BadInput("quan.tip_reputation phải > 0")
     if q.get("burn_s") is not None:
-        raise BadInput("burn_s phải là null ở Phase 1")
+        if "burn" not in extensions:
+            raise BadInput("burn_s phải là null (chưa khai extensions: [burn])")
+        _between("quan.burn_s", q["burn_s"], 1, 600)
+    elif "burn" in extensions:
+        raise BadInput("extensions có burn thì quan.burn_s phải hữu hạn")
     # TODO(nhóm): bổ sung kiểm các khóa còn lại nếu muốn chặt hơn (bếp/bàn, uy tín, ...).
     for dish_id, d in menu.items():
         price, cook = d.get("price"), d.get("cook_s")

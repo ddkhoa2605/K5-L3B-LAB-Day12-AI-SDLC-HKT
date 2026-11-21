@@ -12,6 +12,7 @@ import math
 from .ids import IdAllocator
 from .inputs import InputPlayer
 from .inventory import write_inventory
+from .pause import PauseGate
 from .jsonl import JsonlWriter
 from .rng import Streams
 from .sim.gather import GatherSim
@@ -42,28 +43,35 @@ class Session:
         self.mode = mode
         self.tuning = tuning
         self.sim = build_sim(mode, tuning, scenario, seed, inventory)
-        self.tick = 0
+        self.tick = 0      # bước ngoài (kể cả lúc pause)
+        self.sim_tick = 0  # bước gameplay thực chạy (đứng yên khi pause)
+        self.gate = PauseGate()
 
     @property
     def done(self) -> bool:
         return self.sim.done
 
     def snapshot(self) -> dict:
-        s = _common(self.sim, self.tick, self.tick, self.tick, self.tuning, "finished" if self.sim.done else "playing")
+        state = "finished" if self.sim.done else ("paused" if self.gate.paused else "playing")
+        s = _common(self.sim, self.tick, self.sim_tick, self.sim_tick, self.tuning, state)
         s.update(self.sim.snapshot())
         return s
 
     def step(self, inp) -> list:
         """Chạy một bước với `inp` (chonoi.inputs.InputState); trả các dòng event (tick = k + 1)."""
-        events = self.sim.step(inp)
+        name, run = self.gate.handle(inp)
+        events = [(name, {})] if name else []
+        if run:
+            events += self.sim.step(inp)
+            self.sim_tick += 1
         self.tick += 1
-        return [{"type": "event", "tick": self.tick, "phase": self.sim.phase, "name": name, "data": data}
-                for name, data in events]
+        return [{"type": "event", "tick": self.tick, "phase": self.sim.phase, "name": n, "data": data}
+                for n, data in events]
 
     def end_row(self) -> dict:
         sim = self.sim
-        score = _common(sim, self.tick, self.tick, self.tick, self.tuning, "")["score"]
-        return {"type": "end", "ticks": self.tick, "sim_tick": self.tick, "mode": sim.mode,
+        score = _common(sim, self.tick, self.sim_tick, self.sim_tick, self.tuning, "")["score"]
+        return {"type": "end", "ticks": self.tick, "sim_tick": self.sim_tick, "mode": sim.mode,
                 "state": "finished" if sim.done else "playing",
                 "reason": sim.reason if sim.done else "tick_limit",
                 "money": sim.money, "earned": sim.earned, "reputation": sim.reputation, "score": score}
