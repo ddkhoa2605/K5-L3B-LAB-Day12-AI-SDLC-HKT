@@ -115,6 +115,7 @@ class LiveGame:
             snap = self.session.snapshot()
             snap["meta"] = self._meta()
             snap["menu"] = self.at_menu
+            snap["freshness"] = self.tuning.get("freshness")  # ADR-0004: HUD cần ngưỡng ươn; chỉ ở /state, không vào JSONL
             if self.mode == "day":
                 snap["stats"] = self.session.stats
                 snap["days_total"] = self.days

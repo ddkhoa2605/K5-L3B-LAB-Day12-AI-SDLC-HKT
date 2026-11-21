@@ -60,3 +60,13 @@ class LiveServerTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LiveStateFreshnessTest(unittest.TestCase):
+    """ADR-0004: /state mang nguyên tuning.freshness của manifest (null khi chưa khai, ví dụ v1.1) để HUD biết ngưỡng ươn."""
+
+    def test_freshness_matches_manifest(self):
+        tuning = load_contract()["tuning"]
+        st = json.loads(LiveGame("gather", tuning, {}, 1).state_json())
+        self.assertIn("freshness", st)
+        self.assertEqual(st["freshness"], tuning.get("freshness"))
