@@ -99,9 +99,9 @@ const KIND_COLOR = { ca_loc: "#6f8a46", ca_linh: "#cfe0ea", bong_dien_dien: "#f2
 const DISH_NAME = { ca_loc_nuong_trui: "Cá lóc nướng trui", goi_bong_sung: "Gỏi bông súng", lau_ca_linh_dien_dien: "Lẩu cá linh bông điên điển" };
 const DISH_COLOR = { ca_loc_nuong_trui: "#c77d36", goi_bong_sung: "#ef7fa6", lau_ca_linh_dien_dien: "#f0b443" };
 
-// Preset v1.0 — CHỈ để chạy sim giả trong demo. Client thật đọc snap.meta từ GET /state.
+// Preset v1.0 — chép nguyên số từ game.contract.json (đã đối chiếu). CHỈ để chạy sim giả; client thật đọc snap.meta từ GET /state.
 const TUNING = {
-  gather: { duration_s: 180, bounds: { x: [0, 100], d: [0, 30] }, dock_pos: [2, 0], dock_radius: 3, start_pos: [2, 0],
+  gather: { duration_s: 180, bounds: { x: [0, 100], d: [0, 30] }, dock_pos: [2, 0], dock_radius: 3, start_pos: [2, 0], start_heading_deg: 0,
     swim_speed: 4.0, ramp_max_ticks: 6, surface_depth: 0.5, oxygen_max_s: 30, oxygen_refill_per_tick: 6, choke_interval_ticks: 60,
     hp_max: 3, hold_capacity: 12, interact_radius: 2.0, node_yield: 1, regrow_s: 20, catch_radius: 2.0, catch_cooldown_s: 0.5,
     fish_yield: { ca_linh: 3, ca_loc: 1 },
@@ -131,10 +131,13 @@ class MockBase {
   constructor(mode) { this.mode = mode; this.tick = 0; this.events = []; this.prevBtn = { interact: false, catch: false }; this.done = false; this.reason = null; this.vel = [0, 0]; }
   emit(name, data) { this.events.push({ type: "event", tick: this.tick, phase: this.mode, name, data }); if (this.events.length > 40) this.events.shift(); }
   edges(inp) { const e = { interact: inp.interact && !this.prevBtn.interact, catch: inp.catch && !this.prevBtn.catch }; this.prevBtn = { interact: inp.interact, catch: inp.catch }; return e; }
-  move(inp, speed, bounds) {
-    const ramp = 3; // xấp xỉ ramp_max_ticks cho demo
+  move(inp, speed, bounds, rampMax) {
+    // Tăng/giảm tốc tuyến tính như chonoi/sim/ramp.py: từ lúc ĐỔI input, chạm mục tiêu sau tối đa ramp_max_ticks tick.
+    const tgt = [inp.move[0] * speed, inp.move[1] * speed];
+    if (!this._tgt || tgt[0] !== this._tgt[0] || tgt[1] !== this._tgt[1]) { this._tgt = tgt; this._rampLeft = Math.max(0, rampMax | 0); }
+    if (this._rampLeft <= 1) { this._rampLeft = 0; this.vel = [...tgt]; }
+    else { this.vel = this.vel.map((v, i) => v + (tgt[i] - v) / this._rampLeft); this._rampLeft--; }
     for (let i = 0; i < 2; i++) {
-      this.vel[i] += (inp.move[i] * speed - this.vel[i]) / ramp;
       this.pos[i] += this.vel[i] / 60;
       const [lo, hi] = bounds[i];
       if (this.pos[i] <= lo) { this.pos[i] = lo; this.vel[i] = Math.max(0, this.vel[i]); }
@@ -147,7 +150,7 @@ class MockBase {
 class MockGather extends MockBase {
   constructor() {
     super("gather"); const t = TUNING.gather;
-    this.pos = [...t.start_pos]; this.heading = 0; this.oxMax = t.oxygen_max_s * 60; this.ox = this.oxMax; this.hp = t.hp_max; this.zero = 0; this.cd = 0;
+    this.pos = [...t.start_pos]; this.heading = t.start_heading_deg; this.oxMax = t.oxygen_max_s * 60; this.ox = this.oxMax; this.hp = t.hp_max; this.zero = 0; this.cd = 0;
     this.hold = []; this.time = t.duration_s * 60;
     this.nodes = t.nodes.map((n) => ({ ...n, pos: [...n.pos], regrow_ticks: 0 }));
     this.fish = t.fish_initial.map((f) => ({ ...f, pos: [...f.pos], heading_deg: 0 }));
@@ -160,7 +163,7 @@ class MockGather extends MockBase {
     this.tick++; this.time--; this.cd = Math.max(0, this.cd - 1);
     for (const n of this.nodes) if (n.regrow_ticks > 0 && --n.regrow_ticks === 0) this.emit("node_regrown", { node_id: n.id });
     const wasUnder = this.under();
-    this.move(inp, t.swim_speed, [t.bounds.x, t.bounds.d]);
+    this.move(inp, t.swim_speed, [t.bounds.x, t.bounds.d], t.ramp_max_ticks);
     const under = this.under();
     if (under !== wasUnder) this.emit(under ? "dive" : "surface", { pos: [+this.pos[0].toFixed(3), +this.pos[1].toFixed(3)] });
     if (!under) { this.ox = Math.min(this.oxMax, this.ox + t.oxygen_refill_per_tick); this.zero = 0; }
@@ -211,7 +214,7 @@ class MockQuan extends MockBase {
   constructor(stock) {
     super("quan"); const t = TUNING.quan;
     this.pos = [...t.start_pos]; this.heading = 0; this.stock = { ...stock }; this.hand = null; this.time = t.duration_s * 60;
-    this.stove = { id: "B1", pos: [2, 8], state: "idle", dish: null, cook_ticks_left: 0, ready_ticks: 0 };
+    this.stove = { id: t.stoves[0].id, pos: [...t.stoves[0].pos], state: "idle", dish: null, cook_ticks_left: 0, ready_ticks: 0 };
     this.customers = []; this.money = 0; this.earned = 0; this.rep = t.reputation_initial; this.nextC = t.first_customer_tick; this.n = 0; this.rng = mulberry(42);
   }
   avail() { const a = { ...this.stock }; for (const c of this.customers) for (const k in c.reserved) a[k] = (a[k] || 0) - c.reserved[k]; return a; }
@@ -225,11 +228,11 @@ class MockQuan extends MockBase {
     if (s.state === "ready") s.ready_ticks++;
     if (s.state === "cooking" && --s.cook_ticks_left <= 0) { s.state = "ready"; s.ready_ticks = 0; this.emit("dish_ready", { stove_id: s.id, order_id: s.dish.order_id, dish_id: s.dish.dish_id }); }
     for (const c of this.customers) { if (c.state === "waiting") c.patience_ticks_left = Math.max(0, c.patience_ticks_left - 1); else if (c.state === "eating") c.eat_ticks_left = Math.max(0, c.eat_ticks_left - 1); }
-    this.move(inp, t.walk_speed, [t.bounds.x, t.bounds.z]);
+    this.move(inp, t.walk_speed, [t.bounds.x, t.bounds.z], t.ramp_max_ticks);
     if (e.interact) {
       const cand = [];
       const ds = dist(this.pos, s.pos); if (ds <= t.interact_radius) cand.push({ d: ds, o: 0, kind: "stove" });
-      const dt = dist(this.pos, [9, 2]); if (dt <= t.interact_radius) cand.push({ d: dt, o: 1, kind: "table" });
+      const dt = dist(this.pos, t.tables[0].pos); if (dt <= t.interact_radius) cand.push({ d: dt, o: 1, kind: "table" });
       cand.sort((a, b) => a.d - b.d || a.o - b.o);
       const pick = cand[0];
       if (pick && pick.kind === "stove") {
@@ -285,7 +288,7 @@ class MockQuan extends MockBase {
     return { type: "snapshot", tick: this.tick, sim_tick: this.tick, mode: "quan", phase: "quan", phase_tick: this.tick,
       state: this.done ? "finished" : "playing", time_left_ticks: this.time, money: this.money, earned: this.earned, reputation: +this.rep.toFixed(3),
       score: this.earned + 100 * Math.floor(this.rep), player: { pos: [...this.pos], vel: [...this.vel] }, stock, hand: this.hand,
-      stoves: [{ ...this.stove }], tables: [{ id: "T1", pos: [9, 2], customer_id: c0 ? c0.id : null }],
+      stoves: [{ ...this.stove }], tables: [{ id: TUNING.quan.tables[0].id, pos: [...TUNING.quan.tables[0].pos], customer_id: c0 ? c0.id : null }],
       customers: this.customers.map((c) => ({ ...c, reserved: { ...c.reserved } })),
       meta: TUNING.quan, events: [...this.events], finished: this.done, reason: this.reason, error: null };
   }
