@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | Vũ Đình Thắng (Người 1) | ThangVu2303 | `sim/gather` | PO | Người 2 (`sim/quan`) |
 | Đoàn Đăng Khoa (Người 2) | ddkhoa2605 | `sim/quan` | Integrator + Release (gắn tag, retro) | Người 3 (`client/ui`) |
-| Nguyễn Văn Minh (Người 3) | vminh21 | `client/ui` | — (chỉ làm UI) | Người 4 (`qa`) |
+| Nguyễn Văn Minh (Người 3) | vminh21 | `client/ui` (`chonoi/web/`, `chonoi/live.py`), benchmark `tools/bench.py` | Chủ hợp đồng UI (`docs/contracts/ui-interface.md`); reviewer PR; bằng chứng UI và benchmark (`docs/proof/`) | Người 4 (`qa`) |
 | Nguyễn Hữu Thịnh (Người 4) | huuthinh812 | `qa` | QA lead | Người 1 (`sim/gather`) |
 
 **Vai quy trình:** PO (đầu mối hỏi giảng viên, giữ `docs/clarify.md`) · Integrator (giữ `docs/contracts/`, gắn tag) · QA lead · Scrum/Release. Có thể kiêm.
