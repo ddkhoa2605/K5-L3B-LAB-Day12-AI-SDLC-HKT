@@ -1,0 +1,4 @@
+jsonl giống nhau: True
+kho giống nhau: True
+kho: {"items":[{"id":"I1","kind":"ca_linh","fresh":99.99166666666666}]}
+gather_end: {"type":"event","tick":1,"phase":"gather","name":"gather_end","data":{"reason":"docked","inventory":{"items":[{"id":"I1","kind":"ca_linh","fresh":99.992}]}}}

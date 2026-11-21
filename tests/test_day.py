@@ -8,12 +8,12 @@ import json
 import os
 import unittest
 
-from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import Workdir, counts, events, frames, make_items, read_jsonl, run_headless, snapshots, write_json
 
 with open("game.contract.json", encoding="utf-8") as _f:
     TUNING = json.load(_f)["tuning"]
 SHOP_TICK = 1 + int(round(TUNING["quan"]["duration_s"] * 60))  # tick bắt đầu Shop khi cập bến ở tick 1
-HOLD = ["ca_loc", "bong_sung", "bong_sung"]
+HOLD = make_items({"ca_loc": 1, "bong_sung": 2})
 
 
 def day(w, scenario=None, inputs=None, ticks=20000, days=None, seed=1, every=10, extra=()):
@@ -31,6 +31,7 @@ def day(w, scenario=None, inputs=None, ticks=20000, days=None, seed=1, every=10,
 
 def dock(hold=HOLD, **quan):
     quan.setdefault("random_customers", False)
+    quan.setdefault("random_reservations", False)
     return {"gather": {"hold": hold, "random_fish": False}, "quan": quan}
 
 
@@ -68,12 +69,12 @@ class Flow(unittest.TestCase):
             self.assertEqual(set(seen), {"gather", "quan", "shop"})
             self.assertIn("hold", seen["gather"])
             self.assertIn("customers", seen["quan"])
-            self.assertEqual(seen["shop"]["stock"], {"bong_sung": 2, "ca_loc": 1})
+            self.assertEqual(counts(seen["shop"]["stock"]), {"bong_sung": 2, "ca_loc": 1})
             self.assertEqual(seen["shop"]["time_left_ticks"] + seen["shop"]["phase_tick"], TUNING["shop"]["max_ticks"])
 
     def test_kho_ban_giao_vao_quan_va_khach_chi_chon_mon_trong_ke_hoach(self):
         """Kho có đủ nguyên liệu cho cả 6 món, nhưng Ngày 1 chỉ có 2 món: khách không được chọn món ngoài kế hoạch."""
-        rich = ["ca_loc", "ca_linh", "ca_linh", "ca_linh", "bong_dien_dien", "bong_sung", "bong_sung", "ca_keo", "ca_keo"]
+        rich = make_items({"ca_loc": 1, "ca_linh": 3, "bong_dien_dien": 1, "bong_sung": 2, "ca_keo": 2})
         with Workdir() as w:
             for seed in range(5):
                 code, rows = day(w, dock(hold=rich, random_customers=True), DOCK_INPUT, ticks=130, seed=seed, every=130)
@@ -209,7 +210,8 @@ class ShopTests(unittest.TestCase):
             self.assertEqual(code, 0, rows)
             s = snapshots(rows)[-1]
             self.assertEqual((s["day"], s["phase"], s["money"], s["earned"], s["reputation"]), (2, "gather", 50, 80, 4.0))
-            self.assertEqual(s["hold"], HOLD, "giỏ làm mới từ template gather của Ngày mới")
+            self.assertEqual(counts(s["hold"]), counts(HOLD), "giỏ làm mới từ template gather của Ngày mới")
+            self.assertFalse({i["id"] for i in s["hold"]} & {i["id"] for i in HOLD}, "Ngày kế cấp id mới, không tái dùng")
             self.assertEqual(s["score"], 80 + 100 * 4)
             self.assertEqual(events(rows, "day_plan")[-1]["data"]["dishes"], TUNING["day_plan"][1]["dishes"])
 
@@ -257,8 +259,9 @@ class Pause(unittest.TestCase):
             for mode in ("gather", "quan"):
                 inp = write_json(w.path("in.json"), frames({"tick": 2, "pause": True}, {"tick": 3, "pause": False},
                                                            {"tick": 5, "pause": True}, {"tick": 6, "pause": False}))
+                sc = write_json(w.path("sc.json"), {mode: {"random_reservations": False} if mode == "quan" else {}})
                 code, err = run_headless("--mode", mode, "--seed", "1", "--ticks", "8", "--inputs", inp,
-                                         "--snapshot-every", "1", "--out", w.path("o.jsonl"))
+                                         "--scenario", sc, "--snapshot-every", "1", "--out", w.path("o.jsonl"))
                 self.assertEqual(code, 0, err)
                 rows = read_jsonl(w.path("o.jsonl"))
                 self.assertEqual([(e["tick"], e["name"], e["phase"]) for e in events(rows)],
@@ -277,7 +280,7 @@ class Errors(unittest.TestCase):
             "days = 0": (dict(days=0), None),
             "money > earned": (dict(), {"day": {"money": 10, "earned": 5}}),
             "chỉ khai money": (dict(), {"day": {"money": 10}}),
-            "quan.stock bị cấm": (dict(), {"quan": {"stock": {"ca_loc": 1}}}),
+            "quan.stock bị cấm": (dict(), {"quan": {"stock": make_items({"ca_loc": 1})}}),
             "quan.reputation bị cấm": (dict(), {"quan": {"reputation": 2.0}}),
             "upgrades lạ": (dict(), {"day": {"upgrades": {"weapon": 1}}}),
             "upgrades quá cấp": (dict(), {"day": {"upgrades": {"oxygen": 3}}}),
@@ -296,7 +299,7 @@ class Errors(unittest.TestCase):
 
     def test_co_file_kho_hoac_days_sai_mode(self):
         with Workdir() as w:
-            inv = write_json(w.path("inv.json"), {"items": {}})
+            inv = write_json(w.path("inv.json"), {"items": make_items({})})
             out = w.path("o.jsonl")
             self.assertEqual(run_headless("--mode", "day", "--seed", "1", "--ticks", "0", "--inventory", inv, "--out", out)[0], 2)
             self.assertEqual(run_headless("--mode", "day", "--seed", "1", "--ticks", "0",
@@ -308,7 +311,7 @@ class Errors(unittest.TestCase):
     def test_khach_fixture_ngoai_ke_hoach_la_mau_thuan_luc_mo_quan_khong_de_file_do(self):
         quan = {"random_customers": False, "customers": [{"id": "C1", "table_id": "T1", "dish_id": "lau_mam"}]}
         with Workdir() as w:
-            code, err = day(w, dock(hold=["ca_linh"] * 2 + ["ca_keo", "keo_neo", "bong_dien_dien"], **quan),
+            code, err = day(w, dock(hold=make_items({"ca_linh": 2, "ca_keo": 1, "keo_neo": 1, "bong_dien_dien": 1}), **quan),
                             DOCK_INPUT, ticks=5)
             self.assertEqual(code, 2, err)
             self.assertFalse(os.path.exists(w.path("o.jsonl")))
@@ -317,14 +320,16 @@ class Errors(unittest.TestCase):
         quan = {"random_customers": False,
                 "customers": [{"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui"}]}
         with Workdir() as w:
-            code, err = day(w, dock(hold=["bong_sung"], **quan), DOCK_INPUT, ticks=5)
+            code, err = day(w, dock(hold=make_items({"bong_sung": 1}), **quan), DOCK_INPUT, ticks=5)
             self.assertEqual(code, 2, err)
 
     def test_day_ticks_0_va_mac_dinh_1_ngay(self):
         with Workdir() as w:
             code, rows = day(w, None, None, ticks=0)
             self.assertEqual(code, 0, rows)
-            self.assertEqual([r["type"] for r in rows], ["snapshot", "event", "event", "event", "end"])
+            # day_start, day_plan, phase_start + 2 reservation_announced (mở rộng đặt trước bật trong manifest)
+            self.assertEqual([r["type"] for r in rows], ["snapshot"] + ["event"] * 5 + ["end"])
+            self.assertEqual([r["name"] for r in events(rows)][3:], ["reservation_announced"] * 2)
             self.assertEqual(rows[-1]["reason"], "tick_limit")
             s = rows[0]
             self.assertEqual((s["mode"], s["phase"], s["phase_tick"], s["day"]), ("day", "gather", 0, 1))
