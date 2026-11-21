@@ -16,4 +16,4 @@
 ## Đánh giá ngắn
 - **Đạt:** manifest v1.3, bench, soak, cảnh báo, tương phản cao, hồi quy và tất định.
 - **Chưa/Không đạt hoàn toàn:** tag và Release gắn trễ hạn; không có `LICENSE`; avg FPS 59.97 (< 60, mốc báo cáo); soak không mô phỏng người chơi.
-- **Điểm cần nhóm xem:** tài khoản `VQuant68` không có trong `TEAM.md` đã đẩy thẳng 3 commit lên `main` (xem `docs/clarify.md`).
+- **Ghi chú:** tài khoản `VQuant68` không phải thành viên (nhóm 4 người) nhưng đã đẩy thẳng 3 commit lên `main`; đã rà soát và xử lý ở PR #28 (xem `docs/clarify.md` #49).
