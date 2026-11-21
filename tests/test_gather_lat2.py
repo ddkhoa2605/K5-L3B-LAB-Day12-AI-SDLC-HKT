@@ -157,7 +157,7 @@ class CatchFish(unittest.TestCase):
         self.assertEqual(catches[0]["data"], {"fish_id": "F1", "kind": "ca_linh", "yield": 3})
         self.assertEqual([i["kind"] for i in s.sim.hold], ["ca_linh"] * 3)
         self.assertEqual([i["id"] for i in s.sim.hold], ["I1", "I2", "I3"], "cá thể mới được cấp id theo thứ tự vào giỏ")
-        self.assertEqual({i["u"] for i in s.sim.hold}, {24000}, "hàng mới fresh = 100, hao từ bước sau")
+        self.assertEqual({i["u"] for i in s.sim._hold}, {24000}, "hàng mới fresh = 100, hao từ bước sau")
         self.assertEqual(s.sim.fish, [])
         self.assertEqual(s.sim.catch_cd_ticks, CATCH_CD_TICKS)
 

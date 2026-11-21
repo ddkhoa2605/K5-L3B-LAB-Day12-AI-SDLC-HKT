@@ -56,8 +56,11 @@ def read_inventory(path: str, kinds=KINDS) -> list:
 
 
 def inventory_object(items) -> dict:
-    """Đối tượng kho ngoài {"items": [...]} (dùng cho file và cho gather_end.data.inventory)."""
-    return {"items": freshness.external_sorted(items)}
+    """Đối tượng kho ngoài {"items": [...]} (dùng cho file và cho gather_end.data.inventory).
+
+    Nhận cá thể nội bộ {id,kind,u} hoặc dạng ngoài {id,kind,fresh} (gather trả dạng ngoài)."""
+    ext = [freshness.external(i) if "u" in i else {"id": i["id"], "kind": i["kind"], "fresh": i["fresh"]} for i in items]
+    return {"items": sort_by_id(ext)}
 
 
 def write_inventory(path: str, items):

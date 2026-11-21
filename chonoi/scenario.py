@@ -12,9 +12,12 @@ from .inventory import KINDS_P1, validate_items
 
 GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks", "monsters"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
-                      "invuln_ticks", "catch_cd_ticks"}
-NODE_KINDS = ("bong_dien_dien", "bong_sung")
-FISH_KINDS = ("ca_linh", "ca_loc")
+                      "invuln_ticks", "catch_cd_ticks", "attack_cd_ticks"}
+NODE_KINDS = ("bong_dien_dien", "bong_sung", "keo_neo")
+FISH_KINDS = ("ca_linh", "ca_loc", "ca_keo")
+MONSTER_KINDS = ("ca_sau",)
+MONSTER_STATES = ("patrol", "chase", "recoil", "stunned")
+MONSTER_KEYS = {"id", "kind", "pos", "waypoints", "target_idx", "state", "state_ticks_left", "recoil_dir"}
 QUAN_PLAYER_KEYS = {"pos", "vel"}
 STOVE_KEYS = {"id", "pos", "state", "dish", "cook_ticks_left", "ready_ticks"}
 TABLE_KEYS = {"id", "pos"}
@@ -26,6 +29,7 @@ CUSTOMER_KEYS = {"id", "table_id", "dish_id", "order_tick", "state", "patience_t
 QUAN_KEYS = {"player", "stock", "hand", "stoves", "tables", "customers", "random_customers", "reservations",
              "random_reservations",
              "reputation", "time_left_ticks"}
+
 
 
 def _check_ids(name, arr):
@@ -92,14 +96,9 @@ def _pos(name, pos, bounds, axes=("x", "d")):
 def _validate_gather(b, tuning):
     g = tuning["gather"]
     bounds = g["bounds"]
-    for arr in ("nodes", "fish"):
+    for arr in ("nodes", "fish", "monsters"):
         if arr in b:
             _check_ids(arr, b[arr])
-    if "monsters" in b:  # khóa gather v1.1 (ví dụ ticket Phase 3 dùng "monsters":[]); thủy quái chưa cài -> chỉ nhận mảng rỗng
-        if not isinstance(b["monsters"], list):
-            raise BadInput("gather.monsters phải là mảng")
-        if b["monsters"]:
-            raise BadInput("gather.monsters khác rỗng chưa được hỗ trợ (thủy quái thuộc gather v1.1)")
     if "random_fish" in b and not isinstance(b["random_fish"], bool):
         raise BadInput("random_fish phải là boolean")
     if "hold" in b:
@@ -149,6 +148,35 @@ def _validate_gather(b, tuning):
             raise BadInput(f"fish.{f['id']}: đàn cá phải ở dưới nước")
         if "heading_deg" in f and not _num(f["heading_deg"]):
             raise BadInput(f"fish.{f['id']}.heading_deg phải là số")
+        if "age_ticks" in f:
+            _nonneg_int(f"fish.{f['id']}.age_ticks", f["age_ticks"])
+    for m in b.get("monsters", []):
+        extra = set(m) - MONSTER_KEYS
+        if extra:
+            raise BadInput(f"trường lạ/chưa hỗ trợ trong monsters.{m['id']}: {sorted(extra)}")
+        if m.get("kind") not in MONSTER_KINDS:
+            raise BadInput(f"monsters.{m['id']}: kind phải là một trong {MONSTER_KINDS}")
+        _pos(f"monsters.{m['id']}.pos", m.get("pos"), bounds)
+        if m["pos"][1] < 10.0:
+            raise BadInput(f"monsters.{m['id']}: Cá Sấu phải ở độ sâu d >= 10")
+        if "waypoints" in m:
+            if not isinstance(m["waypoints"], list) or len(m["waypoints"]) < 2:
+                raise BadInput(f"monsters.{m['id']}.waypoints phải là mảng >= 2 điểm")
+            for idx, wp in enumerate(m["waypoints"]):
+                _pos(f"monsters.{m['id']}.waypoints[{idx}]", wp, bounds)
+                if wp[1] < 10.0:
+                    raise BadInput(f"monsters.{m['id']}.waypoints[{idx}]: waypoint phải ở d >= 10")
+        if "target_idx" in m:
+            _nonneg_int(f"monsters.{m['id']}.target_idx", m["target_idx"])
+            if "waypoints" in m and m["target_idx"] >= len(m["waypoints"]):
+                raise BadInput(f"monsters.{m['id']}.target_idx vượt số waypoint")
+        if "state" in m and m["state"] not in MONSTER_STATES:
+            raise BadInput(f"monsters.{m['id']}.state phải thuộc {MONSTER_STATES}")
+        if "state_ticks_left" in m:
+            _nonneg_int(f"monsters.{m['id']}.state_ticks_left", m["state_ticks_left"])
+        if "recoil_dir" in m and m["recoil_dir"] is not None:
+            if not (isinstance(m["recoil_dir"], list) and len(m["recoil_dir"]) == 2 and all(_num(c) for c in m["recoil_dir"])):
+                raise BadInput(f"monsters.{m['id']}.recoil_dir phải là [x, d] hoặc null")
 
 
 def _validate_quan(b, tuning):

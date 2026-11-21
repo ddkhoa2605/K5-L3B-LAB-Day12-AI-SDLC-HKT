@@ -105,7 +105,7 @@ class GatherDecay(unittest.TestCase):
     def test_nhanh_o_nguong_30_dung_mot_don_vi(self):
         s = gather([item(1, fresh=units(7202))])  # 30.0083: bước 1 -> 7200 (chưa ươn), bước 2 -> 7198 (ươn)
         self.assertEqual([e["name"] for e in s.step(idle())], [])
-        self.assertEqual(s.sim.hold[0]["u"], 7200)
+        self.assertEqual(s.sim._hold[0]["u"], 7200)
         ev = s.step(idle())
         self.assertEqual([(e["name"], e["tick"]) for e in ev], [("spoiled", 2)])
 
@@ -117,7 +117,7 @@ class GatherDecay(unittest.TestCase):
         s = gather([item(1, fresh=units(1))])
         for _ in range(3):
             s.step(idle())
-        self.assertEqual(s.sim.hold[0]["u"], 0)
+        self.assertEqual(s.sim._hold[0]["u"], 0)
 
     def test_da_uon_tu_dau_thi_khong_phat_lai(self):
         s = gather([item(1, fresh=10)])
@@ -132,9 +132,9 @@ class GatherDecay(unittest.TestCase):
         s = Session("gather", TUNING, {"player": {"pos": [12.0, 0.0]}, "random_fish": False,
                                         "nodes": [{"id": "N1", "kind": "bong_dien_dien", "pos": [12.0, 0.0]}]}, 1)
         s.step(press("interact"))
-        self.assertEqual([i["u"] for i in s.sim.hold], [24000])
+        self.assertEqual([i["u"] for i in s.sim._hold], [24000])
         s.step(idle())
-        self.assertEqual([i["u"] for i in s.sim.hold], [23998])
+        self.assertEqual([i["u"] for i in s.sim._hold], [23998])
 
     def test_gio_chiem_o_ke_ca_hang_uon(self):
         cap = TUNING["gather"]["hold_capacity"]

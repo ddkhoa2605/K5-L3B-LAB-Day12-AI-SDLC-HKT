@@ -92,8 +92,9 @@ class QuanSim:
         self._ramp_left = 0
         self.rates = freshness.Rates(tuning["freshness"])
         # kho: --inventory (cá thể nội bộ) HOẶC scenario.stock (mảng ngoài); cả hai -> headless đã báo mã 2
-        src = inventory if inventory is not None else [freshness.from_external(d) for d in scenario.get("stock", [])]
-        self.stock = [dict(i) for i in src]
+        src = inventory if inventory is not None else scenario.get("stock", [])
+        # nhận cả cá thể nội bộ {id,kind,u} và dạng ngoài {id,kind,fresh} (gather_end / scenario)
+        self.stock = [freshness.from_external(i) if "fresh" in i else dict(i) for i in src]
         self.time_left_ticks = scenario.get("time_left_ticks", _ticks(t["duration_s"]))
         self.reputation = scenario.get("reputation", t["reputation_initial"] if reputation is None else reputation)
         self.allowed = None if allowed_dishes is None else set(allowed_dishes)

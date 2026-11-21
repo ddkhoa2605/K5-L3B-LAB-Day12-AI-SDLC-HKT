@@ -20,8 +20,9 @@ def to_units(fresh) -> int:
     return int(round(fresh * UNITS))
 
 
-def to_fresh(u: int) -> float:
-    return u / UNITS
+def to_fresh(u: int):
+    """Số nguyên khi tròn điểm (100, không phải 100.0), ngược lại float; so với ngưỡng luôn dùng `u`."""
+    return u // UNITS if u % UNITS == 0 else u / UNITS
 
 
 def _integer(name, value):
