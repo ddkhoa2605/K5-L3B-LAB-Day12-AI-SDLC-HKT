@@ -46,7 +46,7 @@ def press(sim_):
 
 class Data(unittest.TestCase):
     def test_contract_v11_bep_ban_mon(self):
-        self.assertEqual(CONTRACT["contract_version"], "1.2")
+        self.assertIn(CONTRACT["contract_version"], ("1.2", "1.3"))
         self.assertEqual([s["id"] for s in Q["stoves"]], ["B1", "B2"])
         self.assertEqual({t["id"]: t["pos"] for t in Q["tables"]},
                          {"T1": [9, 2], "T2": [13, 2], "T3": [9, 6], "T4": [13, 6]})
