@@ -6,7 +6,7 @@
   - Hợp đồng UI ([#9](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/9), [#12](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/12)).
   - HUD Phase 2 ([#18](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/18)): chữ ≥ 18 px, kho khả dụng, "Thủy quái!".
   - HUD độ tươi v1.2 ([#24](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/24), ADR-0004).
-  - Cảnh báo, tương phản cao, benchmark có render (PR Phase 4, ADR-0005).
+  - Cảnh báo, tương phản cao, benchmark có render ([#25](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/25), ADR-0005).
   - `TEAM.md` ([#15](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/15)).
 - **Tôi đã review:**
   - 8 PR Phase 1–2.

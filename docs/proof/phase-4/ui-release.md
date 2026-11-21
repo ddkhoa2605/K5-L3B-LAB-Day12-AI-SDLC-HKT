@@ -19,6 +19,8 @@ Không lỗi console. Chế độ tương phản cao nhớ qua `localStorage` (p
 | Nhánh này (gameplay `main`, v1.1) — [`bench.json`](bench.json) | 60.0 | 55.31 | 1801 | 30.015 | 985 |
 | Bản ghép tạm với #20 (độ tươi v1.2), không đẩy | 60.0 | 55.72 | 1801 | 30.015 | 990 |
 
+**Phải đo lại trên `main` ở commit bàn giao.** TICKET-04 yêu cầu artifact lấy từ commit nộp. Sau khi #17, #20 và PR này merge, chạy lại lệnh trên rồi commit `bench.json` mới; khi đó cảnh đo có độ tươi, cá bơi và Cá Sấu.
+
 Mốc báo cáo của ticket (avg ≥ 60, 1% low ≥ 30, load ≤ 10 s): đạt. FPS bị trần 60 bởi tần số khung của Chrome headless. Cảnh đo chưa có Cá Sấu vì #17 chưa merge.
 
 ## Không đổi headless
