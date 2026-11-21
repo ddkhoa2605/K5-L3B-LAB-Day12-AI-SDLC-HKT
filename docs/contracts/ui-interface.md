@@ -25,6 +25,7 @@
 - Sim chạy 60 tick/s ở luồng nền và tự bắt **cạnh lên** của `interact`/`catch`. UI gửi "đang giữ", không gửi "vừa bấm".
 - `move` có hai thành phần trong [−1, 1]. Thành phần thứ hai **dương = xuống (gather)** hoặc **về bắc (quán)**. Sai miền thì sim trả 400.
 - Nối hai buổi: `python3 -m chonoi.live --mode gather --inventory-out kho.json`, rồi `python3 -m chonoi.live --mode quan --inventory kho.json`.
+- Từ v1.1 (#14, ADR-0002) có thêm `--mode day [--days N]`, nút `pause`, `shop_done`, lệnh `buy` và các khóa `/state` riêng cho `day`: xem **Phụ lục v1.1** (#12).
 
 ## 2. Hệ tọa độ: sim → cảnh hiển thị
 
@@ -71,7 +72,7 @@ Biên lấy từ `meta.bounds`. Bán kính tương tác lấy từ `meta.interac
 
 | Trường | Kiểu | Dùng cho UI |
 |---|---|---|
-| `player.pos`, `player.vel` | [x,z] m | Út Sen trên nhà bè. **Lưu ý:** starter hiện chỉ xuất `player.pos`, trong khi PRD mục E yêu cầu `player` theo mục D (`pos, vel`), nên Người 2 cần thêm `vel`. Trong lúc chờ, UI suy hướng từ hai vị trí liên tiếp |
+| `player.pos`, `player.vel` | [x,z] m | Út Sen trên nhà bè; hướng đi suy từ `vel` |
 | `stock` | map kind → số, **gồm cả phần đã giữ** | Kho vật lý |
 | `customers[].reserved` | map kind → số | Kho khả dụng = `stock − Σ reserved` (chỉ hiển thị) |
 | `hand` | `{order_id, dish_id, base_price}` hoặc `null` | Món trên tay |
@@ -115,7 +116,7 @@ Snapshot chỉ liệt kê khách còn ngồi. Khách biến mất thì UI phát 
 
 ## 6. Đồ họa và công nghệ (đề xuất, cần nhóm chốt)
 
-Hai game mẫu nhóm tham khảo ([Săn Cá Khủng](https://kenhgt247.github.io/cauca/), [Vỉa Hè Tochi](https://tochicafe247.netlify.app/)) đều dùng **Three.js r128 qua CDN**, hình low-poly dựng bằng code và **HUD bằng HTML/CSS phủ lên canvas**. Đề xuất đi cùng hướng đó, dùng bản mới hơn:
+Hai game mẫu nhóm tham khảo ([Săn Cá Khủng](https://kenhgt247.github.io/cauca/), [Vỉa Hè Tochi](https://tochicafe247.netlify.app/)) **chỉ dùng làm cảm hứng: không sao chép mã hay asset** của các game này (README: không dùng nội dung của nhóm khác; asset ngoài chỉ CC0/CC-BY/MIT và ghi `CREDITS.md`). Cả hai đều dùng **Three.js r128 qua CDN**, hình low-poly dựng bằng code và **HUD bằng HTML/CSS phủ lên canvas**. Đề xuất đi cùng hướng đó, dùng bản mới hơn:
 
 | Hạng mục | Đề xuất | Giấy phép | Ghi chú |
 |---|---|---|---|
@@ -139,9 +140,9 @@ Bố cục cảnh theo PRD-0 §3:
 | Phương án | Cách làm | Ưu | Nhược |
 |---|---|---|---|
 | **A. Một file** | Thay `chonoi/web/index.html`: Three.js nạp bằng `importmap` từ CDN, mọi code trong một file | Chỉ sửa một file | Vẫn sửa file khung (`chonoi/web/`), nên **cần PR riêng + ADR**; mất client 2D dự phòng; cần mạng lúc chạy/demo |
-| **B. Thêm route tĩnh** (khuyên dùng) | ADR + PR riêng: `live.py` phục vụ `chonoi/web/static/*`; client 3D là **trang mới** (ví dụ `/static/3d.html`); vendor `three.module.min.js` (MIT, kèm LICENSE) vào repo | Giữ nguyên `index.html` 2D làm dự phòng (test `<canvas` vẫn qua); chạy offline; code chia module | Sửa `live.py`, nên cần ADR + Integrator duyệt |
+| **B. Thêm route tĩnh** (khuyên dùng; Người 2 cũng nghiêng về B) | ADR + PR riêng: `live.py` phục vụ `chonoi/web/static/*`; client 3D là **trang mới** (ví dụ `/static/3d.html`); vendor `three.module.min.js` (MIT, kèm LICENSE) vào repo | Giữ nguyên `index.html` 2D làm dự phòng (test `<canvas` vẫn qua); chạy offline; code chia module | Sửa `live.py`, nên cần ADR + Integrator duyệt |
 
-Cả hai phương án đều đụng file khung, nên cả hai cần ADR. Nếu sửa `index.html`, file vẫn phải chứa thẻ `<canvas` (test `tests/test_live.py` kiểm tra); truyền canvas đó cho `WebGLRenderer`. `build_cmd` vẫn là `true` (không cần bundler).
+Cả hai phương án đều đụng file khung, nên cả hai cần ADR. Số ADR kế tiếp là **ADR-0003** (`0001` kind kho v1.1 và `0002` mode day/pause đã có trên `main`). Phương án B cần thêm test cho route tĩnh trong `tests/test_live.py`. Nạp Three.js từ CDN (phương án A, hoặc demo ở #11) thì hỏng khi offline và không có kiểm toàn vẹn; vì vậy bản client thật phải vendor kèm LICENSE. Nếu sửa `index.html`, file vẫn phải chứa thẻ `<canvas` (test `tests/test_live.py` kiểm tra); truyền canvas đó cho `WebGLRenderer`. `build_cmd` vẫn là `true` (không cần bundler).
 
 ### Thứ tự triển khai (bảo vệ tag `phase-1`)
 
@@ -157,8 +158,8 @@ Cả hai phương án đều đụng file khung, nên cả hai cần ADR. Nếu 
 
 ## 8. Câu hỏi mở cho nhóm
 
-1. Chọn phương án A hay B ở mục 6? Cả hai đều cần ADR-0001 vì đụng file khung.
-2. Có cần thêm `meta.menu` (giá, thời gian nấu) vào `/state` để HUD hiện giá trước khi nấu không? Nếu có thì đó là thay đổi `live.py`, gộp chung ADR với B.
+1. Chọn phương án A hay B ở mục 6? Người 2 nghiêng về **B**. Cả hai đều cần **ADR-0003** vì đụng file khung.
+2. ~~Có cần thêm giá và thời gian nấu vào `/state` không?~~ Đã có: ở `--mode day`, `/state` có `menu_data` (= `tuning.menu`) từ #14.
 3. Ai review hợp đồng này: Người 1 (mục 3.2), Người 2 (mục 3.3 + ADR), Người 4 (mục 4, chống lặp event)?
 
 ---
