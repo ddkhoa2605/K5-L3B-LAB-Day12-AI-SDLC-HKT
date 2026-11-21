@@ -89,7 +89,7 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 - Khách chưa nấu có `base_price = 0`, `tip = 0`; giá chốt khi `cook_started`.
 - Khách fixture bắt buộc có `dish_id` hợp lệ (thiếu → mã 2).
 - `carry_limit` hiện chỉ hỗ trợ giá trị 1.
-<<<<<<< HEAD
+- Khách fixture `state:"eating"` **phải khai** `base_price` và `tip` (PRD-0 mục D: "khai `base_price,tip` đã chốt"); thiếu một trong hai → mã 2. Các trạng thái khác thì `base_price` mặc định theo menu / 0 và `tip` mặc định 0.
 
 ---
 
@@ -143,6 +143,3 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 
 ## G. Chưa chốt (hỏi PO, xem `docs/clarify.md`)
 Ai làm vòng `--mode day` / Shop / pause / menu / HUD (lát 4); vị trí khóa `day_plan`, `shop` trong manifest (đang đặt dưới `tuning`).
-=======
-- Khách fixture `state:"eating"` **phải khai** `base_price` và `tip` (PRD-0 mục D: "khai `base_price,tip` đã chốt"); thiếu một trong hai → mã 2. Các trạng thái khác thì `base_price` mặc định theo menu / 0 và `tip` mặc định 0.
->>>>>>> origin/main
