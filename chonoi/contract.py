@@ -4,6 +4,7 @@ import json
 import os
 
 from .errors import BadInput
+from .freshness import Rates
 
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "game.contract.json")
 
@@ -116,6 +117,17 @@ def _validate_gather(g):
             raise BadInput(f"tuning.gather.fish_initial.{f['id']}: đàn cá phải ở dưới nước")
 
 
+def _validate_freshness(fr):
+    """Contract v1.2: khối tuning.freshness {initial, gather_decay_per_s, quan_decay_per_s, spoiled_below}."""
+    if not isinstance(fr, dict):
+        raise BadInput("thiếu khối tuning.freshness (contract v1.2)")
+    _between("freshness.initial", fr.get("initial"), 1, 100)
+    _between("freshness.gather_decay_per_s", fr.get("gather_decay_per_s"), 0, 100)
+    _between("freshness.quan_decay_per_s", fr.get("quan_decay_per_s"), 0, 100)
+    _between("freshness.spoiled_below", fr.get("spoiled_below"), 0, fr["initial"])
+    Rates(fr)  # hệ số phải quy ra số nguyên đơn vị/tick, nếu không -> BadInput
+
+
 def validate_tuning(t, extensions=()):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
@@ -148,6 +160,7 @@ def validate_tuning(t, extensions=()):
     elif "burn" in extensions:
         raise BadInput("extensions có burn thì quan.burn_s phải hữu hạn")
     # TODO(nhóm): bổ sung kiểm các khóa còn lại nếu muốn chặt hơn (bếp/bàn, uy tín, ...).
+    _validate_freshness(t.get("freshness"))
     for dish_id, d in menu.items():
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
