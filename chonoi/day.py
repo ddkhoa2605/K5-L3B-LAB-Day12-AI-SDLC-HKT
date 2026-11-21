@@ -14,6 +14,7 @@ import copy
 import json
 import math
 
+from . import freshness
 from .errors import BadInput
 from .ids import IdAllocator
 from .inputs import InputPlayer
@@ -178,8 +179,10 @@ class DaySession:
         self.reason = None
         self.sim = None
         self.shop_left = 0
-        self.shop_stock = {}
+        self.shop_stock = []
         self.sim_view = _SimView(self)
+        # một allocator cá thể `I` dùng chung xuyên pha và Ngày (không tái dùng id đã cấp)
+        self.item_ids = IdAllocator()
         self.stats = {"day": self._new_day_stats(), "sold": {}, "served": 0, "left": 0, "tips": 0}
         self.initial = []
         self._begin_day(0, self.initial)
@@ -233,7 +236,11 @@ class DaySession:
         self.phase, self.phase_tick = "gather", 0
         rows.append(self._row(tick, "day_start", {}))
         rows.append(self._row(tick, "day_plan", {"dishes": plan["dishes"], "ingredients": plan["ingredients"]}))
-        self.sim = GatherSim(self._gather_tuning(), copy.deepcopy(self.scn["gather"]), self.rng, IdAllocator())
+        scn = copy.deepcopy(self.scn["gather"])
+        if self.day > 1:  # Ngày 1 giữ id của mẫu; Ngày kế cấp id mới theo thứ tự mảng, kind/fresh ban đầu
+            for d in scn.get("hold", []):
+                d["id"] = self.item_ids.new("I")
+        self.sim = GatherSim(self._gather_tuning(), scn, self.rng, IdAllocator(), item_ids=self.item_ids)
         rows.append(self._row(tick, "phase_start", {}))
 
     def _to_quan(self, tick, rows):
@@ -246,7 +253,7 @@ class DaySession:
 
     def _to_shop(self, tick, rows):
         self.money, self.earned, self.reputation = self.sim.money, self.sim.earned, self.sim.reputation
-        self.shop_stock = {k: v for k, v in sorted(self.sim.stock.items()) if v > 0}
+        self.shop_stock = freshness.external_sorted(self.sim.stock)  # hàng thô ở Shop không hao tươi
         self.shop_left = int(self.tuning["shop"]["max_ticks"])
         self.phase, self.phase_tick = "shop", 0
         self.sim = None
