@@ -21,3 +21,4 @@ Chọn 1: mở rộng tuple `KINDS`, giữ `KINDS_P1 = KINDS`. Đủ cho Phase 2
 | `chonoi/scenario.py` | `gather.hold` nhận `ca_keo`, `keo_neo` (qua `KINDS_P1`) |
 | Test | `tests/test_inventory_kinds.py` (kind mới hợp lệ, kind lạ vẫn mã 2) |
 | `docs/contracts/contract.md` | mục 1: kind ∈ 6 giá trị từ v1.1 |
+| `chonoi/scenario.py` (`NODE_KINDS`, `FISH_KINDS`) | **Chưa xử lý, giao Người 1 cùng PR gather v1.1**: scenario có nút `keo_neo` (N5/N6) hoặc đàn `ca_keo` vẫn bị mã 2 vì hai hằng số này còn là kind của v1.0 |

@@ -30,7 +30,10 @@ class QuanSim:
     mode = "quan"
     phase = "quan"
 
-    def __init__(self, tuning, scenario, streams, ids, inventory=None):
+    def __init__(self, tuning, scenario, streams, ids, inventory=None, allowed_dishes=None,
+                 money=0, earned=0, reputation=None):
+        """`allowed_dishes`: tập id món của kế hoạch Ngày (chế độ day, TICKET-02 mục 4.5); None = cả menu.
+        `money`, `earned`, `reputation`: trạng thái giữ qua Ngày (chế độ day); mặc định như quán chạy riêng."""
         t = tuning["quan"]
         self.t = t
         self.menu = tuning["menu"]
@@ -48,7 +51,8 @@ class QuanSim:
         # kho: --inventory HOẶC scenario.stock (cả hai -> headless đã báo mã 2)
         self.stock = dict(inventory if inventory is not None else scenario.get("stock", {}))
         self.time_left_ticks = scenario.get("time_left_ticks", _ticks(t["duration_s"]))
-        self.reputation = scenario.get("reputation", t["reputation_initial"])
+        self.reputation = scenario.get("reputation", t["reputation_initial"] if reputation is None else reputation)
+        self.allowed = None if allowed_dishes is None else set(allowed_dishes)
         self.phase_tick = 0
         self.stoves = [self._new_stove(s) for s in self._merge(t["stoves"], scenario.get("stoves", []))]
         self.tables = self._merge(t["tables"], scenario.get("tables", []))
@@ -57,8 +61,8 @@ class QuanSim:
         for c in self.customers:
             ids.reserve(c["id"])
         check_quan_state(self, tuning)
-        self.money = 0
-        self.earned = 0
+        self.money = money
+        self.earned = earned
         self.shift_earned = 0
         self.done = False
         self.reason = None
@@ -274,7 +278,8 @@ class QuanSim:
             return
         avail = self._available()
         ok = [d for d in sorted(self.menu)
-              if all(avail.get(k, 0) >= n for k, n in self.menu[d]["recipe"].items())]
+              if (self.allowed is None or d in self.allowed)
+              and all(avail.get(k, 0) >= n for k, n in self.menu[d]["recipe"].items())]
         if not ok:
             events.append(("no_dish", {}))
             return
