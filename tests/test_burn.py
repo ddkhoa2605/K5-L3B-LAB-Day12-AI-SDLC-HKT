@@ -10,7 +10,7 @@ from chonoi.ids import IdAllocator
 from chonoi.inputs import InputState
 from chonoi.rng import Streams
 from chonoi.sim.quan import QuanSim
-from helpers import Workdir, write_json
+from helpers import Workdir, make_items, write_json
 
 with open("game.contract.json", encoding="utf-8") as _f:
     CONTRACT = json.load(_f)
@@ -21,7 +21,7 @@ DISH = "ca_loc_nuong_trui"
 
 
 def sim(tuning=BURN, ready_ticks=0, stock=None, extra_customers=()):
-    sc = {"random_customers": False, "stock": stock or {},
+    sc = {"random_customers": False, "random_reservations": False, "stock": make_items(stock or {}),
           "customers": [{"id": "C1", "table_id": "T1", "dish_id": DISH, "order_status": "assigned"}, *extra_customers],
           "stoves": [{"id": "B1", "state": "ready", "ready_ticks": ready_ticks,
                       "dish": {"order_id": "C1", "dish_id": DISH}}]}
@@ -55,15 +55,15 @@ class Burn(unittest.TestCase):
         self.assertEqual((name, d), ("dish_burnt", {"stove_id": "B1", "order_id": "C1", "dish_id": DISH,
                                                     "order_status": "reserved"}))
         c = s.customers[0]
-        self.assertEqual((c["order_status"], c["reserved"], c["base_price"]), ("reserved", {"ca_loc": 1}, 0))
-        self.assertEqual(s.stock, {"ca_loc": 1}, "nguyên liệu đã nấu mất, kho không đổi")
+        self.assertEqual((c["order_status"], c["reserved"], c["base_price"]), ("reserved", ["I1"], 0))
+        self.assertEqual([i["kind"] for i in s.stock], ["ca_loc"], "nguyên liệu đã nấu mất, kho không đổi")
 
     def test_chay_thieu_nguyen_lieu_thi_unfulfillable_va_khach_van_cho(self):
         s = sim(ready_ticks=LIMIT, stock={})
         (_, d), = step(s)
         self.assertEqual(d["order_status"], "unfulfillable")
         c = s.customers[0]
-        self.assertEqual((c["order_status"], c["reserved"], c["state"]), ("unfulfillable", {}, "waiting"))
+        self.assertEqual((c["order_status"], c["reserved"], c["state"]), ("unfulfillable", [], "waiting"))
         s.pos = [2.0, 8.0]
         self.assertEqual(step(s, {"interact"}), [], "đơn unfulfillable không được nấu")
 
@@ -86,16 +86,16 @@ class ContractExtensions(unittest.TestCase):
         return write_json(w.path("c.json"), c)
 
     def test_burn_chi_hop_le_khi_khai_extension(self):
-        self.assertEqual(KNOWN_EXTENSIONS, {"burn"})
+        self.assertEqual(KNOWN_EXTENSIONS, {"burn", "reservations"})
         with Workdir() as w:
             load_contract(self.write(w, lambda c: None))
-            ok = self.write(w, lambda c: (c.update(extensions=["burn"]), c["tuning"]["quan"].update(burn_s=20)))
+            ok = self.write(w, lambda c: (c.update(extensions=["burn", "reservations"]), c["tuning"]["quan"].update(burn_s=20)))
             load_contract(ok)
             for name, mut in {
                 "burn_s mà không khai": lambda c: c["tuning"]["quan"].update(burn_s=20),
-                "khai mà burn_s null": lambda c: c.update(extensions=["burn"]),
+                "khai mà burn_s null": lambda c: c.update(extensions=["burn", "reservations"]),
                 "extension lạ": lambda c: c.update(extensions=["weapon"]),
-                "burn_s ngoài dải": lambda c: (c.update(extensions=["burn"]), c["tuning"]["quan"].update(burn_s=0)),
+                "burn_s ngoài dải": lambda c: (c.update(extensions=["burn", "reservations"]), c["tuning"]["quan"].update(burn_s=0)),
             }.items():
                 with self.assertRaises(BadInput, msg=name):
                     load_contract(self.write(w, mut))
