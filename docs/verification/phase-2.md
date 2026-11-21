@@ -16,6 +16,15 @@
 | AC-P2-09 Smoke tích hợp, regression P1 | `docs/proof/phase-2/integration.txt` (gather `--inventory-out` → quan `--inventory`), toàn bộ test P1 vẫn chạy | `integration.txt`, `unittest-day.txt` | **Đạt** với kịch bản giả lập (kho dựng bằng `gather.hold`); **chưa** thử với luật gather thật. Test thay đổi: xem dưới |
 | AC-P2-10 Tag `phase-2` | `git show phase-2` | — | **Chưa đạt** (chưa merge, thiếu phần Người 1) |
 
+## `contract_version: "1.1"` nhưng manifest còn thiếu khóa (trung thực, theo review #5)
+`game.contract.json` đã tự nhận v1.1 nhưng **chưa có** các khóa sau (Người 1 / lát gather):
+- `gather.fish_initial` còn 6 đàn (v1.1: 8), chưa có cá kèo (`fish_yield.ca_keo`), chưa có nút N5/N6 (`keo_neo`).
+- `gather.fish_speed`, `fish_turn_ticks`, `fish_max`, `fish_spawn_ticks`, `fish_spawn_clearance`, `fish_x`, `fish_depths`, `fish_spawn_x`, `fish_spawn_depths`, `fish_weights` (cá bơi/sinh).
+- `gather.monsters` (`species.ca_sau`, `spawns[]`, `invuln_ticks`, `loss_ratio`).
+- `chonoi/scenario.py`: `NODE_KINDS`, `FISH_KINDS` còn là kind của v1.0 nên nút `keo_neo` / đàn `ca_keo` bị mã 2 (ADR-0001 ghi giao Người 1).
+- Đã có: `quan`, `menu`, `day_plan`, `shop`. Mở rộng: `burn` cài sẵn nhưng tắt.
+Nếu tag `phase-2` mà các khóa gather chưa xong thì phải ghi nhận ở đây là **chưa đạt** cho AC-P2-05/06.
+
 ## Test đã sửa vì luật đổi (không phải để cho xanh)
 - `tests/test_quan.py::test_khong_con_ban_bo_luot`: v1.1 có 4 bàn, nên phải ngồi kín 4 bàn mới bỏ lượt.
 - `tests/test_smoke_p1.py::test_con_03_old_and_future_modes_rejected` → `…_old_and_unknown_modes_rejected`: `day` hợp lệ từ v1.1; `river`, `night` vẫn mã 2.
