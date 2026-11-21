@@ -4,7 +4,7 @@
 - Nguồn: PRD-0 Phase 1 (lab board, Test Contract v1.0 mục D, E, F) + API sẵn có của `chonoi/live.py`.
 - Phạm vi: mục 2 trong `docs/contracts/README.md` ("UI đọc trạng thái nào, gửi lệnh nào") + bảng event mà UI nghe. Schema file kho (mục 1) do Người 2 giữ, không nằm ở đây.
 - Quan hệ với `docs/contracts/contract.md` (PR #1, #6): file này **chi tiết hóa mục 2** của `contract.md` cho phía UI (tọa độ hiển thị, chống lặp event, phản hồi theo event, công nghệ đồ họa). Nếu hai file lệch nhau thì **`contract.md` thắng**; sửa file này cho khớp.
-- Phiên bản: viết theo Test Contract **v1.0** (Phase 1). Phần UI của v1.1 (`day`, Shop, pause, `monsters[]`, menu, HUD Phase 2, chữ ≥ 18 px) sẽ bổ sung ở PR sau.
+- Phiên bản: mục 0–8 theo Test Contract **v1.0** (Phase 1). **Phụ lục v1.1** (Phase 2, TICKET-02) ở cuối file bổ sung, chỗ nào không nhắc thì v1.0 vẫn đúng.
 
 ## 0. Nguyên tắc (không thương lượng)
 
@@ -167,3 +167,92 @@ Cả hai phương án đều đụng file khung, nên cả hai cần ADR. Nếu 
 - Tham khảo (từ kết quả tìm kiếm, chưa mở đọc kỹ): [Real-time rendering of water caustics](https://medium.com/@martinRenou/real-time-rendering-of-water-caustics-59cda1d74aa) · [Low-poly ocean/water (three.js forum)](https://discourse.threejs.org/t/low-poly-ocean-water/33513) · [How to create a shallow underwater scene](https://discourse.threejs.org/t/how-to-create-a-shallow-underwater-scene/62687)
 - [7 small 3D browser games with zero model/texture/audio files](https://discourse.threejs.org/t/7-small-3d-browser-games-with-zero-model-texture-or-audio-files-900-kb-each/95438): ví dụ game Three.js dựng hoàn toàn bằng code.
 - [MDN: 3D games on the Web](https://developer.mozilla.org/docs/Games/Techniques/3D_on_the_web)
+
+---
+
+# Phụ lục v1.1 — Phase 2 (TICKET-02 "Một ngày ở chợ nổi")
+
+Nguồn: TICKET-02 mục 1–2 (HUD, menu, pause) và mục 4 (Test Contract v1.1). Tên trường và event khớp phụ lục v1.1 của `contract.md` (#6); nếu lệch thì `contract.md` thắng.
+
+## A. Kênh truyền: cần mở rộng `chonoi.live` (file khung, cần ADR)
+
+`chonoi.live` hiện chỉ có `--mode gather|quan`, và `POST /input` chỉ nhận `move`, `interact`, `catch`. Muốn chơi trọn vòng ngày trên trình duyệt thì cần:
+
+| Việc | Lý do |
+|---|---|
+| `--mode day [--days N]` | Ticket yêu cầu chơi trọn vòng ngày, có menu, pause và HUD |
+| `/input` nhận `pause`, `shop_done` (bool, sim tự bắt cạnh lên) và `buy` (chuỗi) | `buy` chỉ chạy ở frame khai báo, nên server phải **áp đúng một lần** rồi xóa, không giữ như phím |
+| `meta` trong `day` = toàn bộ `tuning` (`menu`, `day_plan`, `shop`, `quan`, `gather`) | HUD cần giá Shop, công thức món, danh sách cần lấy |
+| Bộ đệm event: giữ đủ event của **pha hiện tại** (hoặc trả thêm bộ đếm theo pha) | DayResult và Summary cộng dồn từ event. Hiện `/state` chỉ trả 40 dòng cuối, tab bị ẩn là mất event |
+
+Gộp các việc trên vào **một ADR** (ADR-0002, đề xuất) cùng PR sửa `live.py`. Headless không đổi.
+
+## B. Các màn hình và lúc chuyển
+
+Vòng ngày: `DayIntro → gather → EveningIntro → quan → DayResult → Shop → DayIntro…`, sau Ngày 5 thì sang `Summary`. Thời lượng một Ngày trong sim là 10.800 + 10.800 + 600 = 22.200 tick, đúng bằng trần trong ticket, nên **các màn Intro/Result không chiếm tick của sim**. Đề xuất: trong lúc hiện các màn này, UI gửi `pause` rồi `pause` lần nữa khi đóng màn. Chỉ áp dụng ở `chonoi.live`; headless không có màn hình.
+
+| Màn hình | Hiện khi | Nội dung (lấy từ đâu) |
+|---|---|---|
+| Menu chính | Mở game | Chơi / Thoát (chỉ ở client) |
+| DayIntro | Event `day_start` + `day_plan` | "Ngày N", danh sách Má Tư đọc: `day_plan.dishes` (tên món × suất) và `ingredients`. Tự đóng sau 4 s hoặc khi nhấn phím |
+| EveningIntro | `phase_start` với `phase:"quan"` | Số lượng nhập kho (`stock` ở snapshot tick 0 của pha) và món nấu được = món trong `day_plan.dishes` có công thức ≤ `stock` (chỉ để hiển thị) |
+| DayResult | `quan_end` | Số khách đã phục vụ (đếm `paid`), số khách bỏ đi (`customer_left` có `reason:"patience"`), tiền ca (`shift_earned`), tổng boa (Σ `paid.tip`), uy tín thay đổi (`quan_end.reputation` − uy tín lúc `phase_start(quan)`) |
+| Shop | `phase_start` với `phase:"shop"` | Hai món nâng cấp Bình oxy và Áo phao: cấp hiện tại (`upgrades`), cấp kế tiếp, giá (`meta.shop.upgrades`), `money`; đồng hồ (`time_left_ticks` ≤ 600); nút Xong gửi `shop_done`. `bought` thì hiện hiệu ứng mua, `buy_failed` thì báo lý do (`funds` = không đủ tiền, `max_level` = đã tối đa) |
+| Summary | Dòng `end` có `reason:"days_complete"` hoặc `days_completed = 5` | Tổng tiền (`money`, `earned`), tổng điểm (`score`), uy tín, món bán chạy (đếm `paid` theo món: lấy `order_id → dish_id` từ `customer_arrived`) |
+
+Cấp vừa mua hiện ngay trong Shop (`upgrades`) nhưng chỉ có hiệu lực từ Ngày sau (`active_upgrades`). HUD sáng phải tính oxy/Máu tối đa theo **`active_upgrades`**, không theo `upgrades`.
+
+## C. Pause
+
+- Esc hoặc P gửi `pause`. Snapshot có `state:"paused"`, kèm event `paused`/`resumed`.
+- Menu pause làm mờ nền, có **Tiếp tục** (gửi `pause` lần nữa) và **Về menu** (`POST /restart`). Thêm **Cài đặt** nếu nhóm làm mở rộng âm thanh.
+- Khi đang pause, sim dừng mọi timer, kể cả trong Shop. UI phải **dừng animation phụ thuộc thời gian gameplay** (thanh kiên nhẫn, đồng hồ). Animation trang trí (nước, đèn) chạy tiếp cũng được.
+
+## D. HUD sáng v1.1 (bắt buộc)
+
+| Thành phần | Nguồn | Quy tắc hiển thị |
+|---|---|---|
+| Máu | `player.hp` / `hp_max` | `hp_max` đổi theo cấp Áo phao (4–5 Máu). Đang bất tử (`player.invuln_ticks > 0`) thì nhân vật nhấp nháy |
+| Oxy | `player.oxygen_ticks` / `oxygen_max_ticks` | Dưới 25% thì đổi màu và nhấp nháy. Bằng 0 khi đang dưới nước thì hiện chữ **"Hết hơi!"** |
+| Thời gian | `time_left_ticks` | Còn ≤ 30 s (≤ 1.800 tick) thì đổi màu |
+| Độ sâu | `player.pos[1]` | Thước dọc, tô 3 vùng: nông `d < 10`, giữa `10 ≤ d < 20`, sâu `d ≥ 20`. Vạch `d = 10` là ngưỡng Cá Sấu bắt đầu xét đuổi |
+| Giỏ theo loại | `hold` | Đếm theo kind, 6 loại; `hold_count` / `hold_capacity` |
+| Cần lấy / đã lấy | `day_plan.ingredients` và đếm `hold` | Ví dụ "Bông súng 4/6"; đủ thì đánh dấu ✓. Không có thưởng riêng khi đủ (ticket) |
+| Hồi bắt | `player.catch_cd_ticks` | Vòng hồi chiêu |
+| Gợi ý | Khoảng cách tới `meta.dock_pos` / nút `ready` | "E: cập bến" / "E: hái" khi trong bán kính |
+| **"Thủy quái!" + viền tím** | `monsters[]` | Hiện khi có con ở trong `detect_radius` của loài đó (tuning `gather.monsters.species.<kind>`), hoặc có con ở `state:"chase"`. Con ngoài khung nhìn thì thêm mũi tên ở mép màn hình |
+
+Thực thể mới cần vẽ: `fish[]` nay **bơi** (cá kèo ở `d ∈ [22,28]`), `fish_spawned` thì có hiệu ứng xuất hiện. `monsters[]` (Cá Sấu Năm Chèo M1, M2 từ Ngày 3) có `state` là patrol, chase hoặc recoil, mỗi trạng thái một dáng riêng. `monster_hit` thì rung màn hình và rơi các món trong `lost` theo LIFO. `faint` có `cause:"monster"`.
+
+## E. HUD quán v1.1 (bắt buộc)
+
+| Thành phần | Nguồn | Quy tắc hiển thị |
+|---|---|---|
+| Đồng hồ ca | `time_left_ticks` | |
+| Tiền ca | `earned` − `earned` lúc `phase_start(quan)` | Snapshot không có `shift_earned`, chỉ `quan_end` có |
+| Uy tín | `reputation` | |
+| Món + kiên nhẫn **từng bàn T1–T4** | `tables[].customer_id` → `customers[]` | Phiếu order cố định trên cùng màn hình, mỗi bàn một phiếu: tên món, icon nguyên liệu, thanh kiên nhẫn. **Dưới 25% thì đổi màu** |
+| Bếp B1, B2 | `stoves[]` | Thanh tiến độ = 1 − `cook_ticks_left` / (`cook_s` × 60); trạng thái **Đã chín** nổi bật |
+| Món đang cầm | `hand` | |
+| Kho khả dụng | `stock − Σ customers[].reserved` | 6 loại nguyên liệu |
+
+## F. Yêu cầu kỹ thuật
+
+- **Chữ không chân ≥ 18 px ở 1280×720.** Dùng `clamp(18px, …, …)` cho mọi chữ HUD; kiểm bằng ảnh chụp 1280×720 lưu vào `docs/proof/phase-2/`.
+- **Trung bình ≥ 30 FPS ở 1280×720.** Đo bằng bộ đếm FPS trong client (bật bằng phím), ghi kết quả vào verification.
+- Tên hiển thị thêm: `ca_keo` cá kèo, `keo_neo` kèo nèo; món `canh_chua_ca_loc` Canh chua cá lóc bông điên điển, `ca_keo_nuong` Cá kèo nướng muối ớt, `lau_mam` Lẩu mắm miền Tây.
+
+## G. Lệnh gửi và phím v1.1
+
+| Phím | Gửi | Ghi chú |
+|---|---|---|
+| Esc / P | `pause` | Cạnh lên; giữ phím qua lúc đổi pha không tạo cạnh mới |
+| 1 / 2 trong Shop (hoặc bấm nút) | `buy:"oxygen"` / `buy:"hp"` | Một lần cho mỗi lần bấm |
+| Enter trong Shop | `shop_done` | Đóng Shop sớm |
+| Q, F | `attack`, `photo` | Chỉ khi nhóm bật mở rộng Lao xua hoặc Sổ tay |
+
+## H. Câu hỏi mở (v1.1)
+
+1. ADR-0002 sửa `chonoi.live` (mục A): ai làm, và có làm kịp Phase 2 không? Nếu không kịp, Phase 2 chơi thử bằng hai mode riêng (`gather`/`quan`) và **ghi trung thực** trong verification.
+2. Ngưỡng hiện "Thủy quái!": dùng `detect_radius` của loài hay chỉ khi `state:"chase"`? Ticket chỉ nói "khi có thủy quái gần". Ghi vào `docs/clarify.md` và hỏi Anh Năm.
+3. Các màn Intro/Result tự pause sim (mục B): nhóm có đồng ý không?
