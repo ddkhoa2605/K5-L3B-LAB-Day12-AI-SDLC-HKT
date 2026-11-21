@@ -60,3 +60,23 @@ class LiveServerTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LiveStateFreshnessTest(unittest.TestCase):
+    """ADR-0004: /state mang tuning.freshness (null khi manifest chưa khai) để HUD biết ngưỡng ươn."""
+
+    def _state(self, tuning):
+        game = LiveGame("gather", tuning, {}, 1)
+        return json.loads(game.state_json())
+
+    def test_freshness_null_when_absent(self):
+        tuning = dict(load_contract()["tuning"])
+        tuning.pop("freshness", None)
+        self.assertIsNone(self._state(tuning)["freshness"])
+
+    def test_freshness_passed_through(self):
+        tuning = dict(load_contract()["tuning"])
+        fr = {"initial": 100, "gather_decay_per_s": 0.5, "quan_decay_per_s": 0.25, "spoiled_below": 30}
+        tuning["freshness"] = fr
+        self.assertEqual(self._state(tuning)["freshness"], fr)
+
