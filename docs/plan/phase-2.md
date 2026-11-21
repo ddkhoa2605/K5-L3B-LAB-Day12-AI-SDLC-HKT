@@ -5,7 +5,7 @@ Hạn tag `phase-2`: 1:55 (55 phút). Hợp đồng: v1.1 (`docs/contracts/contr
 ## Mục tiêu
 Số chuẩn v1.1; vòng ngày `gather → quan → Shop` trong `--mode day` (D1–D5); Cá Sấu/Máu/ngất; 2 bếp/4 bàn/6 món; pause, menu, HUD; smoke tích hợp; regression P1.
 
-## Việc / người / phụ thuộc (AC nháp, PO chốt)
+## Việc / người / phụ thuộc
 | AC | Nội dung | Người | Phụ thuộc |
 |---|---|---|---|
 | AC-P2-01 | `game.contract.json` v1.1 phần `quan`, `menu`, `day_plan` | 2 | — (PR #5) |

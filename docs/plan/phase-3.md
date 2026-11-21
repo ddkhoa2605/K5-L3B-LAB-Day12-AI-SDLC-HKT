@@ -10,7 +10,7 @@ Hạn tag `phase-3`: 2:30 (35 phút, 1:55–2:30). Hợp đồng: Test Contract 
 - **Smoke bàn giao kho v1.2:** Gather xuất kho cá thể nguyên tử -> Quán nạp kho v1.2 (kho đếm cũ trả mã thoát 2).
 - **Mở rộng (tùy chọn):** Dòng nước lũ (`current`), Khách đặt trước (`reservations`).
 
-## Việc / người / phụ thuộc (AC nháp)
+## Việc / người / phụ thuộc 
 | AC | Nội dung | Người phụ trách | Phụ thuộc |
 |---|---|---|---|
 | AC-P3-01 | Cập nhật `game.contract.json` sang `contract_version: "1.2"`, thêm tuning `freshness` `{initial: 100, gather_decay_per_s: 0.5, quan_decay_per_s: 0.25, spoiled_below: 30}` | 2 (Integrator) | — |
