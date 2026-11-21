@@ -146,9 +146,34 @@ function collectNotes() {
 }
 function drawNotes(w) { notes.forEach((n, i) => text("🥀 " + n.t, w / 2, 236 + i * 26, { align: "center", color: "#ffab91" })); }
 
+// ---------- chế độ benchmark (TICKET-04, ADR-0005): ?bench=<giây đo>&warmup=<giây làm nóng> ----------
+// Chỉ dùng bởi tools/bench.py: khung vẽ cố định 1280x720, không gửi input (Út Sen đứng yên ở bến),
+// ghi thời gian từng khung bằng requestAnimationFrame rồi POST /bench. Không đổi gì ở mô phỏng.
+const QS = new URLSearchParams(location.search);
+const BENCH = QS.has("bench") ? { dur: Number(QS.get("bench")) || 30, warm: QS.has("warmup") ? Number(QS.get("warmup")) : 3,
+  t0: null, start: null, last: null, frameMs: [], done: false } : null;
+function benchPost(body) { return fetch("/bench", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" } }).catch(() => {}); }
+function benchTick() {
+  const now = performance.now();
+  if (BENCH.t0 === null) {   // khung hình đầu tiên của cảnh đo
+    BENCH.t0 = now;
+    benchPost({ event: "first_frame", epoch_ms: performance.timeOrigin + now });
+  } else if (BENCH.start === null) {
+    if (now - BENCH.t0 >= BENCH.warm * 1000) BENCH.start = now;   // hết làm nóng: bắt đầu đo từ khung kế
+  } else if (!BENCH.done) {
+    BENCH.frameMs.push(now - BENCH.last);
+    if (now - BENCH.start >= BENCH.dur * 1000) {
+      BENCH.done = true;
+      benchPost({ event: "done", frame_ms: BENCH.frameMs, measured_ms: now - BENCH.start, viewport: [innerWidth, innerHeight] });
+    }
+  }
+  BENCH.last = now;
+}
+if (BENCH) { document.documentElement.style.overflow = "hidden"; cv.style.width = "1280px"; cv.style.height = "720px"; }
+
 function fit() {
   const dpr = window.devicePixelRatio || 1;
-  const w = innerWidth, h = innerHeight;
+  const w = BENCH ? 1280 : innerWidth, h = BENCH ? 720 : innerHeight;
   if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return [w, h];
@@ -485,6 +510,7 @@ function frame() {
     overlay(w, h);
     if (!snap.finished) { dayIntro(w, h); if (snap.state === "paused") drawPause(w, h); }
     fpsTick(w);
+    if (BENCH) benchTick();
   } else {
     text(offline ? "Không kết nối được máy chủ…" : "Đang tải…", w / 2, h / 2, { align: "center", size: 18 });
   }

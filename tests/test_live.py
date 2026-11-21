@@ -70,3 +70,23 @@ class LiveStateFreshnessTest(unittest.TestCase):
         st = json.loads(LiveGame("gather", tuning, {}, 1).state_json())
         self.assertIn("freshness", st)
         self.assertEqual(st["freshness"], tuning.get("freshness"))
+
+
+class LiveBenchRouteTest(unittest.TestCase):
+    """ADR-0005: POST /bench lưu báo cáo của trang (body lớn hơn giới hạn /input), không đụng mô phỏng."""
+
+    def test_bench_report_stored(self):
+        tuning = load_contract()["tuning"]
+        server = LiveServer(LiveGame("gather", tuning, {}, 1), port=0)
+        server.start()
+        try:
+            base = f"http://127.0.0.1:{server.port}"
+            big = {"event": "done", "frame_ms": [16.7] * 2000, "measured_ms": 33400}   # > 4096 byte
+            self.assertEqual(_post(base + "/bench", big), 200)
+            self.assertTrue(server.game.bench_event.is_set())
+            self.assertEqual(server.game.bench_reports[-1]["event"], "done")
+            self.assertEqual(_post(base + "/bench", {"khong": "co event"}), 400)
+            self.assertEqual(_post(base + "/input", {"move": [0, 0], "pad": "x" * 5000}), 400)   # /input vẫn giới hạn 4096
+        finally:
+            server.stop()
+
