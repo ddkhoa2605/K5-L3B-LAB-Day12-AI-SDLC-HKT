@@ -131,10 +131,11 @@ function freshColor(it) {   // xanh -> vàng -> đỏ theo độ tươi; hàng �
   return f > 0.66 ? "#66bb6a" : f > 0.4 ? "#ffca28" : "#ef5350";
 }
 // thông báo ngắn theo event (ví dụ spoiled); chỉ xử lý event mới theo tick
-let notes = [], noteTick = -1;
+let notes = [], noteTick = null;   // null = chưa thấy snapshot nào: bỏ qua event cũ có sẵn lúc mở trang
 function collectNotes() {
   const ev = snap.events || [];
-  if (snap.tick < noteTick) noteTick = -1;   // restart
+  if (noteTick === null) { noteTick = ev.length ? ev[ev.length - 1].tick : -1; return; }
+  if (snap.tick < noteTick) noteTick = -1;   // restart: event của lượt mới đều mới
   ev.forEach((e) => {
     if (e.tick <= noteTick) return;
     if (e.name === "spoiled") notes.push({ t: `${e.data.item_id} ${KIND_NAME[e.data.kind] || e.data.kind} đã ươn (${e.data.location === "hold" ? "giỏ" : "kho"})`, until: performance.now() + 2500 });
