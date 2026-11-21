@@ -155,7 +155,7 @@
 
 ## 8. Phase 2 — TICKET-02 "Một ngày ở chợ nổi" (Test Contract v1.1, hạn tag `phase-2` lúc 1:55)
 
-Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, HUD sáng/tối) và **AC-P2-07** (`--mode day`, Shop, nâng cấp, `--days`, pause) **làm cùng Người 4**: Người 4 làm vòng `day` headless, Người 3 làm UI và Shop. Chi tiết trường và màn hình ở phụ lục v1.1 của `docs/contracts/ui-interface.md` (#12), trong đó mỗi mục có nhãn **[T]** (ticket yêu cầu) hoặc **[ĐX]** (đề xuất của Người 3).
+Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, HUD sáng/tối) và **AC-P2-07** (`--mode day`, Shop, nâng cấp, `--days`, pause) **cùng Người 4**. `chonoi/day.py` đã có trên `main` (#14, 26 test trong `tests/test_day.py`), nên AC-P2-07 giờ là **kiểm chứng**: Người 4 chạy `cmp` hai lần cùng seed, `--days 5`, ngất → quán kho rỗng với gather thật; Người 3 kiểm giao diện Shop và vòng ngày bằng mắt. Chi tiết trường và màn hình ở phụ lục v1.1 của `docs/contracts/ui-interface.md` (#12), trong đó mỗi mục có nhãn **[T]** (ticket yêu cầu) hoặc **[ĐX]** (đề xuất của Người 3).
 
 **Nguyên tắc:** làm hết [T] trước, cho đạt tag `phase-2`. [ĐX] và phần sáng tạo chỉ làm sau khi lõi đã đúng (TICKET-02 §3). Phạm vi lõi chỉ có Cá Sấu; Rắn Hổ Mây và các mục trong bảng Mở rộng không bắt buộc với nhóm 4 người.
 
@@ -165,6 +165,9 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 
 **Bắt buộc [T]: làm trước, chặn tag `phase-2`**
 1. **Chữ không chân ≥ 18 px ở 1280×720** trên mọi màn hình (`index.html` hiện dùng 10–16 px).
+   - **Kho khả dụng** ở HUD quán: `index.html` đang hiện `stock` (gồm phần khách đã giữ), phải là `stock − Σ reserved`.
+   - **Tiền ca** ở HUD quán: đang hiện tổng `money`, phải là `stats.day.earned` (hoặc `earned` − `earned` đầu pha).
+   - **Giỏ theo loại**: thêm số đếm và tên từng loại.
 2. **HUD sáng:** Máu (theo `hp_max`, 4–5 khi có Áo phao); oxy dưới 25% đổi màu / nhấp nháy; "Hết hơi!" khi oxy cạn; thời gian đổi màu khi ≤ 30 s; độ sâu; giỏ theo loại; **đã lấy / cần**; hồi bắt; gợi ý hái / cập bến khi đến gần; **"Thủy quái!" + viền tím khi có thủy quái gần** (`index.html` hiện chỉ hiện sau khi bị cắn).
 3. **HUD quán:** đồng hồ ca; tiền ca; uy tín; món và kiên nhẫn **tại từng bàn**, đổi màu khi < 25%; tiến độ bếp / trạng thái món chín; món đang cầm; kho khả dụng.
 4. **Các màn hình** (khung đã có ở #14, kiểm đủ nội dung): Menu chính (Chơi, Thoát) → DayIntro (Ngày, danh sách Má Tư đọc, tự chuyển sau 4 s hoặc khi nhấn phím) → EveningIntro (số lượng nhập kho, món nấu được) → DayResult (khách phục vụ / bỏ đi, tiền, boa, thay đổi uy tín) → Shop (Bình oxy, Áo phao; đóng sớm được, tự đóng khi hết giờ) → Summary sau Ngày 5 (tổng tiền, tổng điểm, uy tín, món bán chạy).
@@ -175,7 +178,7 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 7. Thước độ sâu tô 3 vùng; phiếu order T1–T4 cố định trên màn hình; mũi tên chỉ quái ngoài khung nhìn; nhân vật nhấp nháy khi bất tử; phím 1/2/Enter trong Shop; bộ đếm FPS bật bằng phím.
 
 **Sáng tạo: sau cùng, không chặn tag, phải tắt ở headless**
-8. Nâng demo `client/demo/ui-3d-demo.html` lên v1.1: cá kèo, Cá Sấu Năm Chèo, ghe cây bẹo cho Shop, 4 bàn.
+8. Nâng demo `client/demo/ui-3d-demo.html` lên v1.1: cá kèo, Cá Sấu Năm Chèo, ghe cây bẹo cho Shop, 4 bàn. Muốn đưa thành client thật thì cần **ADR-0003** (route tĩnh, vendor `three.module.min.js` kèm LICENSE thay cho CDN).
 
 ### 8.2 Nhịp theo TICKET-02 §5
 | Phút | Việc của Người 3 |
@@ -196,6 +199,5 @@ Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, H
 - [ ] `AGENTS.md`, `docs/standup.md`, `docs/retro.md`, `docs/ai-usage-log.md` cập nhật cho Phase 2.
 
 ### 8.4 Rủi ro
-- AC-P2-07 phụ thuộc gather v1.1 của Người 1 (cá bơi, Cá Sấu) và quán v1.1 của Người 2 (#5). Trong lúc chờ, dùng fixture và sim giả để làm UI.
+- **Gather v1.1 chưa có** trên `main` (cá bơi/sinh, Cá Sấu `monsters[]`, nút N5/N6, của Người 1). Vòng ngày hiện chỉ kiểm được với gather v1.0 (#8). "Thủy quái!" và viền tím chưa kiểm bằng mắt được cho tới khi có `monsters[]`; ghi trung thực trong verification.
 - Sửa `chonoi/web/index.html` (file khung, đã có ADR-0002): báo Người 2 trước để không sửa cùng lúc.
-- Gather v1.1 (Cá Sấu) chưa có thì "Thủy quái!" chưa kiểm được bằng mắt; ghi trung thực trong verification.
