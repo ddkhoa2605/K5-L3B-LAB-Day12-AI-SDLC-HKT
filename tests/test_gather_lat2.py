@@ -74,17 +74,17 @@ class GatherInteract(unittest.TestCase):
         self.assertEqual(gathers[0]["data"]["node_id"], "N1")
 
     def test_gather_exact_radius_boundary(self):
-        # đúng mép bán kính INTERACT_R (2.0)
+        # đúng mép bán kính INTERACT_R (2.0) và trong dung sai float EPS (1e-9)
         scenario = {
             "player": {"pos": [10.0, 0.0]},
-            "nodes": [{"id": "N1", "kind": "bong_dien_dien", "pos": [10.0 + INTERACT_R, 0.0]}],
+            "nodes": [{"id": "N1", "kind": "bong_dien_dien", "pos": [10.0 + INTERACT_R + 1e-10, 0.0]}],
             "random_fish": False,
         }
         s = Session("gather", TUNING, scenario, 1)
         evs = s.step(press("interact"))
         self.assertIn("gather", names(evs))
 
-        # vượt mép một chút -> không hái được
+        # vượt mép ngoài dung sai EPS -> không hái được
         scenario_out = {
             "player": {"pos": [10.0, 0.0]},
             "nodes": [{"id": "N1", "kind": "bong_dien_dien", "pos": [10.0 + INTERACT_R + 0.01, 0.0]}],
@@ -244,6 +244,27 @@ class CatchFish(unittest.TestCase):
         self.assertNotIn("fish_caught", names(evs))
         self.assertNotIn("hold_full", names(evs))
         self.assertEqual(s.sim.catch_cd_ticks, 0)
+
+    def test_catch_exact_radius_boundary_and_tolerance(self):
+        # cá ở đúng mép bán kính CATCH_R (2.0) cộng dung sai float EPS (1e-10 < 1e-9)
+        scenario = {
+            "player": {"pos": [15.0, 5.0]},
+            "fish": [{"id": "F1", "kind": "ca_loc", "pos": [15.0 + CATCH_R + 1e-10, 5.0], "heading_deg": 0}],
+            "random_fish": False,
+        }
+        s = Session("gather", TUNING, scenario, 1)
+        evs = s.step(press("catch"))
+        self.assertIn("fish_caught", names(evs))
+
+        # vượt mép ngoài dung sai EPS -> không bắt được
+        scenario_out = {
+            "player": {"pos": [15.0, 5.0]},
+            "fish": [{"id": "F1", "kind": "ca_loc", "pos": [15.0 + CATCH_R + 0.01, 5.0], "heading_deg": 0}],
+            "random_fish": False,
+        }
+        s2 = Session("gather", TUNING, scenario_out, 1)
+        evs2 = s2.step(press("catch"))
+        self.assertNotIn("fish_caught", names(evs2))
 
     def test_catch_no_fish_in_radius(self):
         scenario = {

@@ -23,6 +23,7 @@ from .ramp import ramp_velocity
 
 TICK = 60.0
 AXES = ("x", "d")
+EPS = 1e-9
 
 
 class GatherSim:
@@ -124,7 +125,7 @@ class GatherSim:
                 for n in self.nodes:
                     if n["regrow_ticks"] == 0:
                         d = math.dist(self.pos, n["pos"])
-                        if d <= r:
+                        if d <= r + EPS:
                             candidates.append((d, id_key(n["id"]), n))
                 if candidates:
                     candidates.sort(key=lambda item: (item[0], item[1]))
@@ -144,7 +145,7 @@ class GatherSim:
                 candidates = []
                 for f in self.fish:
                     d = math.dist(self.pos, f["pos"])
-                    if d <= r:
+                    if d <= r + EPS:
                         candidates.append((d, id_key(f["id"]), f))
                 if candidates:
                     candidates.sort(key=lambda item: (item[0], item[1]))
@@ -169,7 +170,7 @@ class GatherSim:
         return self.pos[1] <= self.t["surface_depth"]
 
     def _in_dock(self) -> bool:
-        return math.dist(self.pos, self.t["dock_pos"]) <= self.t["dock_radius"]
+        return math.dist(self.pos, self.t["dock_pos"]) <= self.t["dock_radius"] + EPS
 
     def _breathe(self, at_surface, events) -> bool:
         """Oxy / ngạt theo PRD-0 mục F. Trả True nếu ngất (buổi sáng đã kết thúc, dừng bước)."""

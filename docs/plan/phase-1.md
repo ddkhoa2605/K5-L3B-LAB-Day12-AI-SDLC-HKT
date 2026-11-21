@@ -17,10 +17,19 @@
 | **Người 3** | `client/ui` + Scrum | Khung UI, HUD tối thiểu (thời gian, oxy, máu, giỏ, kho); setup repo, `AGENTS.md`, retro | Đọc snapshot từ `Session` của Người 1 & 2 |
 | **Người 4** | `qa` + QA Lead | Viết test độc lập, kiểm tra tất định (`cmp`), ma trận truy vết `docs/verification/phase-1.md` | Kiểm sau khi Người 1 & 2 hoàn thành lát |
 
-## 3. Danh sách AC cốt lõi
-- **AC-P1-01 -> AC-P1-05**: Bơi qua biên `dive`/`surface`, oxy (-1/+6), `oxygen_empty`, ngạt `choke` t+59, ngất `faint` bỏ giỏ LIFO.
-- **AC-P1-06 -> AC-P1-11**: Giỏ trần `hold_capacity`, hái nút `ready` gần nhất (hồi 1200 ticks), bắt cá (yield, hồi 30 ticks), xử lý giỏ đầy `hold_full`.
-- **AC-P1-12 -> AC-P1-15**: Cập bến xét trước hái, hết giờ `time` giữ giỏ, xuất kho đúng schema, tính tất định byte-matching.
+## 3. Danh sách AC cốt lõi (12 AC chuẩn Phase 1)
+- **AC-P1-01**: Bơi, tăng/giảm tốc, chặn biên và chuyển phân vùng `dive`/`surface` (data `pos`).
+- **AC-P1-02**: Cơ chế Oxy (mặt nước +6 kẹp max, dưới nước −1 kẹp 0) và phát `oxygen_empty` khi chạm 0.
+- **AC-P1-03**: Cơ chế Ngạt (choke đầu tiên ở t+59, mỗi 60 tick −1 Máu, reset `zero_oxy_ticks` khi lên mặt nước).
+- **AC-P1-04**: Máu về 0 → Ngất `faint` (xả giỏ LIFO, `gather_end fainted`, kho rỗng, dừng bước).
+- **AC-P1-05**: Giỏ hàng cơ chế LIFO và trần sức chứa `hold_capacity`.
+- **AC-P1-06**: Hái nguyên liệu ở mặt nước: nút `ready` gần nhất trong bán kính (dung sai `EPS`), hòa id nhỏ, `regrow_ticks = 1200`, `node_regrown`.
+- **AC-P1-07**: Giỏ đầy khi hái: phát `hold_full` (`action: "gather"`), nút giữ nguyên.
+- **AC-P1-08**: Bắt cá dưới nước: đàn cá gần nhất trong tầm (dung sai `EPS`), yield đủ (`ca_linh` 3, `ca_loc` 1), hồi chiêu 30 ticks; bỏ qua khi sai pha (ở mặt nước).
+- **AC-P1-09**: Giỏ thiếu chỗ khi bắt cá: phát `hold_full` (`action: "catch"`), giữ đàn cá, không cooldown, không nhận một phần.
+- **AC-P1-10**: Cập bến ưu tiên xét trước hái (`docked` ghi đúng giỏ); snapshot HUD tối thiểu (thời gian, oxy, máu, giỏ).
+- **AC-P1-11**: Hết giờ `time` giữ giỏ sau hành động; kho ghi nguyên tử đúng một lần khi kết thúc, chạm `--ticks` không ghi.
+- **AC-P1-12**: Tính tất định (cùng seed/input cho byte giống nhau 100%) và snapshot/event đúng schema PRD-0 mục E/G.
 
 ## 4. Rủi ro & Giảm thiểu
 - **Quá tải lát 1+2**: Tách làm 2 lát rõ ràng, viết test unit theo từng lát, chốt clarify sớm.
