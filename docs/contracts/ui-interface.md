@@ -207,7 +207,7 @@ Vòng ngày [T]: `DayIntro → gather → EveningIntro → quan → DayResult �
 | Thời gian | Đổi màu khi còn ≤ 30 s | `time_left_ticks` ≤ 1.800 | |
 | Độ sâu | Có | `player.pos[1]` | Thước dọc tô 3 vùng nông/giữa/sâu (d < 10, 10–20, ≥ 20) |
 | Giỏ theo loại | Có | `hold`, `hold_count` / `hold_capacity` | |
-| Danh sách cần lấy | Có | `day_plan.ingredients` | Hiện "đã lấy / cần", đánh dấu ✓ khi đủ |
+| Đã lấy / cần | Có ("HUD sáng hiển thị đã lấy/cần") | `day_plan.ingredients` và đếm `hold` | Đánh dấu ✓ khi đủ |
 | Hồi bắt | Có | `player.catch_cd_ticks` | |
 | Gợi ý hái / cập bến | Khi đến gần | Bán kính từ tuning, nút `ready` | |
 | "Thủy quái!" + **viền tím** | Khi có thủy quái **gần** | `monsters[]` | Ngưỡng "gần" = trong `detect_radius` của loài hoặc `state:"chase"` (ticket không định nghĩa, cần hỏi); mũi tên chỉ con ngoài khung nhìn |
