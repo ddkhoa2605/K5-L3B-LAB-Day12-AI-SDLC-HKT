@@ -1,15 +1,8 @@
 # ddkhoa2605 — phản tư cá nhân (≤ 200 từ)
 
-- **Tôi đã làm:**
-  - Integrator + Release, phụ trách `sim/quan`, `day`, `shop`: Quán lõi 1 bếp 1 bàn v1.0, mở rộng 2 bếp 4 bàn 6 món v1.1 ([#4](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/4), [#5](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/5)).
-  - Vòng ngày `day.py`, tạm dừng `pause.py`, Shop nâng cấp và ADR-0001, ADR-0002.
-  - Chuyển đổi kho cá thể v1.2, hao tươi 0.25/s, nhả giữ chỗ khi ươn, chốt giá theo độ tươi ([#20](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/20)).
-  - Mở rộng Khách đặt trước (reservations) 20 test đạt ([#21](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/21)).
-  - Viết `tools/soak.py` cho Phase 4, tổng hợp CHANGELOG và gắn tag release.
-- **Tôi đã review:**
-  - Review toàn bộ các PR của Người 1, 3, 4; điều phối standup và thứ tự merge.
-- **AI sai ở đâu và tôi phát hiện thế nào:**
-  - AI nhầm frame tick k sinh event tick k+1 nên đặt kỳ vọng tick lệch 1 đơn vị; shell script heredoc không nháy làm mất chữ trong `clarify.md`.
-  - Phát hiện qua `git diff` và kiểm tra terminal sau khi chạy.
-- **Điều tôi học được:**
-  - Khi đổi hợp đồng schema, cắt thẳng một lần dứt khoát kèm adapter tạm thời giúp nhóm không bị tắc nghẽn tích hợp.
+> **NHÁP do AI soạn từ bằng chứng trong repo — Người 2 sửa giọng văn trước khi nộp.** Bản trước do tài khoản khác viết thay và có câu sai (ví dụ "viết `tools/soak.py`"), nên đã thay.
+
+- **Tôi đã làm:** luật Quán và kiểm mâu thuẫn scenario ([#2](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/2)); Quán v1.1 ([#5](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/5)); vòng ngày `day`, Shop, pause, burn ([#14](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/14)); kho cá thể + độ tươi v1.2 ([#20](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/20)); Khách đặt trước ([#21](https://github.com/ddkhoa2605/K5-L3B-LAB-Day12-AI-SDLC-HKT/pull/21)); hợp đồng `docs/contracts/` và ADR-0001…0003; gộp PR và gắn tag.
+- **Tôi đã review:** gather #8, #17; QA #7, #22; UI #9–#13, #18, #24, #25, #27.
+- **AI sai ở đâu:** bản plan đầu ghi sai quy trình (mời giảng viên, CI bắt buộc) — phát hiện khi đọc PRD-0 trên lab board; lệnh shell dùng heredoc không nháy làm mất chữ trong `clarify.md`, đã đẩy lên một commit lỗi trước khi sửa (xem `docs/ai-usage-log.md`).
+- **Điều học được:** đọc nguồn gốc (PRD) trước khi tin bản tóm tắt; số nguyên 240 đơn vị cho độ tươi tránh sai số ở ngưỡng; gộp PR phải chạy test sau mỗi lần giải xung đột.

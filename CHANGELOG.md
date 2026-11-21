@@ -7,15 +7,9 @@ Ghi breaking change theo từng Test Contract. Ngày theo lab (21/11/2026).
 ### Thêm & Cập nhật
 - **Contract v1.3:** Nâng cấp `contract_version: "1.3"`.
 - **Khai báo lệnh mới:** Thêm `bench_cmd: "python3 tools/bench.py"` và `soak_cmd: "python3 tools/soak.py"` ở gốc `game.contract.json`.
-- **Công cụ Soak runner:** Xây dựng `tools/soak.py` chạy kiểm thử độ bền bỉ 10 Ngày không crash (`days_completed = 10`, `crashes = 0`), kế hoạch D1–D5 lặp ở Ngày 6–10.
-- **Nâng cấp giao diện trực quan:** Cải thiện `chonoi/web/index.html` với đồ họa sông nước miền Tây Nam Bộ sinh động:
-  - Bầu trời bình minh hồng cam, rặng dừa nước ven bờ, bến đò Rạch Sen mái lá dừa.
-  - Sóng nước nhấp nhô, tia sáng mặt trời xuyên nước (*god rays / sunbeams*), bọt khí lặn.
-  - Đàn cá linh, cá lóc, cá kèo quẫy đuôi sóng sin và hoa văn vảy cá sinh động.
-  - Út Sen áo bà ba, khăn rằn Nam Bộ, kính lặn tự chế; Cá Sấu Năm Chèo gai lưng và mắt đỏ rực khi đuổi.
-  - Quán nhà bè sàn gỗ ấm cúng, dây đèn vàng lung linh, bếp lò đất ngọn lửa bập bùng và khói bếp uốn lượn; khách ăn biểu cảm hài lòng / tức giận.
-  - Giữ nguyên 100% tính tương thích chế độ tương phản cao (phím `H`) và bài benchmark `?bench=`.
-- **Hoàn thiện tài liệu nghiệm thu & quy trình:** Bổ sung `docs/verification/phase-4.md`, hoàn thiện phản tư đủ 4 thành viên trong `docs/members/`, cập nhật `docs/retro.md` và gắn tag `phase-1` đến `phase-4`.
+- **Công cụ Soak runner:** `tools/soak.py` (`soak_cmd`) chạy 10 Ngày trong một tiến trình, kế hoạch D1–D5 lặp ở Ngày 6–10; kết quả lưu ở `docs/proof/phase-4/soak.json`. Bot không điều khiển nên tiền/điểm thấp: chỉ kiểm độ ổn định, không phải chiến thắng.
+- **Giao diện:** thiết kế lại đồ họa client (PR #27), chỉ ở `chonoi/web/index.html`, không đổi luật hay snapshot.
+- **Tài liệu:** `docs/verification/phase-4.md`, `docs/retro.md`; phản tư cá nhân do từng người tự viết trong `docs/members/<handle>.md`. Tag `phase-1…phase-4` và Release `v1.0.0`: xem `docs/retro.md` (gắn trễ hạn).
 
 ## Unreleased — Contract v1.2 (TICKET-03 "Mùa Nước Nổi", Phase 3)
 
