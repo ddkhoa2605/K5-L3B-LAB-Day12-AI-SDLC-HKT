@@ -45,6 +45,24 @@ def events(rows, name=None):
     return [r for r in rows if r["type"] == "event" and (name is None or r["name"] == name)]
 
 
+def make_items(counts, start=1, fresh=100):
+    """Kho cá thể v1.2 từ bảng đếm: {kind: n} -> [{"id": "I<k>", "kind", "fresh"}], id tăng theo (kind, thứ tự)."""
+    items, n = [], start
+    for kind in sorted(counts):
+        for _ in range(counts[kind]):
+            items.append({"id": f"I{n}", "kind": kind, "fresh": fresh})
+            n += 1
+    return items
+
+
+def counts(items):
+    """Mảng cá thể -> {kind: số lượng} (để so với kho đếm cũ trong test)."""
+    out = {}
+    for i in items:
+        out[i["kind"]] = out.get(i["kind"], 0) + 1
+    return {k: out[k] for k in sorted(out)}
+
+
 def close(a, b, tol=0.1):
     return abs(a - b) <= tol
 
