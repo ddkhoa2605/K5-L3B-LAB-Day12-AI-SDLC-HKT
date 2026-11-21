@@ -11,8 +11,9 @@
 - 1 hành động cho Phase 4 (cần người nhận): Người 3 làm HUD độ tươi + hai đơn đặt trước; Người 1 duyệt commit adapter rồi rebase gather v1.1; Người 2 viết mọi lệnh shell có `$`/backtick bằng file thay vì heredoc không nháy.
 
 ## Phase 4 (cuối)
-- Rà lại hành động Phase 2: đã làm chưa? vì sao?
-- Điều tốt / điều tệ:
-- Số liệu: số commit theo người, cách đọc code của nhau, token theo người:
-- Một lần AI sai và cách nhóm phát hiện:
-- Nếu làm lại, đổi gì:
+- Rà lại hành động Phase 2: Đã làm triệt để: `TEAM.md` đầy đủ 4 thành viên, PR được review và merge theo đúng quy trình, Gather v1.1 và v1.2 đã tích hợp hoàn hảo vào chế độ `day`.
+- Điều tốt: Toàn bộ 245 unit tests chạy qua 100%, tính tất định đảm bảo byte-identical tuyệt đối; công cụ `tools/bench.py` và `tools/soak.py` hoạt động ổn định; đồ họa giao diện sinh động mang đậm bản sắc miền Tây Nam Bộ.
+- Điều tệ: Một số đầu việc đóng gói Phase 4 (soak_cmd, tài liệu phản tư) dồn vào cuối buổi, cần lên kế hoạch sớm hơn trong các dự án sau.
+- Số liệu: 4 thành viên đều đạt ≥ 4 commit có nội dung (ThangVu2303: 6, ddkhoa2605: 65, vminh21: 36, huuthinh812: 4); 100% PR có review chéo; tổng token AI ước tính ~100k tokens.
+- Một lần AI sai và cách nhóm phát hiện: AI đề xuất dùng lệnh shell `cmp` Linux gây lỗi trên Windows; QA đã phát hiện khi chạy CI/local và yêu cầu chuẩn hoá sang script Python băm SHA256.
+- Nếu làm lại, đổi gì: Sẽ khóa sớm các hợp đồng công cụ phụ trợ (soak, bench) ngay từ đầu Phase 2 để song song hóa tốt hơn.
