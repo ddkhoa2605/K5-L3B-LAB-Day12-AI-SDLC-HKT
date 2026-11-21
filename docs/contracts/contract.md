@@ -89,6 +89,7 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 - Khách chưa nấu có `base_price = 0`, `tip = 0`; giá chốt khi `cook_started`.
 - Khách fixture bắt buộc có `dish_id` hợp lệ (thiếu → mã 2).
 - `carry_limit` hiện chỉ hỗ trợ giá trị 1.
+<<<<<<< HEAD
 
 ---
 
@@ -119,7 +120,16 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 ## D. Output thêm
 - Snapshot: `state:"paused"`; trong `day`, mọi snapshot có `day, day_plan, upgrades, active_upgrades`; `phase` ∈ `gather|quan|shop`; Shop có `stock` dư và `time_left_ticks`; snapshot đổi pha ghi pha mới với `phase_tick:0`. Event mang pha cũ; vỏ event trong `day` thêm `day`.
 - Event mới: `monster_hit`, `fish_spawned`, `faint` (thêm `cause:"monster"`), `day_start`, `phase_start`, `day_plan {dishes, ingredients}`, `paused`, `resumed`, `bought {upgrade, level, price, money}`, `buy_failed {action, reason: funds|max_level|out_of_stock|unknown}`, `shop_end {reason: done|time}`. Mở rộng: `attack`, `monster_stunned`, `photo`, `released`, `dish_burnt`, `vendor_trade`.
+- Snapshot gather thêm `monsters[]` (cùng trường với scenario, thêm `state`) và `player.invuln_ticks`; có Sổ tay thì thêm `ca_ho` (object hoặc `null`).
+- `data` của event mới: `monster_hit {monster_id, hp, lost, pos}` (`pos` là vị trí người chơi, `lost` mảng kind theo LIFO) · `fish_spawned {id, kind, pos}` · `day_start {}` · `phase_start {}` · `day_plan {dishes, ingredients}` · `paused {}` · `resumed {}` · `faint` thêm `cause:"monster"` (`lost` liệt kê phần giỏ còn lại, `hp:0`).
 - Dòng `end` của `day` thêm `days_completed`; đủ số Ngày → `reason:"days_complete"`.
+
+### C2. Scenario gather v1.1 (TICKET-02 mục 4.3) — Người 1 cài
+- `gather.player` thêm `invuln_ticks` (và `attack_cd_ticks` nếu bật Lao).
+- `gather.fish[]` thêm `age_ticks` (mặc định 0: số bước cá đã tham gia bơi). `random_fish:false` tắt **cả** cá mặc định, bơi và sinh; cá fixture đứng yên. Khai `fish` khi cờ bật thì thay đàn ban đầu, vẫn bơi/sinh.
+- `gather.monsters[]` thay danh sách mặc định: `{id, kind, pos, waypoints, target_idx, state, state_ticks_left, recoil_dir}`. Hai waypoint; `target_idx` 0 hoặc 1 (mặc định 1); `state` mặc định `patrol`; `recoil_dir` là vector đơn vị khi recoil, `null` ở trạng thái khác; `recoil`/`stunned` cần timer dương. Bỏ mảng thì dùng bố trí đúng Ngày.
+- Nếu bật Sổ tay: `gather.ca_ho` là `{id, pos, heading_deg, photographed}` hoặc `null`; `random_ho:false` tắt sinh/di chuyển tự động. Nếu bật cháy: `quan.stoves[].ready_ticks` dựng tuổi món chín.
+- **Khách `eating` (quan):** phải khai `base_price` và `tip`; thiếu → mã 2 (đã cài ở `scenario.py`).
 
 ## E. Chuyển pha và thứ tự
 `day_start → day_plan → phase_start(gather)`; sau `gather_end` dựng quán và phát `phase_start(quan)` cùng tick (kể cả khi ngất); sau `quan_end` dựng Shop và phát `phase_start(shop)` cùng tick; pha mới chỉ chạy gameplay từ bước sau. Shop xử lý **một** `buy` trước cạnh `shop_done` (kể cả bước cuối); đóng Shop tăng `days_completed`, kết thúc hoặc dựng Ngày kế ngay tick đó; cấp đã mua chỉ sao sang `active_upgrades` khi dựng Ngày mới.
@@ -133,3 +143,6 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 
 ## G. Chưa chốt (hỏi PO, xem `docs/clarify.md`)
 Ai làm vòng `--mode day` / Shop / pause / menu / HUD (lát 4); vị trí khóa `day_plan`, `shop` trong manifest (đang đặt dưới `tuning`).
+=======
+- Khách fixture `state:"eating"` **phải khai** `base_price` và `tip` (PRD-0 mục D: "khai `base_price,tip` đã chốt"); thiếu một trong hai → mã 2. Các trạng thái khác thì `base_price` mặc định theo menu / 0 và `tip` mặc định 0.
+>>>>>>> origin/main
