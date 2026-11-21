@@ -18,4 +18,4 @@
 - Khi ai đó trễ hoặc vướng quá 10 phút: báo ngay trong kênh chat; người dự phòng (cột trên) nhận việc hoặc pair.
 - Giờ standup giữa phase: phút 20 của mỗi phase, 2–3 phút (đã xong / sắp làm / đang vướng), Người 3 điều phối.
 - Cách đọc code của nhau: mỗi PR có ít nhất 1 người khác review, nhận xét bám dòng; reviewer chính theo `docs/plan/plan.md` mục 4.
-- Cách làm việc với Git: … (ví dụ: push thẳng nhánh chính / nhánh ngắn rồi gộp; thống nhất ai gắn tag)
+- Cách làm việc với Git: nhánh ngắn theo lát (`feature/…`, `docs/…`) + PR vào `main`, ≥ 1 review (đụng `docs/contracts/`, khóa contract hoặc schema kho: 2 approvals); Integrator (Người 2) merge theo thứ tự và gắn tag.
