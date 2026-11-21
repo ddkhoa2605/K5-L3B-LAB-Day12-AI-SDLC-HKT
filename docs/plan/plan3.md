@@ -1,7 +1,7 @@
 # PLAN 3 – Người 3 phụ trách `client/ui` (Scrum/Release, trưởng nhóm)
 
 > Đặt tại `docs/plan/plan3.md` (không đặt trong `docs/members/`).
-> **Nguồn yêu cầu:** đối chiếu PRD-0 (tab Phase 1 trên lab board, đọc ngày 21/11/2026) và `docs/plan/plan.md`. PRD Phase 2–4 chưa phát hành, nên plan sẽ cập nhật khi có. Nếu lệch nhau thì ưu tiên lab board.
+> **Nguồn yêu cầu:** mục 1–7 theo PRD-0 (Phase 1, Test Contract v1.0); **mục 8 theo TICKET-02 (Phase 2, v1.1)**. Cả hai đọc từ lab board ngày 21/11/2026. Phase 3–4 chưa phát hành. Nếu lệch nhau thì ưu tiên lab board.
 
 ## 1. Vai trò
 
@@ -146,3 +146,39 @@
 - Cập nhật `AGENTS.md` / `docs/standup.md` / `docs/retro.md` / README:
 - Vấn đề còn tồn tại:
 - Nội dung đã ghi vào `docs/ai-usage-log.md`:
+
+## 8. Phase 2 — TICKET-02 "Một ngày ở chợ nổi" (Test Contract v1.1, hạn tag `phase-2` lúc 1:55)
+
+Theo `docs/plan/phase-2.md` (#6), Người 3 nhận **AC-P2-08** (menu, pause, HUD sáng/tối) và **AC-P2-07** (`--mode day`, Shop, nâng cấp, `--days`, pause) **làm cùng Người 4**: Người 4 làm vòng `day` headless, Người 3 làm UI và Shop. Chi tiết trường và màn hình ở phụ lục v1.1 của `docs/contracts/ui-interface.md`.
+
+### 8.1 Việc theo thứ tự ưu tiên
+1. **Chốt giao diện chuyển pha (phút 0–5)** cùng Người 2 và Người 4: thứ tự event `day_start → day_plan → phase_start(...)`; snapshot `day`, `day_plan`, `upgrades`, `active_upgrades`; input `pause`, `shop_done`, `buy`.
+2. **ADR-0002 + PR sửa `chonoi.live`** (cùng Integrator): thêm `--mode day [--days N]`; `/input` nhận `pause`, `shop_done`, `buy` (áp `buy` đúng một lần); `meta` = toàn bộ tuning; giữ đủ event của pha. Có test trong `tests/test_live.py`.
+3. **HUD sáng v1.1:** Máu theo `hp_max` (cấp Áo phao); oxy < 25% nhấp nháy; "Hết hơi!"; thời gian ≤ 30 s đổi màu; **thước độ sâu 3 vùng**; giỏ theo loại; **cần lấy / đã lấy**; hồi bắt; gợi ý hái / cập bến; **"Thủy quái!" + viền tím**.
+4. **HUD quán v1.1:** phiếu order T1–T4 (món + kiên nhẫn, < 25% đổi màu); tiến độ B1, B2, trạng thái món chín; món đang cầm; kho khả dụng 6 loại; tiền ca; uy tín.
+5. **Các màn hình:** Menu chính (Chơi/Thoát) → DayIntro (danh sách Má Tư, tự đóng sau 4 s hoặc khi nhấn phím) → EveningIntro (nhập kho, món nấu được) → DayResult (khách phục vụ/bỏ đi, tiền, boa, uy tín thay đổi) → **Shop** (Bình oxy, Áo phao; Xong / tự đóng sau 600 tick; `buy_failed` báo lý do) → Summary sau Ngày 5.
+6. **Pause:** Esc/P; menu làm mờ nền, có Tiếp tục / Về menu; dừng đồng hồ và animation gameplay, kể cả trong Shop.
+7. **Kỹ thuật:** chữ không chân **≥ 18 px ở 1280×720**; trung bình **≥ 30 FPS** ở 1280×720. Ảnh chụp và số đo lưu vào `docs/proof/phase-2/`.
+8. *(Chỉ khi lõi xong)* Nâng demo `client/demo/ui-3d-demo.html` lên v1.1: cá kèo, Cá Sấu Năm Chèo, ghe cây bẹo cho Shop, phiếu order 4 bàn. Đây là phần sáng tạo, **không chặn tag**.
+
+### 8.2 Nhịp theo TICKET-02 §5
+| Phút | Việc của Người 3 |
+|---|---|
+| 0–5 | Chốt giao diện chuyển pha; chia việc AC-P2-07 với Người 4 |
+| 5–20 | ADR-0002 + `live.py` mode `day`; khung các màn hình; HUD sáng v1.1 |
+| 20 | Smoke tích hợp `gather --inventory-out → quan --inventory` cùng nhóm; standup 2–3 phút (vai Scrum) |
+| 20–35 | HUD quán v1.1, Shop, Pause, DayResult/Summary; chốt luồng `day` |
+| 35–45 | Chơi thử trọn 1 Ngày và nhiều Ngày (kiểm cấp nâng cấp có hiệu lực từ Ngày sau); chụp 1280×720; đo FPS; cùng Người 4 điền `docs/verification/phase-2.md` |
+| 45–50 | Điều phối retro nhanh: một điều tốt, một điều vướng, một hành động có người nhận → `docs/retro.md` |
+| 50–55 | Dự phòng; Người 2 gắn `phase-2` chậm nhất 1:55 |
+
+### 8.3 Tiêu chí nghiệm thu Phase 2 (phần Người 3)
+- [ ] Chơi trọn vòng ngày có menu, pause và HUD; DayIntro công bố đúng kế hoạch D1–D5.
+- [ ] HUD sáng/tối có đủ mọi thành phần bắt buộc của ticket; chữ ≥ 18 px ở 1280×720 (có ảnh); ≥ 30 FPS (có số đo).
+- [ ] Shop mua đúng: trừ `money`, giữ `earned`; cấp hiển thị ngay, có hiệu lực từ Ngày kế; `buy_failed` khi không đủ tiền hoặc đã tối đa.
+- [ ] Sửa `chonoi.live` có ADR-0002 và test; headless không đổi output (Người 4 `cmp` trước/sau).
+- [ ] `AGENTS.md`, `docs/standup.md`, `docs/retro.md`, `docs/ai-usage-log.md` cập nhật cho Phase 2.
+
+### 8.4 Rủi ro
+- AC-P2-07 phụ thuộc gather v1.1 của Người 1 (cá bơi, Cá Sấu) và quán v1.1 của Người 2 (#5). Trong lúc chờ, dùng fixture và sim giả để làm UI.
+- Nếu ADR-0002 không kịp thì Phase 2 chơi thử bằng hai mode riêng, và **ghi trung thực** trong verification là vòng ngày chưa chơi được trên trình duyệt.
