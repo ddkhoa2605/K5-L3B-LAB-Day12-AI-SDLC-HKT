@@ -197,6 +197,8 @@ def _validate_quan(b, tuning):
         table_ids.append(c["table_id"])
         if c.get("dish_id") not in menu:
             raise BadInput(f"customers.{c['id']}: dish_id phải là món trong menu")
+        if c.get("state") == "eating" and ("base_price" not in c or "tip" not in c):
+            raise BadInput(f"customers.{c['id']}: khách eating phải khai base_price và tip đã chốt")
         if c.get("state", "waiting") not in CUSTOMER_STATES:
             raise BadInput(f"customers.{c['id']}.state phải thuộc {CUSTOMER_STATES}")
         if c.get("order_status", "reserved") not in ORDER_STATUSES:

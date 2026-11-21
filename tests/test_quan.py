@@ -254,6 +254,9 @@ class ScenarioContradictions(unittest.TestCase):
             "assigned không có món": {"customers": [waiting(order_status="assigned")]},
             "unfulfillable còn giữ chỗ": {"stock": {"ca_loc": 1}, "customers": [waiting(order_status="unfulfillable", reserved={"ca_loc": 1})]},
             "eating thiếu timer": {"customers": [waiting(state="eating")]},
+            "eating thiếu base_price và tip": {"customers": [waiting(state="eating", order_status="served", eat_ticks_left=100)]},
+            "eating thiếu tip": {"customers": [waiting(state="eating", order_status="served", eat_ticks_left=100, base_price=40)]},
+            "eating thiếu base_price": {"customers": [waiting(state="eating", order_status="served", eat_ticks_left=100, tip=8)]},
             "waiting nhưng served": {"customers": [waiting(order_status="served")]},
             "dish_id lạ": {"customers": [waiting(dish_id="pho")]},
             "thiếu dish_id": {"customers": [{"id": "C1", "table_id": "T1"}]},
@@ -281,6 +284,11 @@ class ScenarioContradictions(unittest.TestCase):
                 code, _ = quan(w, blk, ticks=1)
                 self.assertEqual(code, 2, name)
                 self.assertFalse(__import__("os").path.exists(w.path("o.jsonl")), name)
+
+    def test_khach_eating_khai_du_base_price_va_tip_hop_le(self):
+        with Workdir() as w:
+            blk = {"customers": [waiting(state="eating", order_status="served", eat_ticks_left=100, base_price=40, tip=8)]}
+            self.assertEqual(quan(w, blk, ticks=0)[0], 0)
 
     def test_kho_inventory_thieu_cho_giu_exit_2(self):
         with Workdir() as w:
