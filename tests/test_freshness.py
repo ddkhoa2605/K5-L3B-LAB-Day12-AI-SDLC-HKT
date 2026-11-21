@@ -48,7 +48,7 @@ def gather(hold, **extra):
 
 
 def quan(stock, customers=(), seed=1, **extra):
-    sc = {"stock": stock, "customers": list(customers), "random_customers": False}
+    sc = {"stock": stock, "customers": list(customers), "random_customers": False, "random_reservations": False}
     sc.update(extra)
     return QuanSim(TUNING, sc, Streams(seed), IdAllocator())
 
@@ -222,7 +222,7 @@ class QuanDecayAndReserve(unittest.TestCase):
             code, err = run_headless("--mode", "quan", "--seed", "1", "--ticks", "3", "--inventory", inv,
                                      "--snapshot-every", "1", "--out", w.path("q.jsonl"))
             self.assertEqual(code, 0, err)
-            self.assertEqual([(e["tick"], e["name"]) for e in events(read_jsonl(w.path("q.jsonl")))], [(2, "spoiled")])
+            self.assertEqual([(e["tick"], e["name"]) for e in events(read_jsonl(w.path("q.jsonl")), "spoiled")], [(2, "spoiled")])
 
 
 class CookPrice(unittest.TestCase):
@@ -274,7 +274,7 @@ class DayHandover(unittest.TestCase):
     def test_ban_giao_khong_hao_them_o_tick_chuyen_pha(self):
         hold = make_items({"ca_loc": 1, "bong_sung": 2})
         with Workdir() as w:
-            rows = self.day(w, {"gather": {"hold": hold, "random_fish": False}, "quan": {"random_customers": False}},
+            rows = self.day(w, {"gather": {"hold": hold, "random_fish": False}, "quan": {"random_customers": False, "random_reservations": False}},
                             [{"tick": 0, "interact": True}], ticks=4)
             snaps = {s["tick"]: s for s in snapshots(rows)}
             end = events(rows, "gather_end")[0]["data"]["inventory"]["items"]
@@ -289,7 +289,7 @@ class DayHandover(unittest.TestCase):
         quan_ticks = int(round(TUNING["quan"]["duration_s"] * 60))
         shop = 1 + quan_ticks
         with Workdir() as w:
-            rows = self.day(w, {"gather": {"hold": hold, "random_fish": False}, "quan": {"random_customers": False}},
+            rows = self.day(w, {"gather": {"hold": hold, "random_fish": False}, "quan": {"random_customers": False, "random_reservations": False}},
                             [{"tick": 0, "interact": True}, {"tick": 1, "interact": False},
                              {"tick": shop + 50, "shop_done": True}, {"tick": shop + 51, "shop_done": False},
                              {"tick": shop + 52, "interact": True}], ticks=shop + 60, every=10, days=2)

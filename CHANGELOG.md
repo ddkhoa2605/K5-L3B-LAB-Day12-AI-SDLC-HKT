@@ -22,6 +22,12 @@ Ghi breaking change theo từng Test Contract. Ngày theo lab (21/11/2026).
   (vẫn chiếm ô, không dùng nấu), event `spoiled {item_id, kind, location: hold|stock}` đúng một lần, theo id.
 - Id cá thể `I1, I2…` tăng xuyên pha và Ngày; Ngày kế cấp id mới cho mẫu `gather.hold`; `day` bàn giao không hao thêm ở tick chuyển pha, Shop không hao.
 - Scenario gather nhận khóa `monsters` (chỉ mảng rỗng; thủy quái thuộc gather v1.1).
+- **Mở rộng Khách đặt trước** (`extensions: ["reservations"]`, `tuning.reservations`): 2 đơn R1,R2/Ngày, trạng thái
+  `scheduled → holding → waiting → served | failed`, giữ bàn từ `arrival − 30 s`, giá cuối ×1.5 (làm tròn xuống) rồi mới tính boa,
+  lỡ đơn −1 uy tín đúng một lần; event `reservation_announced/arrived/served/failed`; scenario `quan.reservations[]`,
+  `quan.random_reservations`; snapshot `reservations[]`, `customers[].reservation_id`, `tables[].reservation_id`;
+  quán độc lập công bố ở tick 0 (sau snapshot), `day` công bố sau `phase_start(gather)`.
+  **Lưu ý fixture:** mở rộng bật trong manifest nên scenario quán muốn "lõi thuần" cần `quan.random_reservations: false`.
 
 ### Cách cập nhật fixture
 - Kho/`hold`/`stock` cũ `{"ca_loc": 2}` hoặc `["ca_loc", "bong_sung"]` → `[{"id":"I1","kind":"ca_loc","fresh":100}, ...]`
@@ -33,4 +39,5 @@ Ghi breaking change theo từng Test Contract. Ngày theo lab (21/11/2026).
   `test_inventory_kinds.py`, `test_gather_lat*.py`, `test_python_starter_units.py`): luật schema đổi, **không** đổi kỳ vọng luật khác.
 - Giá món ở bước đầu của ca (`test_quan.py::test_bep_nhan_don_cu_nhat…`, `test_quan_p2.py::test_lau_mam…`): 60 → 59, 200 → 199 do giá theo tươi.
 - `test_quan_p2.py::test_contract_v11_…`: `contract_version` 1.1 → 1.2.
+- Khi bật `reservations`: các test lõi đặt `random_reservations: false` trong fixture (helper), `test_day::test_day_ticks_0…` đếm thêm 2 event `reservation_announced`; `test_burn::ContractExtensions` khai `extensions` kèm `reservations`.
 - Thêm: `tests/test_freshness.py` (ngưỡng 30, hao, giữ lại khi vừa ươn, giá, bàn giao, day, scenario mâu thuẫn).

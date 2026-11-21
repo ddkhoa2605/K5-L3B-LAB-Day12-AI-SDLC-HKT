@@ -10,7 +10,7 @@ DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 
 
 # Mở rộng đã cài luật (TICKET-02 mục 3). Khai mã ở `extensions` tại gốc manifest khi bật.
-KNOWN_EXTENSIONS = {"burn"}
+KNOWN_EXTENSIONS = {"burn", "reservations"}
 
 
 def _num(v):
@@ -128,6 +128,21 @@ def _validate_freshness(fr):
     Rates(fr)  # hệ số phải quy ra số nguyên đơn vị/tick, nếu không -> BadInput
 
 
+def _validate_reservations(r, extensions):
+    """Mở rộng Khách đặt trước: khối `tuning.reservations` có <=> khai extensions `reservations`."""
+    if "reservations" not in extensions:
+        if r is not None:
+            raise BadInput("tuning.reservations chỉ hợp lệ khi extensions có \"reservations\"")
+        return
+    if not isinstance(r, dict):
+        raise BadInput("extensions có reservations thì cần khối tuning.reservations")
+    _int_between("reservations.count", r.get("count"), 1, 4)
+    _between("reservations.table_hold_s", r.get("table_hold_s"), 1, 600)
+    _between("reservations.price_multiplier", r.get("price_multiplier"), 1, 10)
+    if not (_num(r.get("failed_reputation_delta")) and r["failed_reputation_delta"] < 0):
+        raise BadInput("reservations.failed_reputation_delta phải là số âm")
+
+
 def validate_tuning(t, extensions=()):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
@@ -161,6 +176,7 @@ def validate_tuning(t, extensions=()):
         raise BadInput("extensions có burn thì quan.burn_s phải hữu hạn")
     # TODO(nhóm): bổ sung kiểm các khóa còn lại nếu muốn chặt hơn (bếp/bàn, uy tín, ...).
     _validate_freshness(t.get("freshness"))
+    _validate_reservations(t.get("reservations"), extensions)
     for dish_id, d in menu.items():
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:

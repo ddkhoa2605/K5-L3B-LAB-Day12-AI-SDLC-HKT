@@ -31,6 +31,7 @@ def day(w, scenario=None, inputs=None, ticks=20000, days=None, seed=1, every=10,
 
 def dock(hold=HOLD, **quan):
     quan.setdefault("random_customers", False)
+    quan.setdefault("random_reservations", False)
     return {"gather": {"hold": hold, "random_fish": False}, "quan": quan}
 
 
@@ -258,8 +259,9 @@ class Pause(unittest.TestCase):
             for mode in ("gather", "quan"):
                 inp = write_json(w.path("in.json"), frames({"tick": 2, "pause": True}, {"tick": 3, "pause": False},
                                                            {"tick": 5, "pause": True}, {"tick": 6, "pause": False}))
+                sc = write_json(w.path("sc.json"), {mode: {"random_reservations": False} if mode == "quan" else {}})
                 code, err = run_headless("--mode", mode, "--seed", "1", "--ticks", "8", "--inputs", inp,
-                                         "--snapshot-every", "1", "--out", w.path("o.jsonl"))
+                                         "--scenario", sc, "--snapshot-every", "1", "--out", w.path("o.jsonl"))
                 self.assertEqual(code, 0, err)
                 rows = read_jsonl(w.path("o.jsonl"))
                 self.assertEqual([(e["tick"], e["name"], e["phase"]) for e in events(rows)],
@@ -325,7 +327,9 @@ class Errors(unittest.TestCase):
         with Workdir() as w:
             code, rows = day(w, None, None, ticks=0)
             self.assertEqual(code, 0, rows)
-            self.assertEqual([r["type"] for r in rows], ["snapshot", "event", "event", "event", "end"])
+            # day_start, day_plan, phase_start + 2 reservation_announced (mở rộng đặt trước bật trong manifest)
+            self.assertEqual([r["type"] for r in rows], ["snapshot"] + ["event"] * 5 + ["end"])
+            self.assertEqual([r["name"] for r in events(rows)][3:], ["reservation_announced"] * 2)
             self.assertEqual(rows[-1]["reason"], "tick_limit")
             s = rows[0]
             self.assertEqual((s["mode"], s["phase"], s["phase_tick"], s["day"]), ("day", "gather", 0, 1))

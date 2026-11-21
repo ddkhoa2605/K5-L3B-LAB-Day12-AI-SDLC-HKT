@@ -1,5 +1,6 @@
 {
   "contract_version": "1.2",
+  "extensions": ["reservations"],
   "team": "ten-nhom",
   "team_size": 4,
   "build_cmd": "true",
@@ -97,6 +98,7 @@
         ]
       }
     },
+    "reservations": {"count": 2, "table_hold_s": 30, "price_multiplier": 1.5, "failed_reputation_delta": -1},
     "freshness": {"initial": 100, "gather_decay_per_s": 0.5, "quan_decay_per_s": 0.25, "spoiled_below": 30},
     "score": {"reputation_multiplier": 100}
   }

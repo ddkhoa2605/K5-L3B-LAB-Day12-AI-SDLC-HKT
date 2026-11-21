@@ -23,7 +23,8 @@ CUSTOMER_STATES = ("waiting", "eating")
 ORDER_STATUSES = ("reserved", "assigned", "unfulfillable", "served")
 CUSTOMER_KEYS = {"id", "table_id", "dish_id", "order_tick", "state", "patience_ticks_left", "eat_ticks_left",
                  "order_status", "reserved", "base_price", "tip"}
-QUAN_KEYS = {"player", "stock", "hand", "stoves", "tables", "customers", "random_customers",
+QUAN_KEYS = {"player", "stock", "hand", "stoves", "tables", "customers", "random_customers", "reservations",
+             "random_reservations",
              "reputation", "time_left_ticks"}
 
 
@@ -166,6 +167,7 @@ def _validate_quan(b, tuning):
         raise BadInput("player.vel phải là [x, z]")
     q = tuning["quan"]
     menu = tuning["menu"]
+    _validate_reservations(b, tuning)
     if "random_customers" in b and not isinstance(b["random_customers"], bool):
         raise BadInput("random_customers phải là boolean")
     if "reputation" in b and not (_num(b["reputation"]) and q["reputation_min"] <= b["reputation"] <= q["reputation_max"]):
@@ -216,6 +218,40 @@ def _validate_quan(b, tuning):
                 raise BadInput(f"customers.{c['id']}.reserved phải là mảng id cá thể (chuỗi khác rỗng, không trùng)")
     if len(table_ids) != len(set(table_ids)):
         raise BadInput("hai khách cùng bàn")
+
+
+RESERVATION_KEYS = {"id", "table_id", "dish_id", "arrival_tick"}
+
+
+def _validate_reservations(b, tuning):
+    """Scenario Khách đặt trước (mở rộng `reservations`): mảng tường minh thay toàn bộ, tối đa `count` đơn."""
+    if "random_reservations" in b and not isinstance(b["random_reservations"], bool):
+        raise BadInput("random_reservations phải là boolean")
+    if "reservations" not in b:
+        return
+    cfg = tuning.get("reservations")
+    if cfg is None:
+        raise BadInput("quan.reservations cần bật mở rộng reservations trong manifest")
+    r = b["reservations"]
+    if not isinstance(r, list) or len(r) > cfg["count"]:
+        raise BadInput(f"quan.reservations phải là mảng tối đa {cfg['count']} đơn")
+    tables = {t["id"] for t in tuning["quan"]["tables"]}
+    dur = int(round(tuning["quan"]["duration_s"] * 60))
+    seen_ids, seen_tables = set(), set()
+    for i, x in enumerate(r):
+        if not isinstance(x, dict) or set(x) != RESERVATION_KEYS:
+            raise BadInput(f"quan.reservations[{i}] phải có đúng id, table_id, dish_id, arrival_tick")
+        if not isinstance(x["id"], str) or not x["id"] or x["id"] in seen_ids:
+            raise BadInput(f"quan.reservations[{i}].id phải là chuỗi khác rỗng, duy nhất")
+        seen_ids.add(x["id"])
+        if x["table_id"] not in tables or x["table_id"] in seen_tables:
+            raise BadInput(f"quan.reservations[{i}].table_id phải là bàn có thật, mỗi đơn một bàn khác nhau")
+        seen_tables.add(x["table_id"])
+        if x["dish_id"] not in tuning["menu"]:
+            raise BadInput(f"quan.reservations[{i}].dish_id phải là món trong menu")
+        t = x["arrival_tick"]
+        if isinstance(t, bool) or not isinstance(t, int) or not (1 <= t < dur):
+            raise BadInput(f"quan.reservations[{i}].arrival_tick phải là số nguyên dương nhỏ hơn thời lượng ca ({dur})")
 
 
 def _check_dish(name, d, menu):

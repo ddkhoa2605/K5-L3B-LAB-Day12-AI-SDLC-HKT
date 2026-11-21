@@ -68,6 +68,12 @@ class Session:
         return [{"type": "event", "tick": self.tick, "phase": self.sim.phase, "name": n, "data": data}
                 for n, data in events]
 
+    def initial_events(self) -> list:
+        """Event phát ở tick 0 ngay sau snapshot tick 0 (quán độc lập công bố Khách đặt trước lúc dựng pha)."""
+        fn = getattr(self.sim, "initial_events", None)
+        return [{"type": "event", "tick": 0, "phase": self.sim.phase, "name": n, "data": d}
+                for n, d in (fn() if fn else [])]
+
     def end_row(self) -> dict:
         sim = self.sim
         score = _common(sim, self.tick, self.sim_tick, self.sim_tick, self.tuning, "")["score"]
@@ -88,6 +94,8 @@ def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every, i
     w = JsonlWriter(out_path)
     try:
         w.write(sess.snapshot())  # tick 0: sau khi dựng scenario, trước mọi input
+        for row in sess.initial_events():
+            w.write(row)
         last_snapped = 0
         while sess.tick < ticks and not sess.done:
             inp = player.advance(sess.tick)  # bước k đọc input có tick == k
