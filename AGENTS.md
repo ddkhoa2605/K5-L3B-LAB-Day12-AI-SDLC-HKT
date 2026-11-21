@@ -4,19 +4,24 @@
 
 ## Lệnh
 - Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v`
-- Headless: `python3 -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
-- Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan` (mở địa chỉ in ra; WASD, E, Space, R)
+- Headless: `python3 -m chonoi.headless --mode gather|quan|day --seed 1 --ticks 600 --out out.jsonl` (`day` thêm `--days 1..5`; scenario `--scenario`, input `--inputs`; kho file chỉ ở gather/quan: `--inventory-out`, `--inventory`)
+- Chơi trên trình duyệt: `python3 -m chonoi.live --mode day --days 5` (hoặc `gather` / `quan`); mở địa chỉ in ra; WASD, E, Space, Esc/P tạm dừng, R chơi lại, F3 xem FPS. Windows: đặt `PYTHONIOENCODING=utf-8`.
+- Kiểm tất định: `python3 tools/check_determinism.py --mode gather|quan` · smoke hai tiến trình: `python3 tools/smoke_integration.py` · thành viên: `python3 tools/check_team.py`
+- Contract v1.3: `bench_cmd` = `python3 tools/bench.py --seed 42 --duration 30 --out bench.json` (cần Chrome), `soak_cmd` = `python3 tools/soak.py --seed 7 --days 10 --out soak.json`
 
 ## Cấu trúc & quy ước
 - (Starter Python là TÙY CHỌN; nhóm có thể dùng ngôn ngữ khác nếu giữ Test Contract.) Khung do giảng viên cấp: `chonoi/{headless,inputs,scenario,contract,rng,ids,jsonl,inventory,runner,live}.py` và `chonoi/web/`. Hạn chế sửa; nếu phải sửa thì báo cả nhóm và ghi lại lý do.
-- Luật chơi của nhóm: `chonoi/sim/gather.py`, `chonoi/sim/quan.py` (tìm `TODO(nhóm)`).
+- Luật chơi của nhóm: `chonoi/sim/gather.py`, `chonoi/sim/quan.py`; vòng ngày `chonoi/day.py`, tạm dừng `chonoi/pause.py`, độ tươi `chonoi/freshness.py`. Không còn `TODO(nhóm)`.
+- **Kho là kho CÁ THỂ (contract v1.2):** file kho `{"items":[{"id","kind","fresh"}]}`; kho đếm kiểu cũ trả mã 2. Độ tươi tính bằng số nguyên 240 đơn vị/điểm, ươn khi `fresh < 30`; id cá thể `I1, I2…` cấp bằng `IdAllocator`, tăng xuyên pha và Ngày.
+- Mở rộng bật trong manifest (`extensions`): `reservations` (Khách đặt trước), `burn` (cháy món, tắt khi `burn_s: null`). Fixture muốn "lõi thuần" đặt `random_reservations: false`.
+- Sửa module khung (`inventory, contract, headless, runner, live, inputs`) cần PR riêng + ADR (`docs/adr/`, hiện 0001–0005).
 - **Số liệu chỉ đọc từ `game.contract.json` / dữ liệu**, không hard-code trong luật.
 - Mọi số ngẫu nhiên đi qua `Streams` (`chonoi/rng.py`); không dùng `random` toàn cục, không dùng đồng hồ hệ thống.
 - Sắp danh sách thực thể bằng `ids.sort_by_id`; cấp id bằng `IdAllocator`.
 
 ## Nên tránh
 - Không sửa `docs/contracts/`, `game.contract.json` (khóa contract) hoặc schema kho khi chưa báo cả nhóm (đổi hợp đồng ảnh hưởng mọi module).
-- Không làm hỏng nhánh chính: trước khi đẩy, chạy test.
+- Không làm hỏng nhánh chính: trước khi đẩy, chạy test. Không đẩy thẳng `main`; gắn tag `phase-n` đúng mốc.
 - Không bịa yêu cầu: chỗ mơ hồ thì ghi `docs/clarify.md` và hỏi PO.
 - Không sửa test cho xanh khi luật sai; phải sửa luật hoặc ghi lý do đổi test trong commit.
 
