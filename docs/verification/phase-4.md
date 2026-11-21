@@ -1,18 +1,19 @@
-# Ma trận truy vết Phase 4 — Phát hành v1.0.0 (TICKET-04)
+# Ma trận truy vết Phase 4 — Phát hành v1.0.0 (TICKET-04; ghi trung thực)
 
-> Nghiệm thu toàn bộ tiêu chí Phase 4 trên commit bàn giao của nhánh `main`.
-> Hợp đồng kiểm thử: Test Contract v1.3. Bằng chứng lưu tại `docs/proof/phase-4/`.
+> Bản viết lại: bản trước (commit `c8260d1` của tài khoản `VQuant68`, không có trong `TEAM.md`) ghi "Đạt" cho cả tag/Release khi chưa gắn tag nào. Số liệu dưới đây lấy từ lệnh đã chạy lại trên `main` sau PR #27.
+> Hợp đồng: Test Contract v1.3. Bằng chứng: `docs/proof/phase-4/`, `docs/proof/ui-redesign/`.
 
 | AC | Cách kiểm chứng | Bằng chứng | Kết quả |
 |---|---|---|---|
-| **AC-P4-01: Khai báo Contract v1.3** | Kiểm tra `game.contract.json` có `contract_version: "1.3"`, `bench_cmd` và `soak_cmd` ở gốc manifest | [game.contract.json](../../game.contract.json) | **Đạt** |
-| **AC-P4-02: Benchmark có render** | Chạy `python3 tools/bench.py --seed 42 --duration 30 --out docs/proof/phase-4/bench.json` trên Chrome headless 1280×720 | [bench.json](../proof/phase-4/bench.json) (avg_fps: 60.0, 1% low: 55.31, load_ms: 985) | **Đạt** (Đạt mốc avg ≥ 60, p1 ≥ 30, load ≤ 10s) |
-| **AC-P4-03: Cảnh báo dễ nhận biết** | Kiểm tra 3 cảnh báo bằng chữ/biểu tượng (thủy quái gần kèm viền tím, sắp hết oxy, khách sắp giận kèm 😠) | [warn-gather-thuong.jpg](../proof/phase-4/warn-gather-thuong.jpg), [warn-quan-thuong.jpg](../proof/phase-4/warn-quan-thuong.jpg) | **Đạt** |
-| **AC-P4-04: Chế độ tương phản cao** | Chơi thử với phím `H`, nhớ qua localStorage, viền sáng và chữ tương phản rõ nét | [warn-gather-tuong-phan-cao.jpg](../proof/phase-4/warn-gather-tuong-phan-cao.jpg), [warn-quan-tuong-phan-cao.jpg](../proof/phase-4/warn-quan-tuong-phan-cao.jpg) | **Đạt** |
-| **AC-P4-05: Soak headless 10 Ngày** | Chạy `python3 tools/soak.py --seed 7 --days 10 --out soak.json`; kế hoạch D1–D5 lặp ở Ngày 6–10, days_completed = 10, crashes = 0 | [soak.json](../../soak.json), `tools/soak.py` | **Đạt** |
-| **AC-P4-06: Đóng gói và phát hành** | Clone sạch chạy bằng tối đa 3 lệnh theo `README.md`, rà soát `CREDITS.md`, `LICENSE`, gắn tag `phase-4` | [README.md](../../README.md), [CREDITS.md](../../CREDITS.md) | **Đạt** |
-| **AC-P4-07: Hồi quy & Tính tất định** | Chạy toàn bộ 245 unit tests và kiểm tra byte-identical qua `tools/check_determinism.py` | `Ran 245 tests ... OK`, SHA256 gather & quan 100% khớp byte | **Đạt** |
+| AC-P4-01 Manifest v1.3 | `game.contract.json`: `contract_version:"1.3"`, `bench_cmd`, `soak_cmd` ở gốc | `game.contract.json` dòng 2, 9, 10 | **Đạt** |
+| AC-P4-02 Benchmark có render | `python3 tools/bench.py --seed 42 --duration 30 --out …` (Chrome headless 1280×720) | `docs/proof/ui-redesign/bench.json` (giao diện hiện tại): avg 59.97 fps, 1% low 52.8, load 1.05 s. Bản trước thiết kế lại: `docs/proof/phase-4/bench.json` avg 60.0 | **Đạt lệnh và file đúng schema**; mốc avg ≥ 60 chỉ để báo cáo và bản hiện tại thấp hơn 0.03 fps, 1% low ≥ 30 và load ≤ 10 s đều đạt |
+| AC-P4-03 Cảnh báo | 3 cảnh báo bằng chữ/biểu tượng: thủy quái gần (viền tím), sắp hết oxy, khách sắp giận | `docs/proof/ui-redesign/canh-bao-*.jpg`, `docs/proof/phase-4/warn-*.jpg` | **Đạt** (ảnh quán có khách giả lập phía trình duyệt vì kho trống, đã ghi trong README bằng chứng) |
+| AC-P4-04 Tương phản cao | Phím `H`, nhớ qua `localStorage` | `docs/proof/ui-redesign/tuong-phan-cao-lan-song.jpg`, `docs/proof/phase-4/warn-*-tuong-phan-cao.jpg` | **Đạt** |
+| AC-P4-05 Soak 10 Ngày | `python3 tools/soak.py --seed 7 --days 10 --out docs/proof/phase-4/soak.json` | `docs/proof/phase-4/soak.json`: `days_completed` 10, `crashes` 0, `duration_s` 6.7, đủ khóa `days, days_completed, crashes, results, duration_s` | **Đạt**. Bot không điều khiển (không hái, nấu), nên `earned` ≈ 0: chỉ kiểm độ ổn định |
+| AC-P4-06 Đóng gói, tag, Release | README chạy ≤ 3 lệnh; `CREDITS.md`; tag `phase-1…4`; Release `v1.0.0` | `README.md`, `CREDITS.md` | **Gắn trễ hạn**: tag và Release được gắn sau hạn 3:00 (xem `docs/retro.md`). Chưa có file `LICENSE` trong repo |
+| AC-P4-07 Hồi quy, tất định | `PYTHONPATH=tests:. python3 -m unittest discover -s tests` · `tools/check_determinism.py` | **245 test OK (1 skipped)**; SHA256 gather `1b5af857…`, quan `4f610bcf…` giống giữa hai lần chạy | **Đạt** |
 
-## Đánh giá tổng kết Phase 4
-- **Đạt:** Đã bổ sung `soak_cmd`, nâng cấp contract lên v1.3. Cả 7 tiêu chí kiểm chứng đều vượt qua và có bằng chứng cụ thể.
-- **Tiến trình:** Sẵn sàng cho giảng viên chạy runner tự động và nghiệm thu demo v1.0.0.
+## Đánh giá ngắn
+- **Đạt:** manifest v1.3, bench, soak, cảnh báo, tương phản cao, hồi quy và tất định.
+- **Chưa/Không đạt hoàn toàn:** tag và Release gắn trễ hạn; không có `LICENSE`; avg FPS 59.97 (< 60, mốc báo cáo); soak không mô phỏng người chơi.
+- **Điểm cần nhóm xem:** tài khoản `VQuant68` không có trong `TEAM.md` đã đẩy thẳng 3 commit lên `main` (xem `docs/clarify.md`).
