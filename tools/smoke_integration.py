@@ -10,6 +10,13 @@ import subprocess
 import sys
 import tempfile
 
+for _stream in (sys.stdout, sys.stderr):  # Windows: console cp1252 không in được tiếng Việt
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
 
 def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
