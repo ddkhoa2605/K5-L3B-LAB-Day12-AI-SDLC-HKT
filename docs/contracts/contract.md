@@ -143,3 +143,61 @@ Dòng cuối của file: `{"type":"end","ticks","sim_tick","mode","state","reaso
 
 ## G. Chưa chốt (hỏi PO, xem `docs/clarify.md`)
 Ai làm vòng `--mode day` / Shop / pause / menu / HUD (lát 4); vị trí khóa `day_plan`, `shop` trong manifest (đang đặt dưới `tuning`).
+
+
+---
+
+# Phụ lục v1.2 (Phase 3, TICKET-03 "Mùa Nước Nổi")
+
+> Nguồn: TICKET-03 (lab board). **Thay thế** các điểm sau của v1.0/v1.1: kho đếm → kho cá thể; giữ theo lượng → giữ theo id; giá niêm yết → giá theo tươi. Chỗ nào không nhắc thì v1.1 vẫn đúng. Người giữ: Người 2. Đổi cần 2 approvals. ADR: `docs/adr/0003-inventory-individual-freshness.md`.
+
+## A. Schema file kho v1.2 (thay mục 1)
+```json
+{"items": [{"id": "I1", "kind": "ca_linh", "fresh": 100}, {"id": "I2", "kind": "ca_loc", "fresh": 97.5}]}
+```
+| Quy tắc | Chi tiết |
+|---|---|
+| Khóa gốc | Đúng `items`, giá trị là **mảng** cá thể `{id, kind, fresh}`; rỗng là `{"items": []}` |
+| Cá thể | `id` chuỗi duy nhất khác rỗng; `kind` ∈ 6 nguyên liệu; `fresh` số hữu hạn ∈ [0, 100] (bool, NaN, ngoài miền → mã 2); không có khóa thừa |
+| Kho đếm kiểu cũ `{"items": {kind: n}}` | **mã thoát 2** (contract v1.2) |
+| Ghi | `gather --inventory-out` đúng một lần khi có `gather_end`; file tạm cùng thư mục + thay nguyên tử; ngất ghi `{"items": []}`; chạm `--ticks` trước `gather_end` giữ nguyên đường dẫn đích; sắp **theo id** (I2 trước I10); `fresh` giữ nguyên độ chính xác (float đầy đủ) để đọc lại giữ đúng nhánh ở ngưỡng 30 |
+| Quán | Nhận nguyên số lượng, id và độ tươi, **kể cả hàng ươn**; sức chứa giỏ chỉ áp lên giỏ |
+| `gather_end.data.inventory` | Cùng schema (độ tươi làm tròn 3 chữ số như JSONL) |
+| Cấp id | `I1, I2…` theo thứ tự vào giỏ, tăng xuyên pha và Ngày, không tái dùng kể cả khi cá thể đã dùng/bỏ; LIFO khi mất hàng theo thứ tự vào giỏ |
+
+## B. Manifest
+`contract_version: "1.2"`; `tuning.freshness {initial: 100, gather_decay_per_s: 0.5, quan_decay_per_s: 0.25, spoiled_below: 30}`. Triển khai tính bằng **số nguyên**: 240 đơn vị/điểm tươi (hao 2 đơn vị/tick ở gather, 1 đơn vị/tick ở quán; ươn khi `u < 7200`); hệ số không quy ra số nguyên đơn vị/tick → mã 2.
+
+## C. Luật độ tươi
+| Quy tắc | Cách xử lý |
+|---|---|
+| Hàng mới | `fresh = 100` lúc bắt/hái, bắt đầu hao từ **bước sau** |
+| Hao | Giỏ 0.5/s, kho quán 0.25/s (kể cả hàng đang giữ chỗ), kẹp đáy 0; pause dừng hao; món chín không hao; hàng thô ở Shop/chờ nhập không hao |
+| Ươn | `fresh < 30`: vẫn chiếm ô, **không dùng nấu**; phát `spoiled` đúng một lần khi đi từ ≥ 30 xuống < 30; nhiều cá thể cùng vượt → theo id; so ngưỡng **trước** làm tròn |
+| Giữ chỗ (thay giữ theo lượng) | Mỗi loại trong công thức lấy cá thể khả dụng (chưa ươn, chưa bị giữ) **tươi nhất, hòa id nhỏ**. Phần giữ có cá thể vừa ươn → nhả **toàn bộ** phần giữ của đơn và thử giữ lại **đúng một lần**; xử lý các đơn bị ảnh hưởng theo `order_tick` rồi id bàn; không đủ → đơn thường `unfulfillable`, khách chờ tới hạn |
+| Giá (thay giá niêm yết) | Khi bắt đầu nấu: tiêu đúng các id đang giữ, `base_price = floor(giá niêm yết × trung bình fresh các cá thể dùng / 100)`; boa `floor(tiền món × 0.2)` trên giá đã chốt; điểm vẫn `earned + 100 × floor(reputation)` |
+| `day` | Bàn giao trong **cùng tick** chuyển pha, hàng không hao thêm; quán chạy từ bước sau. Ngày 1 giữ id mẫu `gather.hold`; Ngày kế cấp id mới theo thứ tự mảng với `kind/fresh` ban đầu |
+
+## D. Thứ tự trong tick (bổ sung cho mục E v1.1)
+- **Gather:** đồng hồ, cooldown, hồi nút, **độ tươi của hàng có sẵn** → (dòng lũ) → bơi, oxy, ngạt → (Lao) → thủy quái/hit → bến trước hái → bắt cá → hết giờ. Hàng rơi theo LIFO.
+- **Quán:** đồng hồ và timer → **hao tươi kho thô, phát hết `spoiled` theo id, rồi xử lý giữ chỗ bị ươn** → món chín/cháy → di chuyển + tối đa một tương tác → thanh toán, kiên nhẫn/đóng ca → (đặt trước) → khách thường.
+
+## E. JSONL và scenario
+- Snapshot: `hold` (gather), `stock` (quán và Shop), `customers[].reserved` là mảng cá thể/mảng id; `cook_started.data.items` mảng cá thể sắp theo kind rồi id; `lost` (faint, `monster_hit`) mảng cá thể theo thứ tự bỏ LIFO. Dung sai quan sát độ tươi ±0.01.
+- Event mới: `spoiled {item_id, kind, location: "hold"|"stock"}`.
+- Scenario: `gather.hold`, `quan.stock` là mảng cá thể; `customers[].reserved` là **mảng id**; id vật lý duy nhất giữa các nơi chứa; phần giữ phải trỏ tới cá thể chưa ươn trong kho, đủ công thức, không dùng chung đơn khác; thiếu `reserved` cho đơn `reserved` → cấp theo `order_tick` rồi id bàn (tươi nhất, id nhỏ); sai/mâu thuẫn → mã 2. Khóa `gather.monsters` hiện chỉ nhận mảng rỗng.
+
+## F. Ai làm gì trong v1.2
+| Hạng mục | Người nhận | Trạng thái |
+|---|---|---|
+| Schema kho, `freshness.py`, scenario, Quán, `day` | Người 2 | PR lõi |
+| Gather: hao tươi/`spoiled`/`lost` | Người 2 (adapter tối thiểu) → **Người 1 duyệt/sở hữu** | PR lõi (commit riêng) |
+| HUD độ tươi/ươn (số, thanh, nhãn hoặc biểu tượng) | Người 3 | chưa |
+| Dòng nước lũ (`gather.current`), `monsters[]`, `monster_hit.lost` | Người 1 | chưa (không bắt buộc cho nhóm 4 người) |
+| Khách đặt trước (`reservations`) | Người 2 | sau lõi |
+
+## G. Mở rộng "Khách đặt trước" (khai `extensions: ["reservations"]`) — Người 2
+Manifest `reservations {count: 2, table_hold_s: 30, price_multiplier: 1.5, failed_reputation_delta: -1}`. Mỗi Ngày công bố 2 đơn R1, R2 (hai bàn khác nhau, món trong kế hoạch, `arrival_tick` ∈ [1800, 10799], có thể cùng tick); quán độc lập công bố lúc dựng pha và dùng menu đầy đủ. Trạng thái `scheduled → holding → waiting → served | failed`. Giữ bàn từ `max(0, arrival_tick − 1800)`; đến giờ: bàn còn khách → fail `occupied`; bàn trống nhưng thiếu kho → fail `stock`; thành công → giữ nguyên liệu, phát `reservation_arrived` rồi `customer_arrived`; kiên nhẫn 60 s; giá cuối `floor(giá đã chốt theo tươi × 1.5)` rồi mới tính boa; `served` rồi `reservation_served`. Lỡ đơn (stock/occupied/burnt/patience/closing): nhả hàng/bàn, hủy món, uy tín −1 một lần, `reservation_failed` thay nhánh rời (không cộng phạt khách thường); món cháy → `dish_burnt` `order_status:"failed"` trước. Scenario `quan.reservations[]` `{id, table_id, dish_id, arrival_tick}` (thay toàn bộ, tối đa 2, bàn khác nhau, tick nguyên dương nhỏ hơn thời lượng ca chuẩn), `quan.random_reservations:false`. Snapshot gather (trong `day`) và quán có `reservations[]` kèm `state`; quán thêm `customers[].reservation_id`, `tables[].reservation_id` (`null` khi không có). Event: `reservation_announced {reservation_id, table_id, dish_id, arrival_tick}`, `reservation_arrived {reservation_id, order_id}`, `reservation_served {reservation_id, order_id, base_price}`, `reservation_failed {reservation_id, reason, reputation}`.
+
+## H. Điểm chưa rõ (ghi `docs/clarify.md`)
+Thứ tự `spoiled` so với `node_regrown` trong một bước; sắp `stock`/`hold` trong snapshot (đang: `stock` theo id, `hold` theo thứ tự vào giỏ); khách chưa nấu có `base_price = 0` (không đổi); stream RNG cho đặt trước.
