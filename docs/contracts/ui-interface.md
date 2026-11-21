@@ -172,81 +172,98 @@ Tên trường và event khớp phụ lục v1.1 của `contract.md` (#6); nếu
 
 Phạm vi lõi: thủy quái chỉ có **Cá Sấu Năm Chèo** (M1, M2 từ Ngày 3). Rắn Hổ Mây, Lao xua, Vợt, Cháy món, Chợ Chú Sáu, Sổ tay/Cá Hô, Cài đặt/âm thanh nằm trong bảng **Mở rộng**, nhóm 4 người không bắt buộc.
 
-## A. Kênh truyền `chonoi.live` — đã làm ở #14 (ADR-0002, Người 2)
+## A. Kênh truyền `chonoi.live` v1.1 — đã có trên `main` (#14, ADR-0002)
 
-#14 thêm `--mode day --days N`; `/input` nhận `pause`, `shop_done` và `buy` (áp đúng một bước); thống kê DayResult/Summary gom trong `stats` ở `/state`. UI đọc theo #14, không làm lại.
+| Thành phần | Trên `main` |
+|---|---|
+| CLI | `python3 -m chonoi.live --mode day [--days N]` (N ∈ 1..5). Mở ở menu chính |
+| `POST /input` | Thêm `pause`, `shop_done` (boolean, sim bắt **cạnh lên**: client gửi `true` rồi `false`, không giữ) và `buy` (chuỗi `"oxygen"`/`"hp"`, server áp **đúng một bước** rồi xóa) |
+| `meta` | Ở `day` là tuning của **pha hiện tại** (`gather` hoặc `quan`), không phải toàn bộ tuning |
+| Khóa `/state` thêm ở `day` | `menu` (đang ở menu chính), `stats`, `days_total`, `shop` (= `tuning.shop`), `menu_data` (= `tuning.menu`) |
+| `stats` | `{day: {served, left, tips, earned, reputation_start}, served, left, tips, sold: {dish_id: n}}`: server tự cộng theo Ngày và cả lượt |
+
+Các khóa này **chỉ có ở `/state`**, không có trong snapshot headless, nên Test Contract không đổi.
 
 ## B. Các màn hình — [T] (TICKET-02, mục Menu, pause và HUD)
 
 Vòng ngày [T]: `DayIntro → gather → EveningIntro → quan → DayResult → Shop → DayIntro…`, tổng kết sau Ngày 5. Shop đóng sớm được.
 
-| Màn hình | Ticket yêu cầu hiện [T] | Lấy số liệu từ đâu (gợi ý cài đặt) |
+| Màn hình | Ticket yêu cầu hiện [T] | Lấy số liệu từ đâu |
 |---|---|---|
-| Menu chính | Chơi và Thoát | Chỉ ở client |
+| Menu chính | Chơi và Thoát | `menu` trong `/state` |
 | DayIntro | Ngày và danh sách Má Tư đọc; **tự chuyển sau 4 s hoặc khi nhấn phím** | `day`, `day_plan.dishes`, `day_plan.ingredients` |
 | EveningIntro | Số lượng nhập kho và món nấu được | `stock` đầu pha quán; món trong `day_plan.dishes` có công thức ≤ `stock` |
-| DayResult | Khách đã phục vụ / bỏ đi, tiền, boa, thay đổi uy tín | `stats` của #14, hoặc đếm `paid`, `customer_left(patience)`, `quan_end` |
-| Shop | Mua Bình oxy, Áo phao; đóng sớm được; tự đóng khi hết giờ | `upgrades`, `shop.upgrades` (giá theo cấp), `money`, `time_left_ticks`; `bought` / `buy_failed` |
-| Summary | Tổng tiền, tổng điểm, uy tín, món bán chạy | `money`, `earned`, `score`, `reputation`; món bán chạy đếm `paid` theo món |
+| DayResult | Khách đã phục vụ / bỏ đi, tiền, boa, thay đổi uy tín | `stats.day`: `served`, `left`, `earned`, `tips`; uy tín thay đổi = `reputation` − `stats.day.reputation_start` |
+| Shop | Mua Bình oxy, Áo phao; đóng sớm được; tự đóng khi hết giờ | `upgrades`, `shop.upgrades` (giá theo cấp), `money`, `time_left_ticks`; event `bought` / `buy_failed` |
+| Summary | Tổng tiền, tổng điểm, uy tín, món bán chạy | `money`, `earned`, `score`, `reputation`; món bán chạy từ `stats.sold` |
 
 - [T] Cấp mua trong Shop chỉ có hiệu lực từ Ngày kế: HUD sáng tính oxy/Máu tối đa theo `active_upgrades`, không theo `upgrades`.
-- [ĐX] Màn Intro/Result tự gửi `pause` để không ăn tick của sim (1 Ngày không pause = 22.200 tick). Cần nhóm đồng ý.
+- Trên `main`, DayIntro/EveningIntro là lớp phủ **không tạm dừng sim**: tự đóng sau 4 s hoặc khi nhấn phím. Pause thật dùng Esc/P. Muốn các màn Intro tự pause thì phải sửa thêm `live.py`; hiện không cần, vì ticket không yêu cầu.
 
 ## C. Pause — [T]
 
-- [T] Esc/P tạm dừng. Menu pause làm mờ nền, có **Tiếp tục** và **Về menu**; thêm Cài đặt chỉ khi làm mở rộng.
+- [T] Esc/P tạm dừng. Menu pause làm mờ nền, có **Tiếp tục** và **Về menu**; thêm Cài đặt chỉ khi làm mở rộng. Trên `main`: Enter để tiếp tục, M để về menu.
 - [T] Dừng đồng hồ và mọi timer gameplay, kể cả trong Shop. Snapshot `state:"paused"`, event `paused` / `resumed`.
+- `pause` là **cạnh lên**: gửi `true` rồi `false`.
 - [ĐX] Animation trang trí (nước, đèn) chạy tiếp khi pause.
 
 ## D. HUD sáng v1.1
 
-| Thành phần | Ticket yêu cầu [T] | Nguồn | Đề xuất thêm [ĐX] |
-|---|---|---|---|
-| Máu | Có | `player.hp` / `hp_max` (4–5 khi có Áo phao) | Nhân vật nhấp nháy khi `invuln_ticks > 0` |
-| Oxy | Dưới 25% đổi màu / nhấp nháy | `player.oxygen_ticks` / `oxygen_max_ticks` | |
-| "Hết hơi!" | Khi oxy cạn | `oxygen_ticks = 0` dưới nước | |
-| Thời gian | Đổi màu khi còn ≤ 30 s | `time_left_ticks` ≤ 1.800 | |
-| Độ sâu | Có | `player.pos[1]` | Thước dọc tô 3 vùng nông/giữa/sâu (d < 10, 10–20, ≥ 20) |
-| Giỏ theo loại | Có | `hold`, `hold_count` / `hold_capacity` | |
-| Đã lấy / cần | Có ("HUD sáng hiển thị đã lấy/cần") | `day_plan.ingredients` và đếm `hold` | Đánh dấu ✓ khi đủ |
-| Hồi bắt | Có | `player.catch_cd_ticks` | |
-| Gợi ý hái / cập bến | Khi đến gần | Bán kính từ tuning, nút `ready` | |
-| "Thủy quái!" + **viền tím** | Khi có thủy quái **gần** | `monsters[]` | Ngưỡng "gần" = trong `detect_radius` của loài hoặc `state:"chase"` (ticket không định nghĩa, cần hỏi); mũi tên chỉ con ngoài khung nhìn |
+Cột "Trên `main`" ghi tình trạng `chonoi/web/index.html` (đọc code ngày 21/11/2026, **chưa kiểm bằng mắt**).
+
+| Thành phần | Ticket yêu cầu [T] | Nguồn | Trên `main` | Đề xuất thêm [ĐX] |
+|---|---|---|---|---|
+| Máu | Có | `player.hp` / `hp_max` | Có (tim) | Nhấp nháy khi `invuln_ticks > 0` |
+| Oxy | Dưới 25% đổi màu / nhấp nháy | `player.oxygen_ticks` / `oxygen_max_ticks` | Có (đổi màu) | |
+| "Hết hơi!" | Khi oxy cạn | `oxygen_ticks = 0` dưới nước | Có | |
+| Thời gian | Đổi màu khi còn ≤ 30 s | `time_left_ticks` ≤ 1.800 | Có | |
+| Độ sâu | Có | `player.pos[1]` | Có, chữ 14 px | Thước tô 3 vùng nông/giữa/sâu |
+| Giỏ theo loại | Có | `hold`, `hold_count` / `hold_capacity` | **Một phần**: ô màu theo loại, chưa có số đếm hay tên loại | |
+| Đã lấy / cần | Có | `day_plan.ingredients`, đếm `hold` | Có, chữ 14 px | ✓ khi đủ |
+| Hồi bắt | Có | `player.catch_cd_ticks` | Có, chữ 12 px | |
+| Gợi ý hái / cập bến | Khi đến gần | Bán kính trong `meta`, nút `ready` | Có | |
+| "Thủy quái!" + **viền tím** | Khi có thủy quái gần | `monsters[]` | **Chưa đúng**: dùng tạm `invuln_ticks > 0` (sau khi bị cắn), chưa có viền tím. Cần `monsters[]` từ gather v1.1 | Ngưỡng "gần" (xem H.1); mũi tên chỉ con ngoài khung nhìn |
 
 Thực thể mới [T]: `fish[]` nay bơi (cá linh d ∈ [3,12], cá lóc [8,20], cá kèo [22,28]); `fish_spawned`; `monsters[]` Cá Sấu M1/M2 với `state` patrol/chase/recoil; `monster_hit` có `lost` theo LIFO; `faint` có `cause:"monster"`. Cách vẽ (dáng, rung màn hình) là [ĐX].
 
 ## E. HUD quán v1.1
 
-| Thành phần | Ticket yêu cầu [T] | Nguồn | Đề xuất thêm [ĐX] |
-|---|---|---|---|
-| Đồng hồ ca | Có | `time_left_ticks` | |
-| Tiền ca | Có | `earned` − `earned` đầu pha quán (`shift_earned` chỉ có ở `quan_end`) | |
-| Uy tín | Có | `reputation` | |
-| Món + kiên nhẫn **tại từng bàn** | Đổi màu khi < 25% | `tables[].customer_id` → `customers[]` | Dạng phiếu order T1–T4 cố định trên màn hình, có icon nguyên liệu |
-| Tiến độ bếp / trạng thái món chín | Có | `stoves[]` B1, B2: `cook_ticks_left`, `state:"ready"` | |
-| Món đang cầm | Có | `hand` | |
-| Kho khả dụng | Có | `stock − Σ customers[].reserved`, 6 loại | |
+| Thành phần | Ticket yêu cầu [T] | Nguồn | Trên `main` | Đề xuất thêm [ĐX] |
+|---|---|---|---|---|
+| Đồng hồ ca | Có | `time_left_ticks` | Có | |
+| Tiền ca | Có | `earned` − `earned` đầu pha quán (`stats.day.earned`) | **Chưa**: đang hiện tổng `money` | |
+| Uy tín | Có | `reputation` | Có | |
+| Món + kiên nhẫn **tại từng bàn** | Đổi màu khi < 25% | `tables[].customer_id` → `customers[]` | Có | Phiếu order T1–T4 cố định trên màn hình |
+| Tiến độ bếp / món chín | Có | `stoves[]`: `cook_ticks_left`, `state:"ready"` | Có (số giây, chữ 11 px) | |
+| Món đang cầm | Có | `hand` | Có, chữ 11 px | |
+| Kho khả dụng | Có | `stock − Σ customers[].reserved` | **Chưa đúng**: đang hiện `stock` (kho vật lý, gồm phần khách đã giữ) | |
 
 ## F. Yêu cầu kỹ thuật — [T]
 
-- [T] Chữ không chân **≥ 18 px ở 1280×720**. Bằng chứng: ảnh chụp 1280×720 trong `docs/proof/phase-2/`.
-- [T] Bản chơi thường đạt trung bình **≥ 30 FPS ở 1280×720**. Bằng chứng: số đo ghi trong verification.
+| Yêu cầu | Trên `main` |
+|---|---|
+| Chữ không chân **≥ 18 px ở 1280×720**; bằng chứng: ảnh chụp trong `docs/proof/phase-2/` | **Chưa**: còn nhiều chữ 10–16 px |
+| Trung bình **≥ 30 FPS ở 1280×720**; bằng chứng: số đo trong verification | **Chưa đo** |
+| Kiểm bằng mắt Shop, EveningIntro, Summary, HUD quán | **Chưa** (#14 tự ghi nhận) |
+
 - [ĐX] Bộ đếm FPS bật bằng phím trong client để đo.
 - Tên hiển thị thêm (dữ liệu trình bày): `ca_keo` cá kèo, `keo_neo` kèo nèo; `canh_chua_ca_loc` Canh chua cá lóc bông điên điển, `ca_keo_nuong` Cá kèo nướng muối ớt, `lau_mam` Lẩu mắm miền Tây.
 
+**Việc thật còn lại của Người 3** (theo D, E, F): chữ ≥ 18 px; kho khả dụng; tiền ca; giỏ theo loại có số đếm; "Thủy quái!" + viền tím (khi có `monsters[]`); đo FPS; ảnh 1280×720; kiểm bằng mắt các màn hình.
+
 ## G. Lệnh gửi và phím
 
-| Phím | Gửi | Nguồn |
+| Phím (trên `main`) | Gửi | Nguồn |
 |---|---|---|
-| Esc / P | `pause` (cạnh lên; giữ phím qua đổi pha không tạo cạnh mới) | [T] |
-| Nút Xong trong Shop | `shop_done` | [T] (nút); phím Enter là [ĐX] |
-| Nút mua trong Shop | `buy:"oxygen"` / `buy:"hp"` | [T] (lệnh); phím 1/2 là [ĐX] |
+| Esc / P | `pause` (cạnh lên) | [T] |
+| Enter khi pause / M khi pause | `pause` (tiếp tục) / `POST /restart` (về menu) | [T] Tiếp tục, Về menu |
+| Enter trong Shop | `shop_done` | [T] đóng sớm |
+| 1 / 2 trong Shop | `buy:"oxygen"` / `buy:"hp"` | [T] mua |
 | Q, F | `attack`, `photo` | Chỉ khi bật mở rộng Lao xua / Sổ tay |
 
 ## H. Câu hỏi mở (v1.1)
 
 1. Ngưỡng "thủy quái gần" để hiện "Thủy quái!": ticket không định nghĩa. Đề xuất `detect_radius` của loài hoặc `state:"chase"`; ghi vào `docs/clarify.md` và hỏi Anh Năm.
-2. Màn Intro/Result có tự `pause` sim không (mục B, [ĐX])?
 
 ## Nguồn
 
