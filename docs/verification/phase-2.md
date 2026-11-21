@@ -1,4 +1,4 @@
-# Ma trận truy vết Phase 2 (phần của Người 2: Quán, hợp đồng, vòng ngày; ghi trung thực)
+# Ma trận truy vết Phase 2 
 
 > Chạy trên nhánh `feature/day-mode` (xếp chồng #2 → #5 → PR day-mode). **Chưa merge vào `main`, chưa gắn tag `phase-2`.** Khi merge xong, QA chạy lại trên commit bàn giao rồi cập nhật cột kết quả.
 > Bằng chứng: `docs/proof/phase-2/` (`unittest-day.txt`: 104 test OK; `day-integration.txt`; `integration.txt`).
