@@ -1,6 +1,6 @@
-# Hợp đồng giao diện `sim/*` ↔ `client/ui` — BẢN NHÁP chờ nhóm duyệt
+# Hợp đồng giao diện `sim/*` ↔ `client/ui`
 
-- Trạng thái: **đề xuất** (Người 3 soạn, ngày 21/11/2026). Cần Người 1 (gather), Người 2 (quán, Integrator) đồng ý trước khi chốt.
+- Trạng thái: **đã chốt** (Người 3 soạn ngày 21/11/2026; Người 2 review và merge qua PR #9, #12).
 - Nguồn: PRD-0 Phase 1 (lab board, Test Contract v1.0 mục D, E, F) + API sẵn có của `chonoi/live.py`.
 - Phạm vi: mục 2 trong `docs/contracts/README.md` ("UI đọc trạng thái nào, gửi lệnh nào") + bảng event mà UI nghe. Schema file kho (mục 1) do Người 2 giữ, không nằm ở đây.
 - Quan hệ với `docs/contracts/contract.md` (PR #1, #6): file này **chi tiết hóa mục 2** của `contract.md` cho phía UI (tọa độ hiển thị, chống lặp event, phản hồi theo event, công nghệ đồ họa). Nếu hai file lệch nhau thì **`contract.md` thắng**; sửa file này cho khớp.
