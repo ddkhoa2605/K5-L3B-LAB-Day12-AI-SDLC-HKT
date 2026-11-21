@@ -42,6 +42,8 @@ class QuanSim:
         self.patience_total = _ticks(t["patience_s"])
         self.eat_total = _ticks(t["eat_s"])
         self.interval_ticks = _ticks(t["customer_interval_s"])
+        # mở rộng `burn` (TICKET-02 mục 3): burn_s hữu hạn -> món ready quá lâu bị cháy; null = lõi, không cháy
+        self.burn_ticks = None if t.get("burn_s") is None else _ticks(t["burn_s"])
         self.random_customers = scenario.get("random_customers", True)
         p = scenario.get("player", {})
         self.pos = [float(c) for c in p.get("pos", t["start_pos"])]
@@ -140,6 +142,8 @@ class QuanSim:
             if s["state"] == "cooking" and s["cook_ticks_left"] == 0:
                 s["state"], s["ready_ticks"] = "ready", 0
                 events.append(("dish_ready", self._stove_data(s)))
+            elif (self.burn_ticks is not None and s["state"] == "ready" and s["ready_ticks"] > self.burn_ticks):
+                self._burn(s, events)
         # 3. di chuyển rồi tối đa một interact
         self._move(inp)
         if inp.pressed("interact"):
@@ -270,6 +274,21 @@ class QuanSim:
         events.append(("customer_left", {"order_id": c["id"], "table_id": c["table_id"], "reason": reason,
                                          "reputation": self.reputation}))
         self.customers.remove(c)  # phần giữ thô đi cùng khách
+
+    def _burn(self, stove, events):
+        """Món ready quá `burn_s`: bỏ món, nguyên liệu mất, bếp rảnh ngay; thử giữ lại ngay cho đơn."""
+        order_id, dish_id = stove["dish"]["order_id"], stove["dish"]["dish_id"]
+        stove["state"], stove["dish"], stove["cook_ticks_left"], stove["ready_ticks"] = "idle", None, 0, 0
+        c = self._customer(order_id)
+        c["base_price"] = 0
+        recipe = self.menu[dish_id]["recipe"]
+        avail = self._available()  # đơn này không còn giữ gì; nguyên liệu đã nấu không hoàn lại
+        if all(avail.get(k, 0) >= n for k, n in recipe.items()):
+            c["reserved"], c["order_status"] = dict(recipe), "reserved"
+        else:
+            c["reserved"], c["order_status"] = {}, "unfulfillable"
+        events.append(("dish_burnt", {"stove_id": stove["id"], "order_id": order_id, "dish_id": dish_id,
+                                      "order_status": c["order_status"]}))
 
     def _spawn(self, events):
         taken = {c["table_id"] for c in self.customers}
