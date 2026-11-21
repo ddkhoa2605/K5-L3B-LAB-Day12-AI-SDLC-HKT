@@ -201,3 +201,20 @@ Manifest `reservations {count: 2, table_hold_s: 30, price_multiplier: 1.5, faile
 
 ## H. Điểm chưa rõ (ghi `docs/clarify.md`)
 Thứ tự `spoiled` so với `node_regrown` trong một bước; sắp `stock`/`hold` trong snapshot (đang: `stock` theo id, `hold` theo thứ tự vào giỏ); khách chưa nấu có `base_price = 0` (không đổi); stream RNG cho đặt trước.
+
+---
+
+# Phụ lục v1.3 (Phase 4, TICKET-04 "Phát hành v1.0.0")
+
+> Gameplay, tuning, kho và JSONL **giữ nguyên v1.2**. v1.3 chỉ thêm hai lệnh ở gốc manifest. Người giữ: Người 2.
+
+## A. Manifest
+`contract_version: "1.3"`; khai ở **gốc** `game.contract.json`: `bench_cmd` (`python3 tools/bench.py`), `soak_cmd` (`python3 tools/soak.py`).
+
+## B. `bench_cmd` (Người 3, ADR-0005)
+`<bench_cmd> --seed 42 --duration 30 --out bench.json`: dựng cảnh buổi sáng bằng `chonoi.live`, mở client ở chế độ `?bench=` trong Chrome headless 1280×720, làm nóng 3 s, đo `--duration` giây. `bench.json` có đúng năm trường `avg_fps, p1_low_fps, frames, measured_s, load_ms`. Mã thoát: 0 thành công · 1 đo thất bại · 2 đầu vào sai hoặc thiếu Chrome. Mốc báo cáo (không chấm): avg ≥ 60 fps, 1% low ≥ 30 fps, load ≤ 10 s.
+
+## C. `soak_cmd` (`tools/soak.py`)
+`<soak_cmd> --seed 7 --days 10 --out soak.json`: chạy N Ngày trong **một tiến trình** headless, mỗi Ngày đi qua gather → quan → shop; kế hoạch D1–D5 lặp ở Ngày 6–10; tiền, tổng thu, uy tín, cấp nâng cấp, số Ngày và id cá thể tiếp tục xuyên suốt. `soak.json` có `days, days_completed, crashes, results, duration_s`; mỗi phần tử `results[]` có `day, earned, reputation, score` lúc Shop đóng. Mã thoát 0 khi `crashes = 0` và `days_completed = days`, ngược lại 1.
+Hạn chế hiện tại: bot không điều khiển (không hái, nấu, mua), nên `earned` ≈ 0 — công cụ kiểm độ ổn định và tính lặp, không kiểm chiến thắng.
+
