@@ -25,3 +25,11 @@
 | 21 | 21/11/2026 08:30 | Bắt cá ở mặt nước hoặc bấm `catch` khi đang cooldown? | Bỏ qua hoàn toàn, không phát sinh event và không đặt lại cooldown. | PO / PRD-0 |
 | 22 | 21/11/2026 08:35 | Bắt cá khi giỏ còn chỗ trống nhưng nhỏ hơn yield của đàn? | Phát `hold_full` (`action: "catch"`), không nhận một phần, giữ nguyên đàn cá, không đặt cooldown. | PO / PRD-0 |
 | 23 | 21/11/2026 08:40 | Đàn cá có bơi hoặc sinh thêm ở Phase 1 không? | Phase 1 đàn cá đứng yên, vị trí giữ nguyên. Bơi và sinh thêm thuộc Phase sau. | PO / Khung |
+| 24 | 2026-11-21 | Thứ tự  so với  trong một bước gather? | Giả định:  trước, rồi  (ticket: "đồng hồ, cooldown, hồi nút và độ tươi"). | Người 2 |
+| 25 | 2026-11-21 | / trong snapshot sắp thế nào? | Giả định:  (quán, Shop) và file kho sắp theo id (F2 trước F10);  giữ thứ tự vào giỏ (cần cho LIFO). | Người 2 |
+| 26 | 2026-11-21 | Ranh giới adapter gather: ai sở hữu hao tươi// trong ? | Người 2 viết adapter tối thiểu (commit riêng) để  không vỡ; Người 1 duyệt và sở hữu từ đó. Không đụng nút/cá/dòng lũ. | Người 2 → Người 1 |
+| 27 | 2026-11-21 | Ví dụ ticket dùng  trong scenario gather; khóa này thuộc gather v1.1 chưa cài. | Giả định: nhận  chỉ khi là mảng rỗng; khác rỗng → mã 2 cho đến khi Người 1 cài thủy quái. | Người 2 → Người 1 |
+| 28 | 2026-11-21 | Giá chốt khi nấu ở bước đầu của ca đã thấp hơn niêm yết 1 đơn vị (60 → 59) do kho hao ngay ở bước 1. Có đúng ý ticket? | Giả định: đúng (hao tươi xử lý trước tương tác theo thứ tự tick Quán); đã ghi CHANGELOG. Cần PO xác nhận. | PO |
+| 29 | 2026-11-21 | Khách chưa nấu có  bao nhiêu khi giá theo tươi? | Giữ nguyên v1.1: 0 cho đến  (giá chốt lúc nấu). | Người 2 |
+| 30 | 2026-11-21 | Stream RNG cho Khách đặt trước (R1,R2): tên nào? | Giả định:  (stream riêng, không đổi chuỗi của stream cũ). | Người 2 |
+| 31 | 2026-11-21 | Cập nhật phiên bản  khi mở rộng chưa làm hết (HUD, dòng lũ)? | Giả định: manifest tự nhận 1.2; phần chưa làm (HUD độ tươi — Người 3, dòng lũ — Người 1) ghi trung thực ở . | Người 2 |
