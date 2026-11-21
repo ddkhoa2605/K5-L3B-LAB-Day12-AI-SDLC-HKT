@@ -192,21 +192,21 @@ Hệ quả: `chonoi/web/index.html` đọc `hold[i]` như chuỗi và `stock` nh
 3. **Giá theo tươi:** HUD bếp/món hiển thị `base_price` đã chốt, không tính lại.
 4. Test UI chạy được với snapshot v1.2 (fixture ngưỡng trong ticket: `I1` ca_linh `fresh: 30` ươn ở tick 1).
 
-**Scrum/Release [T] (theo lịch TICKET-03 §3)**
-| Phút | Việc |
+**Nhịp phần UI (theo lịch TICKET-03 §3; điều phối, bảng tác động, CHANGELOG, tag, retro là việc của nhóm, không phải Người 3)**
+| Phút | Việc của Người 3 |
 |---|---|
-| 0–7 | Điều phối **bảng phân tích tác động** (module, file, test, người nhận) và quyết định đổi schema + thứ tự tích hợp, ghi vào `docs/clarify.md` hoặc ADR. Đề xuất thứ tự: (1) schema/adapter `chonoi/inventory.py` + test migration (file khung, **ADR-0003**); (2) Lặn, Quán, HUD song song; (3) bật v1.2 khi cả hai đầu sẵn sàng |
-| 7–25 | Làm adapter UI + HUD độ tươi. Phút 20: smoke bàn giao kho (`gather --inventory-out` → `quan --inventory --ticks 0`, so id/kind/fresh) + standup |
-| 25–32 | Bật v1.2 trên bản tích hợp, smoke hai tiến trình và `day`, regression P1–P2. Chốt **`CHANGELOG.md`** (breaking change: schema kho cá thể, cách cập nhật fixture), `docs/verification/phase-3.md` (AC-P3-xx → bằng chứng → kết quả), `docs/proof/phase-3/`. Retro nhanh: điều rút ra từ lần đổi kho → `docs/retro.md` |
-| 32–35 | Dự phòng; Người 2 gắn `phase-3` chậm nhất 2:30 |
+| 0–7 | Ghi dòng **HUD** vào bảng phân tích tác động của nhóm: file `chonoi/web/index.html`, test bị ảnh hưởng, người nhận = Người 3 |
+| 7–25 | Adapter UI đọc v1.1/v1.2 + HUD độ tươi/hàng ươn; kiểm bằng snapshot v1.2 của #17 (gather) khi có |
+| 25–32 | Kiểm HUD trên bản tích hợp đã bật v1.2 (gather, quan, `day`); chụp ảnh vào `docs/proof/phase-3/`, gửi Người 4 dòng AC phần HUD cho `docs/verification/phase-3.md` |
+| 32–35 | Dự phòng |
 
 **Đề xuất [ĐX]**: biểu tượng lá héo cho hàng ươn; sắp giỏ theo độ tươi khi hiển thị (chỉ hiển thị, không đổi thứ tự `hold`).
 
 ### 9.3 Tiêu chí nghiệm thu (phần Người 3)
 - [ ] HUD cho thấy độ tươi hoặc hàng ươn ở giỏ và kho quán, đọc được ở 1280×720 (chữ ≥ 18 px).
 - [ ] UI không lỗi với snapshot v1.2; kho khả dụng tính theo id.
-- [ ] Bảng tác động + thứ tự tích hợp đã ghi trong repo; `CHANGELOG.md` có breaking change.
-- [ ] `docs/verification/phase-3.md` và bằng chứng khớp commit gắn tag.
+- [ ] Dòng HUD có trong bảng tác động của nhóm.
+- [ ] Có ảnh HUD độ tươi trong `docs/proof/phase-3/`.
 
 ### 9.4 Rủi ro
 - Đổi schema kho chạm `chonoi/inventory.py`, `scenario.py`, `gather.py`, `quan.py`, `day.py` cùng lúc: dễ xung đột. Chốt thứ tự merge ở phút 0–7.
