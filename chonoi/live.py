@@ -32,6 +32,7 @@ from .scenario import load_scenario
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 TICK_S = 1.0 / 60.0
 MAX_BODY = 4096
+MAX_BENCH_BODY = 1 << 20   # ADR-0005: /bench nhận danh sách thời gian khung hình (vài chục KB)
 RECENT_EVENTS = 40
 
 
@@ -47,6 +48,8 @@ class LiveGame:
         self.inventory_out = inventory_out
         self._lock = threading.Lock()
         self._stop = threading.Event()
+        self.bench_reports = []            # ADR-0005: báo cáo từ trang ở chế độ ?bench=..., tools/bench.py đọc
+        self.bench_event = threading.Event()
         self._thread = None
         self._reset()
 
@@ -128,6 +131,14 @@ class LiveGame:
             snap["error"] = self.error
             return json.dumps(snap, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 
+    def bench_report(self, body: dict):
+        """ADR-0005: lưu một báo cáo benchmark do trang gửi (chỉ dùng bởi tools/bench.py, không đụng mô phỏng)."""
+        if not isinstance(body, dict) or "event" not in body:
+            raise ValueError("báo cáo bench phải là object có 'event'")
+        with self._lock:
+            self.bench_reports.append(body)
+        self.bench_event.set()
+
     def _meta(self):
         if self.mode != "day":
             return self.tuning[self.mode]
@@ -192,7 +203,7 @@ class _Handler(BaseHTTPRequestHandler):
             n = int(self.headers.get("Content-Length") or 0)
         except ValueError:
             n = -1
-        if n < 0 or n > MAX_BODY:
+        if n < 0 or n > (MAX_BENCH_BODY if path == "/bench" else MAX_BODY):
             self._send(400, b'{"error":"body sai"}')
             return
         raw = self.rfile.read(n) if n else b""
@@ -204,6 +215,8 @@ class _Handler(BaseHTTPRequestHandler):
                 self.game.set_input(body)
             elif path == "/restart":
                 self.game.restart()
+            elif path == "/bench":
+                self.game.bench_report(json.loads(raw.decode("utf-8") or "{}"))
             else:
                 self._send(404, b'{"error":"khong co"}')
                 return

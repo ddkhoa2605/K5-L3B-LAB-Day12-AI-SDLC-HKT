@@ -54,3 +54,28 @@ Hết giờ mỗi phase thì gắn tag rồi đi tiếp; chỗ chưa xong ghi tr
 
 - Dùng AI thoải mái; **không sao chép repo của nhóm khác**; bằng chứng phải thật.
 - Nhân vật, bối cảnh là bản gốc của lab; asset ngoài chỉ dùng CC0/CC-BY/MIT hoặc tự tạo, ghi nguồn trong `CREDITS.md`. Không commit API key, token, `.env`.
+
+## Giao diện (client trên trình duyệt) — nhóm HKT
+
+Yêu cầu: Python 3 (chỉ thư viện chuẩn) và một trình duyệt. Benchmark cần thêm Chrome hoặc Chromium.
+
+```bash
+python3 -m chonoi.live --mode day --days 5      # cả vòng ngày (menu, sáng, tối, Shop); mở địa chỉ được in ra
+python3 -m chonoi.live --mode gather            # chỉ buổi sáng · --mode quan --inventory kho.json: chỉ buổi tối
+python3 tools/bench.py --seed 42 --duration 30 --out bench.json   # benchmark có render (Chrome headless 1280×720)
+```
+
+| Phím | Tác dụng |
+|---|---|
+| WASD / mũi tên | Bơi (sáng) · đi (tối) |
+| E | Cập bến, hái (sáng) · nấu, bưng, phục vụ (tối) |
+| Space | Bắt cá khi lặn |
+| Esc / P | Tạm dừng (Enter: tiếp tục · M: về menu) |
+| 1 / 2 / Enter (Shop) | Mua Bình oxy / Áo phao / xong |
+| H | Bật/tắt tương phản cao (nhớ giữa các lần mở) |
+| F3 | Bật/tắt bộ đếm FPS |
+| R | Chơi lại |
+
+- **Cảnh báo:** "⚠ Thủy quái gần!" kèm viền tím, "⚠ Sắp hết oxy!", "⚠ Khách … sắp giận!" kèm 😠. Hàng ươn (độ tươi dưới ngưỡng `freshness.spoiled_below`) tô xám, có gạch, ghi "ươn".
+- **Benchmark:** ghi `avg_fps`, `p1_low_fps`, `frames`, `measured_s`, `load_ms` (ADR-0005). Kết quả đã chạy: [`docs/proof/phase-4/bench.json`](docs/proof/phase-4/bench.json).
+- Chi tiết hợp đồng sim ↔ UI ở `docs/contracts/ui-interface.md`.
