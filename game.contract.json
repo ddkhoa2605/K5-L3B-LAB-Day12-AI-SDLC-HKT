@@ -1,7 +1,7 @@
 {
   "contract_version": "1.2",
   "extensions": ["reservations"],
-  "team": "ten-nhom",
+  "team": "HKT",
   "team_size": 4,
   "build_cmd": "true",
   "run_cmd": "python3 -m chonoi.live --mode gather",
